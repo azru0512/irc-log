@@ -1,0 +1,67 @@
+14:41 < ChaoRui> chenwj_: http://blog.csdn.net/yearn520/article/details/6461047
+14:43 < chenwj_> ChaoRui: get_user_pages <- ?
+14:53 < ChaoRui> yes
+15:30 < ChaoRui> chenwj_: 那個 function 可用嘛
+15:31 < chenwj_> 還在看
+15:32 < ChaoRui> ok
+15:41 < chenwj_> ChaoRui: get_user_pages() - pin user pages in memory
+15:41 < chenwj_> mm/memory.c
+15:42 < ChaoRui> 是否可以用他來要一個 page 來存 pde/pt 等?
+15:42 < chenwj_> 感覺不太像
+16:13 < chenwj_> ChaoRui: http://blog.csdn.net/zhanglei4214/article/details/6653568
+16:35 < ChaoRui> chenwj_: 這邊看起來可以用 get-free-pages 跟 kernel 要一個page
+16:35 < ChaoRui> 然後一樣用 dev/mem 去寫
+16:35 < ChaoRui> 那應該ok
+16:36 < ChaoRui> 不過我用新的 kernel , 好像不能對 /dev/mem 做 mmap 了 QQ
+17:30 < ChaoRui> 可以試試看他說的方法嘛?
+17:38 < chenwj_> ChaoRui: http://blog.csdn.net/zhanglei4214/article/details/6653568 <- 底下那一段?
+17:40 < ChaoRui> 先用virt_addr = get_free_pages(GFP_KERNEL, order)分配内存，通过phy_addr = __pa(virt_addr)得到物理地址
+17:40 < chenwj_> root 權限...
+17:40 < ChaoRui> 先用 qemu 模擬阿 @@
+17:40 < chenwj_> 還是要動 vm ...
+17:41 < chenwj_> 對齁
+17:41 < ChaoRui> 我之前也是用 qemu 模擬的
+17:41 < ChaoRui> 因為這個動作要改 kernel
+17:41 < ChaoRui> host kernel
+17:41 < chenwj_> 我先把 citi 那邊欠了四個月的簽到單幹掉...
+17:42 < chenwj_> 為什麼要改 kernel?
+17:42 < ChaoRui> ㄟ~這時候應該說 guest kernel
+17:42 < ChaoRui> 要用到 kernel  function, 兩個方法, kernel module or syscall
+17:42 < ChaoRui> XD
+17:42 < ChaoRui> citi 要簽到單喔= =
+17:42 < chenwj_> y
+10:43 < chenwj_> ChaoRui: 你新增 syscall 是抓 kernel.org 的 source 下來改?
+10:43 < ChaoRui> 恩
+10:43 < ChaoRui> 上次是用 3.5 的版本改的
+10:44 < chenwj_> linux-3.4.7$ make mrproper; make ARCH=i386 menuconfig; make ARCH=i386
+10:44 < chenwj_> 編完之後就是 vmlinux ?
+10:44 < ChaoRui> 恩
+10:44 < ChaoRui> 不過要用 arch/x86/boot/zImage 去開機
+10:45 < chenwj_> oh
+10:45 < chenwj_> why?
+10:46 < ChaoRui> 用 vmlinux . 因為 image 太大 qemu 載入會出錯
+10:46 < chenwj_> 要用壓縮過的 kernel image 就是了
+10:46 < ChaoRui> 恩
+10:47 < chenwj_>  qemu-system-i386 -kernel arch/x86/boot/bzImage -hda ~/test/x86/disk-x86.raw -append "root=/dev/sda" -vnc :3
+10:47 < chenwj_> 會 panic
+10:47 < chenwj_> 可以吃你之前的 disk image 嗎?
+10:48 < chenwj_> kernel 是不是要加選項才能吃你的 disk?
+10:49 < ChaoRui> 應該要
+10:49 < ChaoRui> http://140.109.23.171/download/tmp/config-qemu-x86
+10:51 < chenwj_> 下載到 kernel source?
+10:51 < chenwj_> 要 rename 嗎?
+10:51 < ChaoRui> 放到 kernel source directory and rename to .config
+10:52 < chenwj_> ok
+10:52 < chenwj_> 這是 buildroot 的 config?
+10:53 < ChaoRui> 我針對 qemu 寫的 config
+10:53 < chenwj_> cool
+10:54 < ChaoRui> xd
+10:54 < chenwj_> 一般 x86 config 編出來的不能直接餵給 qemu??
+10:56 < ChaoRui> 一般的需要搭配 ramdisk
+10:58 < chenwj_>  一般的需要搭配 ramdisk <- 不懂
+10:59 < ChaoRui> 因為一般 config 把驅動都編譯成 module, 所以開機時需要透過 initrd 去把 hdd 驅動載入, kernel 才找得到 root filesystem
+11:00 < chenwj_> 這個在 qemu 會有問題，還是?
+11:02 < ChaoRui> 不會有問題~只是你需要另外做 initrd, 啟動 qemu 時用 -initrd initrd.img 才可
+11:02 < chenwj_> 了解
+11:02 < ChaoRui> 比較麻煩 lol
+11:02 < ChaoRui> ^^

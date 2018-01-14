@@ -1,0 +1,88 @@
+17:12 < chenwj> anyone familiar with x86 assembly?
+17:16 < ncopa> slightly
+17:32 < chenwj> ?
+17:32 < agraf_> chenwj: depends ;)
+17:32 < chenwj> depend on what?
+17:32 < agraf_> chenwj: depends on what you're getting at
+17:34 < chenwj> okay, I ask anyway
+17:34 < chenwj> I am running i386 guest os (the linux-0.2.img), and here is the input binary
+17:35 < chenwj> 0xc020a24e:  call   *0xc046f500
+17:35 < chenwj> and here is tcg ir
+17:35 < chenwj>  movi_i32 tmp2,$0xc046f500
+17:35 < chenwj>  qemu_ld32 tmp0,tmp2,$0x0
+17:35 < chenwj>  movi_i32 tmp1,$0xc020a254
+17:35 < chenwj>  mov_i32 tmp2,esp
+17:35 < chenwj>  movi_i32 tmp12,$0xfffffffc
+17:35 < chenwj>  add_i32 tmp2,tmp2,tmp12
+17:35 < chenwj>  qemu_st32 tmp1,tmp2,$0x0
+17:35 < chenwj>  mov_i32 esp,tmp2
+17:35 < chenwj>  st_i32 tmp0,env,$0x20
+17:35 < chenwj>  exit_tb $0x0
+17:36 < chenwj> It seems something is push on the stack before the call
+17:37 < chenwj> and the interesting thing is "$0xc020a254", which cause our modified binary translator hang
+17:37 < chenwj> so I would like to know what is on the stack
+17:38 < aledvink> hi. qemu arm machine parameter selection question. which is the best option in the machine list? in terms of features and which in
+                  stable/tested?
+17:39 < agraf_> chenwj: looks like a frame pointer, no?
+17:39 < chenwj> $0xc020a254 <- fp?
+17:39 < agraf_> hmm
+17:40 < agraf_> so it's writing 0xc046f500 to %esp-4
+17:40 < chenwj> since our translator generate trace for 0xc020a254, so I think not
+17:40 < agraf_> eh
+17:40 < agraf_> 0xc020a254 of course
+17:41 < agraf_> next_eip
+17:41 < agraf_> according to translate.c
+17:42 < agraf_> so that's the return address
+17:42 < chenwj> ok, ...
+17:42 < agraf_> which makes sense
+17:42 < agraf_> the call instruction is 2+4 bytes long
+17:42 < agraf_> (4 for the address)
+17:46 < chenwj> have to see why 0xc020a254 make the system hang
+17:48 < chenwj> I have a case which make kernel panic during boot,
+17:48 < chenwj> 0xc014198d:  test   %ebp,%ebp
+17:48 < chenwj> 0xc014198f:  je     0xc0141999
+17:49 < chenwj> But I have no clue why such simple code cause kernel panic...
+17:50 < chenwj> sad :/
+17:52 < agraf_> chenwj: panic can mean many things
+17:52 < agraf_> chenwj: often times, a panic is a BUG_ON macro
+17:53 < agraf_> chenwj: so maybe the code goes
+17:53 < agraf_> test ...
+17:53 < agraf_> je ...
+17:53 < agraf_> u2d
+17:53 < agraf_> ...
+17:53 < chenwj> ??
+17:53 < agraf_> and you're taking the wrong branch for whatever reason
+17:53 < chenwj> how do you know that?
+17:53 < agraf_> it's just a guess :)
+17:54 < chenwj> well, ....
+17:54 < chenwj> you're taking the wrong branch <- you mean the "test & je" goes wrong branch?
+17:54 < agraf_> yeah
+17:55 < chenwj> perhape wrong ebp
+17:55 < agraf_> could be anything really
+17:55 < agraf_> maybe ebp really contains a wrong value at that point
+17:55 < agraf_> then your bug is way earlier
+17:59 < chenwj> block (0xc014198d) -> trace (0xc014198d)
+18:00 < chenwj> we have block and trace. if I disable trace generation for 0xc014198d, everything is fine
+18:01 < chenwj> it just execute block
+18:04 < agraf_> well, what's the value of ebp at that point?
+18:05 < chenwj> any idea on how I can get it?
+18:07 < chenwj> break at the code cache, and look at guest ebp?
+18:11 < agraf_> hrm
+18:11 < agraf_> do you have breakpoints implemented yet? :)
+18:11 < agraf_> otherwise just add a printf() in your translated code :D
+18:12 < agraf_> by calling an op_helper
+18:13 < chenwj> ok
+18:13 < chenwj> can QEMU set breakpoint at code cache?
+18:14 < chenwj> like normal debugging procedure
+18:19 < pm215> chenwj: I think that "how can we design this kind of thing to be easy to debug" is an interesting research question in itself :-)
+18:19 < chenwj> ah, research question ;)
+18:19 < chenwj> you mean debug the code cache?
+18:21 < pm215> yeah, and generally narrowing down problems of the form "only shows up when doing llvm optimised compilation and not with the simple version"
+18:22 < chenwj> not with the simple version <- QEMU's TCG?
+18:23 < pm215> yep
+18:24 < chenwj> what's the difference? I mean you can/want debug both
+18:26 < pm215> yes, but since one is more complex you're likely to run into bugs which look like "boots with slow and simple TCG, behaves differently
+               somehow with LLVM", and you want to be able to quickly narrow that down to exactly what is going wrong (and ideally to get rid of
+               non-determinism due to timing/threading issues if possible)
+18:28 < chenwj> http://www.eecs.umich.edu/mibench/source.html <- is there newer mibench?
+18:36  * chenwj -> afk

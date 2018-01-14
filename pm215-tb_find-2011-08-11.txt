@@ -1,0 +1,38 @@
+17:36 < chenwj_> in tb_find_slow, there is a comment: find translated block using physical mappings
+17:36 < chenwj_> what is physical mapping? does it mean guest physical addr?
+17:39 < pm215> that's a guest physaddr, yes. (qemu never deals with host physical addresses)
+17:40 < pm215> code lookups are handled differently to data load/store lookups in TCG
+17:41 < chenwj_> I don't understand why tb_find_fast need to call tb_find_slow after the checking failed
+17:42 < chenwj_> when the checking will fail?
+17:42 < agraf_> chenwj_: IIRC find_fast is for qemu TLB hit
+17:43 < agraf_> chenwj_: and find_slow gets triggered on qemu TLB miss
+17:45 < chenwj_> for the checking, I mean "!tb || tb->pc != pc || tb->cs_base != cs_base || ..."
+17:49 < chenwj_> pm215: what's that exactly mean?
+17:50 < chenwj_> I guess tb_find_xxx only do code lookups?
+17:52 < pm215> agraf_: TCG TB lookups don't go through the TLB
+17:52 < pm215> chenwj_: yes, tb_find_xxx is for finding TBs ("translation blocks"), so code only
+17:52 < agraf_> ah, yeah, right
+17:52 < agraf_> they go through qemu's internal TB cache
+17:53 < pm215> TCG looks up a TB by the combination of (physical-address pc, cs_base, flags) -- if it already has a TB in its cache with the same
+               combination it reuses it
+17:54 < pm215> cs_base and flags contain any arbitrary information the particular target-specific translator wants to use to distinguish two TBs with the
+               same physical PC; "is the cpu in system or user mode?" is a common choice; most targets also put other flags in there
+17:55 < chenwj_> pm215: two TBs with the same physical PC? you mean virtual pc or not?
+17:55 < pm215> no, I mean physical
+17:56 < chenwj_> so qemu will translate GVA to GPA, then tb_find_xxx will use GPA?
+17:57 < pm215> ...hang on, let me check, I might be wrong
+17:58 < chenwj_> cpu_get_tb_cpu_state will return pc (eip + cs_base)
+17:58 < pm215> I'm sorry, I was wrong. we use (virtual-pc, cs_base, flags)
+17:59 < chenwj_> eip + cs_base <- virtual-pc
+18:00 < chenwj_> cs_base and flags are used to distinguish two TBs with the same virtual pc, right?
+18:00 < pm215> yes
+18:02 < chenwj_> if the checking fail, tb_find_slow will be called
+18:03 < chenwj_> it will find tb according the physical addr?
+18:03 < chenwj_> that's what the comment "find translated block using physical mappings" means?
+18:04 < pm215> well, tb_find_fast() has a quick lookup based on keeping one TB in a table hashed by virtual-pc; tb_find_slow() looks in a more complicated
+               data structure that tracks all the currently known TBs based on hashing the physaddr corresponding to the PC; if we can't find the TB there
+               either we go ahead and create it by translating the code
+18:04 < chenwj_> see
+18:06 < chenwj_> pm215: that help me a lot, thanks :)
+18:08 < pm215> nb that cs_base is named for its use on x86, but actually it's just 32 bits of data; some other targets use it for other purposes (eg sparc
+

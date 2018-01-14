@@ -1,0 +1,225 @@
+20:27 <@chenwj> sby: 我問你一下 http://llvm.org/devmtg/2011-11/
+20:27 <@chenwj> sby: location 那邊
+20:27 <@chenwj> sby: Take Hwy CA-87 South <-
+20:27 <@chenwj> sby: 這是說搭客運嗎?
+20:29 <+sby> chenwj: 不是
+20:29 <+sby> chenwj: 這是路線
+20:30 <@chenwj> sby: 路線?
+20:31 <@chenwj> sby: http://www.sjc.org/travelers.php?page=maps/to_here&exp=7
+20:31 <@chenwj> sby: 是地圖上 87 那條線嗎?
+20:31 <+sby> chenwj: yup
+20:32 <+sby> chenwj: 87號公路
+20:33 <@chenwj> sby: 所以他是說沿 87 號公路往南走?
+20:33 <+sby> chenwj: hmm
+20:34 <@chenwj> sby: 這是不是要坐計程車阿?
+20:35 <+sby> chenwj: 坐計程車最方便, 不然就要去查公車要怎麼坐
+20:35 <+sby> chenwj: 你可以用google maps的路線規劃 XD
+20:35 <@chenwj> sby: 好好 xd
+20:35 <+sby> chenwj: google maps 可以告訴你要搭什麼公車 (如果有的畫)
+20:35 <@chenwj> sby: 公車會便宜很多嗎?
+20:35 <+sby> chenwj: 當然會 XD
+20:35 <+sby> chenwj: 計程車還要給小費 XD
+20:36 <+sby> chenwj: 小費的錢就可以坐公車了
+20:36 <@chenwj> sby: 那他是投錢還是?
+20:36 <+sby> chenwj: 投錢
+20:36 <@chenwj> sby: 是投鈔票嗎? 還是硬幣?
+20:36 <+sby> chenwj: 一般不找錢
+20:36 <+sby> chenwj: 都可以
+20:36 <@chenwj> sby: 不找錢 投鈔票虧比較大 ||
+20:37 <+sby> chenwj: 通常都是整數, 一塊兩塊吧
+20:37 <@chenwj> sby: 恩恩
+20:38 <@chenwj> sby: 辦旅行支票會比較方便嗎?
+20:38 <@chenwj> sby: 還是也要帶現鈔?
+20:38 <+sby> chenwj: 不會 XD
+20:38 <@chenwj> sby: ㄟ...
+20:39 <+sby> chenwj: 旅行支票現在拿出國換好像也要手續費, 不一定比你在台灣換現鈔便宜
+20:39 <@chenwj> sby: 恩恩
+20:39 <+sby> chenwj: 而且還要固定地方���能換, 所以通常還是現鈔直接換好比較方便
+20:39 <@chenwj> sby: 你說旅支?
+20:40 <+sby> chenwj: 我說現鈔
+20:40 <+sby> chenwj: 旅支不方便
+20:40 <+sby> chenwj: 你有信用卡嗎?
+20:40 <@chenwj> sby: 有
+20:40 <+sby> chenwj: 恩
+20:40 <@chenwj> sby: 那這樣口袋要怎麼準備比較好?
+20:41 <@chenwj> sby: 就是 $$
+20:41 <+sby> chenwj: 有些信用卡和金融卡也可以在國外ATM提領現金
+20:41 <+sby> chenwj: 手續費不會很多
+20:41 <@chenwj> sby: 這個我有辦
+20:41 <+sby> chenwj: 恩
+20:41 <+sby> chenwj: 這個是以備不時之需
+20:41 <@chenwj> sby: 他 atm 介面跟這邊差不多吧?
+20:41 <+sby> chenwj: yup
+20:42 <+sby> chenwj: 你就看你大概會花多少就換多少現金就是了XD
+20:42 <@chenwj> sby: 好
+20:42 <+sby> chenwj: 可以稍微多估一點沒關係
+20:42 <@chenwj> sby: llvm 說他有 dinner
+20:42 <@chenwj> sby: 我不確定要不要花錢
+20:42 <+sby> chenwj: 只有一天是嗎?
+20:42 <+sby> chenwj: 還是每天?
+20:42 <@chenwj> sby: 對
+20:42 <+sby> chenwj: 只有一天?
+20:43 <@chenwj> sby: http://llvm.org/devmtg/2011-11/ <- 最下面
+20:43 <@chenwj> sby: 恩
+20:43 <@chenwj> sby: 看起他 llvm meeting 都只有一天
+20:44 <+sby> chenwj: hmm
+20:44 <@chenwj> sby: 我怕 dinner 其實是要自費
+20:44 <@chenwj> sby: 我不確定
+20:44 <+sby> chenwj: 一般 conference 的 banquet 都是含在註冊費
+20:44 <+sby> chenwj: 他註冊的時候沒說明嗎?
+20:44 <@chenwj> sby: 他這沒有註冊費
+20:45 <+sby> chenwj: 喔喔, 那我就不知道了
+20:45 <@chenwj> sby: 那我在寄信跟他問問
+20:45 <+sby> chenwj: hmm
+20:46 <@chenwj> sby: 天哪
+20:46 <@chenwj> sby: 第一次出國就跑這麼晚
+20:46 <@chenwj> sby: sigh
+20:46 <@chenwj> sby: 遠
+20:47 <@chenwj> sby: 我真的很怕我會走丟
+20:50 <+sby> chenwj: 我第一次出國也是自己一個人跑到紐約 XD
+20:50 <+sby> chenwj: 會問路就不用怕會走丟了 XD
+20:50 <@chenwj> sby: xd
+20:50 <@chenwj> sby: 你去紐約做啥?
+20:51 <+sby> chenwj: 參加研討會
+20:51 <@chenwj> sby: 喔喔
+20:51 <+sby> chenwj: 行前準備可以多做一些, 旅館和研討會附近的地圖可以先印出來
+20:51 <@chenwj> sby: 恩恩
+20:52 <+sby> chenwj: 或者你有 smart phone 的話
+20:52 <+sby> chenwj: 可以把地圖預先載進去
+20:52 <@chenwj> sby: 恩
+20:52 <+sby> chenwj: 有 GPS 定位就很難走丟了 XD
+20:52 <@chenwj> sby: 我這是路痴
+20:52 <+sby> chenwj: 我當年還沒有 smart phone 這種東西, 就印了一堆地圖 XD
+20:52 <@chenwj> sby: 還是問路好了
+20:53 <@chenwj> sby: 我聽說轉機會蠻花時間
+20:53 <@chenwj> sby: 從一個 terminal 走到另一個
+20:53 <@chenwj> sby: 有人說會蠻趕的
+20:53 <+sby> chenwj: hmm, 2hr 比較安全
+20:54 <+sby> chenwj: 你是要在哪轉機?
+20:54 <@chenwj> sby:  LA -> San Jose
+20:54 <+sby> chenwj: SFO?
+20:54 <+sby> chenwj: ohoh
+20:54 <+sby> chenwj: 坐哪間航空? 長榮?
+20:55 <@chenwj> sby: 先做國泰 (台北 -> 香港 -> LA)
+20:55 <+sby> chenwj: 所以要轉兩次? XD
+20:55 <@chenwj> sby: 再坐 America Eagle (LA -> San Jose)
+20:55 <+sby> chenwj: hmm
+20:55 <+sby> chenwj: 那這樣 LA 會比較花時間
+20:55 <+sby> chenwj: 你還要過海關
+20:56 <+sby> chenwj: 因為你是在 LA 入境
+20:56 <+sby> chenwj: 還要拿行李
+20:56 <@chenwj> sby: 你說國泰那班?
+20:56 <+sby> chenwj: 恩
+20:56 <+sby> chenwj: LA 那邊你要拿行李嗎?
+20:56 <@chenwj> sby: ?
+20:56 <@chenwj> sby: 什麼意思?
+20:57 <@chenwj> sby: 我打算只帶個背包去
+20:57 <+sby> chenwj: 一般轉機不用拿行李, 但是你在 LA 入境的話要搭下一班航班要先領行李
+20:57 <+sby> chenwj: 如果你沒行李就沒差
+20:58 <+sby> chenwj: 背包可以帶到飛機上
+20:58 <+sby> chenwj: 我剛剛是說要託運的
+20:58 <@chenwj> sby: LA (12:55 抵達) -> LA (15:25 出發到 San Jose)
+20:58 <@chenwj> sby: 恩恩
+20:58 <@chenwj> sby: 要想辦法塞行李了
+20:59 <+sby> chenwj: hmm, 這樣時間挺敢的
+20:59 <@chenwj> sby: 過海關 比較花時間?
+20:59 <+sby> chenwj: 恩
+20:59 <+sby> chenwj: 要排隊
+21:00 <+sby> chenwj: 等行李也花時間
+21:00 <+sby> chenwj: 你沒有要等的話可以省不少時間
+21:01 <@chenwj> sby: ok
+21:01 <@chenwj> sby: 應該沒什麼東西要帶
+21:01 <@chenwj> sby: 只有衣服
+21:01 <@chenwj> sby: 旅館會有盥洗用具嗎?
+21:23 <+sby> chenwj: 不一定
+21:23 <+sby> chenwj: 如果你是住 San Jose Marriott 的話那應該都有
+21:24 <+sby> chenwj: Marriott 我住過幾次, 還不錯 XD
+21:24 <+sby> chenwj: 連鎖的
+21:26 <@chenwj> sby: 原來是連鎖的
+21:26 <@chenwj> sby: meeting 也是在那邊辦
+21:27 <+sby> chenwj: hmm
+21:31 <@chenwj> sby: 我 11/19 號 checkout
+21:31 <@chenwj> sby: 是那天早上就要離開旅館嗎?
+21:32 <+sby> chenwj: 通常是中午之前
+21:32 <+sby> chenwj: 看旅館規定, 網頁應該都查的到
+21:32 <+sby> chenwj: 有的是規定11:00, 有的12:00
+21:32 <@chenwj> sby: 好
+21:33 <+sby> chenwj: 如果你下午還有行程, 通常checkout後可以把行李寄放在櫃台, 然後晚點再來拿
+21:34 <@chenwj> sby: 我搭 20:10 的飛機
+21:35 <@chenwj> sby: 可能只能在附近晃晃
+21:37 <+sby> chenwj: hmm
+21:37 <+sby> chenwj: San Jose 好像也沒什麼好玩的 XD
+21:39 <@chenwj> sby: = =||
+21:39 <@chenwj> sby: 我想在那邊寄明信片回來
+21:39 <+sby> chenwj: 恩
+21:40 <@chenwj> sby: 是不是要找 san jose 當地的郵局?
+21:40 <+sby> chenwj: 不用 XD
+21:41 <@chenwj> sby: 那要怎麼寄?
+21:41 <+sby> chenwj: 最簡單的方法, 直接拿給旅館的櫃檯請他幫你寄, 不過你要先貼好郵票
+21:41 <@chenwj> sby: 那郵票哪裡買?
+21:42 <+sby> chenwj: 郵票一般賣明信片的店可能會有
+21:42 <@chenwj> sby: 書店那一類的店?
+21:42 <+sby> chenwj: 或者是一些紀念品店或是小商店
+21:42 <+sby> chenwj: 書店也許會有
+21:42 <@chenwj> sby: 恩恩
+21:42 <+sby> chenwj: 不知道就問旅館櫃台 XD
+21:43 <@chenwj> sby: 好 xd
+21:43 <@chenwj> sby: 要我寄給你嗎? xd
+21:43 <+sby> chenwj: 如果你願意給他小費他可能也願意幫你買郵票幫你寄 XD
+21:43 <+sby> chenwj: 好啊, 直接寄到交大資工寫我名字就好 XD
+21:43 <@chenwj> sby: 嘖嘖
+21:44 <@chenwj> sby: 台灣這邊的地址要寫英文嗎?
+21:44 <+sby> chenwj: 中文也可以, 只要 Taiwan 寫英文就好 XD
+21:44 <+sby> chenwj: 反正美國郵差看到 Taiwan 就會丟到台灣
+21:45 <+sby> chenwj: 然後台灣人一定看得懂中文地址
+21:45 <@chenwj> sby: okok
+21:45 <+sby> chenwj: 全寫英文當然也可以
+21:45 <@chenwj> sby: from 就寫那邊的地址?
+21:45 <+sby> chenwj: from 應該不用寫, 明信片好像也不會退信
+21:46 <+sby> chenwj: 寄丟了就寄丟了
+21:46 <+sby> chenwj: 你不能期望他100%會寄到 XD
+21:46 <@chenwj> sby: 是喔
+21:47 <+sby> chenwj: yup
+21:47 <@chenwj> sby: 大概要多久時間會寄到台灣?
+21:47 <+sby> chenwj: 我聽說有人寫 ROC 結果送到大陸, 然後隔了好幾個月才轉到台灣 XD
+21:48 <+sby> chenwj: 一般至少半個月吧
+21:48 <@chenwj> sby: Check-in: 3:00 PM <- 這是 3:00 PM 之後才能 check in 嗎?
+21:48 <+sby> chenwj: yes
+21:49 <+sby> chenwj: 不過你提早到的話還是可以問旅館櫃檯
+21:49 <+sby> chenwj: 如果旅館已經有整理好的房間就會讓你
+21:49 <+sby> chenwj: check int
+21:49 <+sby> chenwj: in
+21:49 <+sby> chenwj: 如果沒有空房而且大家都中午才退房, 然後旅館還沒整理好房間
+21:49 <@chenwj> sby: Marriott 有提供早餐嗎?
+21:49 <+sby> chenwj: 就會要你等到三點
+21:50 <@chenwj> sby: 恩恩
+21:50 <+sby> chenwj: 看網頁比較準
+21:50 <+sby> chenwj: 通常應該有
+21:50 <@chenwj> sby: ok
+21:50 <+sby> chenwj: 我住過的 Marriott 印象中是有
+21:50 <+sby> chenwj: 有的旅館是要另外加錢才有早餐
+21:51 <@chenwj> sby: 那吃飯就要到外面吃?
+21:51 <+sby> chenwj: 看你啊 XD
+21:51 <@chenwj> sby: 我在想買包土司就好
+21:51 <+sby> chenwj: 你是說沒早餐的話嗎?
+21:51 <@chenwj> sby: 三餐
+21:51 <+sby> chenwj: 嗯, 你可以去附近超商買
+21:51 <+sby> chenwj: 或者是速食店 XD
+21:52 <+sby> chenwj: 速食店大概就比台灣在貴一點而已, 但是在美國算是很便宜的食物 XD
+21:52 <+sby> chenwj: 所以美國人才會胖 XD
+21:53 <@chenwj> sby: xd
+21:53 <@chenwj> sby: 泡麵一類的可以帶去嗎?
+21:54 <+sby> chenwj: 肉類不行
+21:54 <+sby> chenwj: 如果裡面有牛肉之類的步行
+21:54 <+sby> chenwj: 海鮮可以
+21:54 <@chenwj> sby: ok
+21:55 <+sby> chenwj: 簡單的規則就是不能夠自己到美國的就不行, 牛和豬不會游泳, 不能自己到美國 XD
+21:55 <+sby> chenwj: 魚和蝦就可以 XD
+21:55 <@chenwj> sby: 真簡單的規則
+21:55 <+sby> chenwj: ==4
+21:55 <@chenwj> sby: xd
+21:56 <+sby> chenwj: 要省錢就可以自己帶泡麵零食餅乾吐司 XD
+21:57 <@chenwj> sby: 美國海關有什麼規定網路上都查得到吧?
+21:57 <@chenwj> sby: 我怕帶了不該帶的食物
+21:58 <+sby> chenwj: 恩, 查的到
+

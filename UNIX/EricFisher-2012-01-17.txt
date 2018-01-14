@@ -1,0 +1,48 @@
+13:59 < chenwj> EricFisher: "依赖FILE的目标对象才会被重新构建" 是指 xxx: FILE 這一類的規則 xxx 會被 rebuild?
+14:00 < EricFisher> 对
+14:00 < chenwj> STAMP-FILE 是一個真正的 file 嗎?
+14:01 < EricFisher> 对，可以为空。
+14:02 < chenwj> "所以，这段代码的意思是说如果DEPENDENCIES有更新" 指的應該是 STAMP-FILE: DEPENDENCIES ...
+14:02 < chenwj> right?
+14:03 < EricFisher> 对
+14:09 < chenwj> 是否可以直接写成... 這邊我想要多問一點
+14:10 < chenwj> "只有当FILE的内容发生变化时，依赖FILE的目标对象才会被重新构建" 這句原本的想法是利用 move-if-change 來更新 FILE 的
+                timestamp，進而使得依赖FILE的目标被 rebuild?
+14:11 < EricFisher> 对的
+14:14 < chenwj> "问题在于如果DEPENDENCIES更新了，而FILE的内容没有变，则FILE的时间戳就不会更新" 指得是 "FILE: DEPENDENCIES" 這條
+                rule。"每当运行make时，都会执行这条规则中的命令" 這句話我不明白
+14:15 < chenwj> "执行这条规则中的命令" 是指哪條規則?
+14:16 < EricFisher> FILE: DEPENDENCIES 这个规则
+14:19 < chenwj> 唔...
+14:19 < EricFisher> 可能，直接读那个原文邮件，更好理解些，呵呵。
+14:24 < chenwj> 阿
+14:24 < chenwj> 我想重點是 STAMP-FILE 是為了這種情況
+14:25 < chenwj> 只有在 FILE 的內容有變的時候，才 rebuild 依賴於 FILE 的目標
+14:25 < EricFisher> 对。
+14:30 < chenwj> "使用STAMP-FILE则只需要在DEPENDENCIES更新的时候，执行一次这条规则中的命令即可。" 這是指哪一條?
+14:30 < EricFisher> 还是上面提到的那个规则，呵呵。
+14:31 < chenwj> 我的疑問是這樣
+14:32 < chenwj> DEPENDENCIES更新的时候，應該都會執行 "commands to create FILE.tmp ..." 不論是用 stamp-file 或是 naive 的寫法
+14:32 < chenwj> 對嗎?
+14:33 < yao_>  怎么还在讨论这个呢？
+14:34 < EricFisher> 是的。问题在于，如果不使用STAMP-FILE，那么即使DEPENDENCIES没有更新，也会执行这个命令。
+14:34 < EricFisher> yao_: 我把它发到hellogcc上了，呵呵
+14:34  * yao_ red it
+14:36 < chenwj> EricFisher: make 不是根據 dependency 有無更新再決定要不要執行之後的指令?
+14:36 < EricFisher> make是根据时间戳
+14:37 < EricFisher> 如果FILE的时间戳比DEPENDENCY的旧，那么就会执行。
+14:37 < chenwj> ok
+14:47 < chenwj> FILE: DEPENDENCIES 最後加上 touch $@ 不是也會更新 FILE 的 timestamp?
+14:48 < EricFisher> 注意，是STAMP-FILE: DEPENDENCIES
+14:49 < EricFisher> 所以，更新了STAMP-FILE的时间戳。
+14:49 < EricFisher> FILE的并没有更新，所以每次make，都会执行一次@true。
+14:49 < chenwj> 我是指 naive approach 後面加上 touch $@
+14:50 < EricFisher> 如果这样，那么FILE被更新，依赖FILE的目标对象也将被更新。
+15:01 < chenwj> 要使用 move-if-change 需要額外做什麼事嗎?
+15:01 < chenwj> make: move-if-change: Command not found <-
+15:01 < EricFisher> 把那个脚本弄过来就成了。
+15:01 < EricFisher> 那是GCC自带的脚本。
+15:02 < chenwj> 所以我要先 download gcc source code?
+15:02 < EricFisher> 不用了，我贴一个。
+15:04 < chenwj> thanks
+15:04 < EricFisher> http://paste.ubuntu.com/807105/

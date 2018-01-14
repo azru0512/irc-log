@@ -1,0 +1,7 @@
+# http://lists.cs.uiuc.edu/pipermail/llvmdev/2011-September/043623.html
+
+23:25 < chenwj> baldrick: grep pop lib/Target/X86/*.td <- nice shot
+23:35 <@baldrick> chenwj: I hope I wasn't too rude... :(
+23:37  * chenwj shrug
+23:37 < chenwj> then he can know how nice I am :)
+23:39 <@baldrick> :)

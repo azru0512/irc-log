@@ -1,0 +1,57 @@
+18:58 < chenwj_> any idea on how bash works differently (in qemu) from other userland program?
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+19:00 < stefanha> chenwj_: :)
+19:01 < pm215> it's not inherently any different from any other program. it may exercise different things, of course
+19:01 < chenwj_> stefanha: well, our binary translator doesn't handle exception occurred in the trace
+19:01 < stefanha> It's a shell so it will mess with signals and process hierarchies
+19:02 < chenwj_> I think I fix it, but bash just ...
+19:02 < stefanha> It also uses setjmp/longjmp
+19:02 < bonzini> pm215: i would expect signal handling to be tricky...
+19:02 < bonzini> oh, as stefanha said :)
+19:02 < stefanha> IIRC it did something weird like mmap/munmap over a heap allocated memory region.
+19:03 < stefanha> Not sure if any of that matters to qemu userspace
+19:03 < chenwj_> I have error msg like "bash: Out of virtual memory"
+19:03 < chenwj_> does it relate to mmap/munmap things?
+19:03 < stefanha> Okay, so brk or mmap are failing?
+19:04 < stefanha> I haven't looked at how qemu implements them but, yes, it could be confusing QEMU.
+19:05 < pm215> are you using a qemu with the latest linux-user pull (applied this weekend) ?
+19:06 < pm215> that included fixes for problems with that sort of symptom for 32 bit guests on 64 bit hosts
+19:07 < chenwj_> pm215: I mean our binary translator (with llvm)
+19:08 < chenwj_> besides original qemu code cache, we have another trace code cache
+19:08 < chenwj_> trace is composed of serveral blocks
+19:09 < pm215> yes, but I mean there was specifically a problem which meant that bash (and usually only bash) would complain in exactly this way
+19:09 < chenwj_> pm215: we're using 0.13
+19:10 < pm215> Oh. That is ancient, and almost certainly full of bugs
+19:10 < stefanha> :)
+19:10 < chenwj_> pm215: but that error doesn't appear in qemu 0.13
+19:12 < chenwj_> even gcc works fine. I have no clue how to track the bash problem
+19:12 < pm215> it is probably due to bash trying to use brk()
+19:13 < pm215> but you'll have to investigate yourself :-)
+19:13 < chenwj_> ok, what make brk so special?
+19:15 < pm215> brk specifically wants to allocate memory immediately after the data/bss segment of the loaded program
+19:15 < pm215> if something else has got in and mmap()ed in that space first the brk has to fail
+19:16 < pm215> turn on qemu's strace style logging and see whether things that ought to work are failing
+19:17 < chenwj_> you mean if something already immediately after the data/bss segment of the loaded program, brk fail?
+19:17 < pm215> yes
+19:17 < chenwj_> strace also work on system mode?
+19:18 < pm215> no
+19:18 < chenwj_> said
+19:19 < pm215> the strace-style logging is specifically logging "what syscalls did the guest user binary ask qemu to emulate", which is a meaningless
+               question in system mode
+19:19 < chenwj_> I am working on system mode
+19:19 < pm215> oh, right.
+19:20 < pm215> maybe it's just that bash is a more enthusiastic user of fork() than most apps
+19:22 < chenwj_> so maybe I should see how fork is handled in system mode?
+19:25 < pm215> it's not so much fork as that fork means there are now two processes which started with the same code and now potentially diverge, so if
+               you're not flushing the code cache properly it's more likely to get you into troubel
+19:26 < chenwj_> but when I kink in a command, it also fork, right?
+19:28 < pm215> yes, but most uses of fork are fork-then-almost-immediate-exec
+19:28 < pm215> bash tends to fork and then have both processes continue to execute the same code
+19:28 < pm215> so it's much more likely you'll have two different processes trying to use code you've already translated once
+19:29 < chenwj_> ok, the new one should translate it's guest binary or not (I guess the answer is yes)
+19:30 < pm215> well, they should share the translated code where it can be reused and hasn't had assumptions baked into it that don't apply any more, and
+               retranslate when it has to retranslate
+19:31 < pm215> I forget whether we actually manage to share code. possibly changing page table causes a tlb flush anyway though
+19:32 < chenwj_> IIRC, yes
+19:32 < pm215> but basically you just need to debug your problem. designing for ease of debugging this kind of thing is a key problem that any sort of
+               "offline better optimised translation" approach needs to solve IMHO

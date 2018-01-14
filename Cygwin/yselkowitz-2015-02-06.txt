@@ -1,0 +1,11 @@
+[09:32] <chenwj> I have a problem on executing mingw-compiled exe. It says error while loading shared libraries
+[09:33] <chenwj> seems it cannot find dll under /usr/x86_64-w64-mingw32/sys-root/mingw/bin/ dir
+[09:36] <chenwj> https://cygwin.com/ml/cygwin/2014-06/msg00334.html <- the only one solution?
+[09:37] <yselkowitz> chenwj, I use a script to launch mingw binaries to work around these issues
+[09:37] <yselkowitz> chenwj, http://fpaste.org/182258/
+[09:37] <yselkowitz> I call it mingw64
+[09:37] <yselkowitz> and I have a similar one called mingw32, the difference being s/x86_64/i686/g
+[09:38] <chenwj> yselkowitz: thanks :-)
+[09:39] <yselkowitz> np
+[10:46] <chenwj> https://www.cygwin.com/ml/cygwin-apps/2014-09/msg00046.html
+[10:47] <chenwj> cygport include share/doc in libXXX, not in libXXX-devel in my case

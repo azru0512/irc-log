@@ -1,0 +1,60 @@
+[09:54] <chenwj> hello :)
+[09:55] <chenwj> does openocd support ulink2?
+[10:20] <ttmrichter> I don't think so, no.
+[14:26] <PaulFertser> chenwj: it supports ulink me which is cmsis-dap capable. Ask keil if they probably have an updated firmware for ulink2 with cmsis
+[14:42] <chenwj> PaulFertser:  you mean if ulink2 has cmsis capablity, then openocd can work on it?
+[14:45] <PaulFertser> chenwj: yes, openocd can work with any cmsis-dap compatible adapter.
+[17:53] <chenwj> does anyone have experience on using openocd with ulink2 (cmsis-dap enabled) on windows?
+[17:54] <chenwj> it was success on linux, but on windows, I got message like "Error: unable to open CMSIS-DAP device"
+[18:05] <PaulFertser> chenwj: hm, so you confirm ulink2 with the latest firmware supports cmsis-dap?
+[18:05] <PaulFertser> chenwj: have you read README.Windows?
+[18:06] <PaulFertser> chenwj: have you probably installed some drivers for the device that prevent the regular HID access?
+[18:14] <chenwj> PaulFertser: the cmsis-dap enabled ulink2 was tested on linux, so I think the firmware is ok
+[18:15] <PaulFertser> chenwj: nice. Did you need to do anything to enable cmsis-dap? Or was it out of the box?
+[18:16] <chenwj> nope. I just build openocd with cmsis-dap enabled, and `sudo openocd` works like charm
+[18:16] <chenwj> I use Zadig to install the USB driver, but it doesn't work
+[18:16] <chenwj> ^^^^ on windows
+[18:16] <PaulFertser> chenwj: I wonder if you need some additional permissions on windows to use hidapi... BTW, on GNU/Linux you should better copy udev rules from contrib to avoid using sudo with openocd.
+[18:17] <PaulFertser> chenwj: ah, so probably that was what's wrong, you shouldn't install WinUSB for HID devices.
+[18:17] <PaulFertser> chenwj: was it before or after it didn't work with openocd?
+[18:17] <chenwj> both
+[18:18] <PaulFertser> chenwj: hm, I guess I should fix README.Windows regarding HID adapters, you shouldn't be changing default driver I guess.
+[18:18] <PaulFertser> I've seen cmsis-dap support working on windows xp I guess, on my coworker's machine.
+[18:18] <PaulFertser> chenwj: can you retry on windows having admin rights?
+[18:18] <chenwj> okay, I will restore the driver and try again.
+[18:20] <PaulFertser> Hm, they say admin rights are not required for hid devices.
+[18:20] <PaulFertser> Is it the same OpenOCD version?
+[18:21] <chenwj> both are version 0.8
+[18:21] <chenwj> I build openocd 0.8 on linux, and use the pre-built binary on windows
+[18:22] <PaulFertser> I wonder if it's possible some other software keeps ulink opened on windows.
+[18:23] <chenwj> probably no. I didn't install Keil-like IDE on windows
+[18:24] <PaulFertser> chenwj: then you can probably try "Process Monitor" to see what's going on.
+[18:26] <chenwj> any hint on what process should I take a look?
+[18:30] <ntfreak> chenwj: ULINK2 using CMSIS-DAP working fine on windows last time i tested - few months ago now. No extra drivers/permissions required.
+[18:31] <chenwj> ntfreak: good news. I will reinstall the driver and try again.
+[18:31] <PaulFertser> chenwj: openocd.exe
+[18:31] <PaulFertser> chenwj: when you start it
+[18:31] <ntfreak> reinstall what, CMSIS-DAP uses HID on windows.
+[18:32] <PaulFertser> ntfreak: following the advice in readme he installed winusb for the device.
+[18:32] <chenwj> ntfreak: I use Zadig to install another driver
+[18:32] <PaulFertser> I'll push a patch for review.
+[18:32] <ntfreak> ah ok
+[18:41] <chenwj> PaulFertser, ntfreak: thanks. the driver installed by Zadig mess things up
+[18:42] <chenwj> now it works. ;-)
+[18:42] <PaulFertser> chenwj: how does http://openocd.zylin.com/2506 look to you?
+[18:43] <chenwj> looks fine.
+[18:44] <PaulFertser> chenwj: I mean would that be enough for you to not make that mistake of installing winusb? :)
+[18:44] <PaulFertser> chenwj: also, I wonder, why it didn't work before you installed the driver?
+[18:45] <PaulFertser> It seems my suggestion to read the readme was actually misleading, sorry about that.
+[18:45] <chenwj> not sure, I don't remember the message I got.
+[18:46] <chenwj> since Zadig does the trick when I used  a jtag adapter, the first thing cross my mind is the driver problem.
+[18:48] <chenwj> got to go, bye :-)
+[09:44] <chenwj> PaulFertser: the problematic windows binary is downloaded from http://gnutoolchains.com/arm-eabi/openocd/ , the one built by freddie is okay.
+[09:45] <chenwj> PaulFertser: sorry, didn't notice that :-(
+[14:31] <PaulFertser> chenwj: heh. Did you see my MSYS2 mail? Probably it's now time for every Windows user to install msys2 so they can easily self-compile whatever version?
+[15:00] <chenwj> PaulFertser: what mail?
+[15:03] <PaulFertser> chenwj: http://article.gmane.org/gmane.comp.debugging.openocd.devel/26025
+[15:04] <chenwj> I can give it a try :)
+[15:05] <PaulFertser> chenwj: that would be nice. Also it seems there's no reason for a windows user to not use msys2, it's just an essential part of a sane working environment.
+[15:06] <PaulFertser> chenwj: you do not need the patch itself mentioned in that mail, it affects only documentation.
+[15:06] <PaulFertser> chenwj: my idea is that windows users should be able to self-compile openocd easily, hence pushing for msys2.

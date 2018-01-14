@@ -1,0 +1,32 @@
+17:10 < chenwj_> when guest OS want to modify page table entry, it will read the pte through cp15 first, right?
+17:11 < ChaoRui> root
+17:11 < ChaoRui> sorry, wrong message
+17:32 < chenwj_> pm215, pbrook ^^^
+17:42 < pm215> chenwj_: you need to read the ARM ARM to determine what is and is not valid for page table modifications
+17:42 < pm215> I don't know the details offhand so I would just be reading it and badly paraphrasing it
+17:45 < dunrong> pm215: hi
+17:45 < dunrong> pm215: can you take a look at this patch, http://lists.nongnu.org/archive/html/qemu-devel/2012-07/msg04358.html
+17:46 < chenwj_> dunrong: hi
+17:46 < dunrong> pm215: I resent it based your comment
+17:46 < dunrong> chenwj_: hi
+17:46 < chenwj_> are you working on arm? :)
+17:47 < dunrong> chenwj_: no, I am researching QEMU, mainly KVM
+17:48 < chenwj_> cool
+17:48 < chenwj_> maybe mips?
+17:48 < chenwj_> or you just improve kvm for x86/arm?
+17:49 < dunrong> no, VT-T
+17:49 < chenwj_> I only know VT-x
+17:50 < chenwj_> what's VT-T?
+17:50 < dunrong> sorry, VT-x
+17:50 < dunrong> :-)
+17:50 < chenwj_> oh
+17:50 < dunrong> does arm support KVM now?
+17:50 < chenwj_> in progress
+17:51 < dunrong> seems pm215 and you are working for it
+17:51 < chenwj_> not me
+17:51 < chenwj_> pm215 does
+17:53 < chenwj_> http://pankaj-techstuff.blogspot.tw/2007/12/initialization-of-arm-mmu-in-linux.html
+17:54 < chenwj_> found something interesting...
+17:54 < chenwj_> "few internal tweaks used for mapping arm page tables to x86 style page tables which linux memory management code expects"
+18:04 < pm215> linux will use something of a least common denominator approach, I doubt it makes full use of all the architectural possibilities for x86,
+               let alone ARM

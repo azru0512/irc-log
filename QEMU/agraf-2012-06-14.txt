@@ -1,0 +1,68 @@
+14:36 < chenwj> anyone mind to give me an overview on how kvm allocate guest physical memory to the vm? :)
+15:11 < agraf> chenwj: malloc() and memslots
+15:13 < chenwj> iirc, qemu w/o kvm allocates guest physical mem from its own virtual address space
+15:14 < chenwj> how about qemu with kvm?
+15:18 < agraf> chenwj: the same
+15:18 < chenwj> oh
+15:18 < agraf> chenwj: memslots provide maps from qemu va <-> guest pa
+15:20 < chenwj> I thought qemu is only for IO, never expect it also involved in memory stuff
+15:20 < chenwj> by memslot, you mean KVMSlot in kvm-all.c?
+15:27 < agraf> chenwj: check out KVM_SET_USER_MEMORY_REGION
+15:30 < chenwj> "userspace allocated memory" is qemu's virtual mem?
+15:34 < agraf> chenwj: yes
+16:45 < chenwj> agraf: the HVA involved makes me confused. from the study of EPT/NPT, I only see GVA -> GPA -> HPA, no HVA there.
+16:48 < stefanha> nandersson: KVM supports two similar features "virtfs" and "vvfat".  I don't use either of them because sshfs, NFS, or CIFS/SMB work well.
+16:49 < nandersson> stefanha, Ok, thanks a lot! I'll do some further investigation then! :)
+17:16 < agraf> chenwj: NPT does HVA -> GPA
+17:17 < agraf> chenwj: guest PT does GVA -> GPA
+17:17 < chenwj> then who does GPA -> HVA ??
+17:18 < agraf> chenwj: hrm
+17:18 < agraf> chenwj: no, you're right
+17:18 < chenwj> https://events.linuxfoundation.org/slides/2011/linuxcon-japan/lcj2011_guangrong.pdf <- p.11
+17:18 < agraf> chenwj: NPT does GPA -> HPA
+17:18 < agraf> chenwj: HVA -> HPA is done by the lazy mmu code in kvm
+17:18 < agraf> chenwj: so the NPT gets populated by translated HPA addresses
+17:19 < agraf> chenwj: for x86 that is - on s390 it's HVA :)
+17:26 < chenwj> agraf: the question still not answered. :) -> who does GPA -> HVA ?
+17:27 < chenwj> or I just too stuid to understand you right ;)
+17:31 < stefanha> QEMU does GPA -> HVA for device emulation code.
+17:32 < stefanha> cpu_physical_memory_map()
+17:33 < chenwj> then how about non-device code?
+17:33 < stefanha> Take a look at cpu_physical_memory_map(), there are a bunch of related functions which are called by other places in QEMU,
+17:33 < stefanha> but the point is that QEMU itself does the -> HVA translation
+17:34 < stefanha> and the reason why is because HVA is only useful if you are doing emulation.
+17:34 < chenwj> so instruction like "mov 0x1000,%eax" doesn't need HVA?
+17:34 < stefanha> You don't need this type of translation to execute guest code in kvm.ko.
+17:34 < chenwj> hmmm....
+17:35 < stefanha> chenwj: Like agraf mentioned, with NPT the guest instruction can be handled by the host CPU.  It will translate all the way to HPA.
+17:35 < stefanha> Because the host MMU has the guest page tables and the host page tables, it can do the full translation.
+17:36 < stefanha> That's why it's called Nested Page Table.
+17:37 < chenwj> GVA -> (guest page table) GPA -> (host page table) HPA, no HVA here?
+17:38 < stefanha> chenwj: QEMU passes the GPA -> HVA information to kvm.ko
+17:39 < stefanha> kvm.ko can then build NPT page tables.
+17:39 < stefanha> chenwj: If your guest code is being directly executed by the physical CPU, why do you need HVA?
+17:39 < stefanha> HVA is only need if you want to do emulation.
+17:40 < chenwj> kvm_set_user_memory_region (kvm-all.c) passes the GPA -> HVA information to kvm.ko, right?
+17:40 < stefanha> Yes, that sounds right
+17:43 < chenwj> executing guest code only needs HPA. I just want to know in that case if HVA involved or not (in the translation process)
+17:48 < stefanha> chenwj: Sure, HVA is a stage in the process.  But the whole process is done in hardware when NPT is available.
+17:50 < chenwj> neither guest or host page table stores HVA, I guess kvm does GPA -> HVA -> HPA first, then populates GPA -> HPA into ept?
+17:59 < stefanha> chenwj: I don't know the implementation in detail.  There are two code paths, NPT/EPT and shadow page tables.  Not sure what exactly they
+                  store.
+18:00 < chenwj> ok, I'll take a look
+18:01 < chenwj> agraf: lazy mmu code in kvm <-?
+18:05 < agraf> chenwj: yeah, imagine the guest wants to access HVA 0
+18:05 < agraf> eh
+18:05 < agraf> GVA
+18:05 < agraf> chenwj: guest PTE maps GVA 0 to GPA 0
+18:05 < agraf> chenwj: then hardware checks NPT
+18:05 < agraf> chenwj: NPT entry for 0 is empty
+18:05 < agraf> chenwj: so we get an NPT page fault
+18:06 < agraf> chenwj: kvm goes in, checks where GPA 0 is mapped (through memslots)
+18:06 < agraf> chenwj: finds it is at HVA x
+18:06 < agraf> chenwj: resolves HVA x to HPA y
+18:06 < agraf> chenwj: adds 0 -> y mapping to the NPT
+18:06 < agraf> chenwj: :)
+18:07 < agraf> chenwj: guest runs again, the memory access it did before would resolve GVA 0 -> GPA 0 -> HPA y
+18:07 < chenwj> ya
+18:08 < chenwj> but how does it resolve HVA x to HPA y, through what table?

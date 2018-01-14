@@ -1,0 +1,44 @@
+00:28 < apsyr> Hi, I have a instruction callback inserted in disas_insn in target-i386/translate.c. In the call back implementation, how do I get the
+               updated cpu env? I tried using cpu_single_env, but it seems out of sync. Is there some way to get the updated state in the helper fn?
+00:29 < apsyr> I found cpu_synchronize_state(), which, I guess syncs the state, but it seems like that needs kvm_enabled.
+00:32 < chenwj> apsyr: cpu_env?
+00:33 < apsyr> chenwj: I tried that, but it doesn't seem like that is updated.  Specifically, i want to get the eip and the raw bytes at eip.
+00:34 < apsyr> The execution happens block wise, right? So, is the env updated per block or per insn?
+00:41 < chenwj> apsyr: I think it's updated per block
+00:43 < agraf_> apsyr: you have to manually update pc in translate.c
+00:43 < chenwj> apsyr: you need the updated eip per insn?
+00:44 < agraf_> apsyr: take a look at instruction callbacks that could potentially fault, they all do it
+00:44 < chenwj> like?
+00:45 < agraf_> apsyr: gen_jmp(s, s->pc - s->cs_base);
+00:46 < agraf_> I think
+00:46 < agraf_> not sure
+00:46 < agraf_> *reading*
+00:46 < agraf_> the i386 target wraps everything in its own helpers :/
+00:46 < agraf_> it's gen_jmp_im
+00:47 < agraf_> gen_jmp_im(s->pc - s->cs_base);
+00:48 < chenwj> that's what you say "instruction callbacks"?
+00:48 < agraf_> no, I checked the IO permission check function
+00:48 < agraf_> and looked at what it does before it called its helper that could fault
+00:49 < agraf_> because every time you could potentially fault, you have to store RIP in env
+00:49 < agraf_> in all the other cases it's lazily updated
+00:49 < chenwj> see
+00:49 < agraf_> the only dynamic fault case is #PFs
+00:49 < chenwj> store RIP in env <- shoule be EIP?
+00:50 < agraf_> RIP is the x86_64 version of EIP
+00:50 < chenwj> oh...
+00:56 < chenwj> git.qemu.org/qemu.git is pretty slow
+00:56 < chenwj> it's ok to use repo.or.cz/qemu.git?
+00:56 < aliguori> yes
+00:57 < apsyr> agraf_, By callback, I mean a helper function. more specifically, in disas_insn(), I have gen_helper_insn_callback(tcg_const_i32(pc_start -
+               s->cs_base)).
+00:58 < agraf_> apsyr: the replace pc_start (which is the beginning of your TB) by s->pc and it should work
+00:58 < apsyr> agraf_, In insn_callback(addr), I do a cpu_memory_rw_debug(cpu_single_env, addr, insn_buf, MAX_INSN_BYTES, 0);
+00:58 < agraf_> apsyr: btw, you're leaking a TCG variable with the code above
+00:59 < apsyr> agraf_, Oh ok. I will try that. so, I don't need a tcg variable to pass right? I could just do gen_helper_insn_callback(s->pc - s->cs_base)
+01:00 < agraf_> apsyr: you need a TCG variable if that's how you want to pass it
+01:00 < agraf_> apsyr: but you also need to free it after you used it :)
+01:01 < apsyr> Okay. this might be rudimentary, but when is a TCG_i32 used and a tcg_const_i32? Is there a rule of thumb?
+01:01 < agraf_> tcg_const_i32 simply creates a new TCG_i32 variable
+01:01 < agraf_> with a constant value
+01:01 < apsyr> Okay. Thanks.
+01:03 < apsyr> agraf_, So, pc_start is the start of the code block, but the DisasContext is insn specific. is that correct?

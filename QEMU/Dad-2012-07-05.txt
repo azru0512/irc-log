@@ -1,0 +1,7 @@
+16:46 < chenwj> anyone know how many cycles vmentry/vmexit spend (roughly)?
+16:58 < Dad`> chenwj: ~800 ?
+16:59 < chenwj> any data back it up?
+17:02 < Dad`> look for vmware conf at usenix atc 12
+17:10 < chenwj> Dad`: this one? -> http://labs.vmware.com/publications/software-techniques
+17:11 < Dad`> yep :)
+17:15 < chenwj> thanks!

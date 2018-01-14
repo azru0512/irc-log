@@ -1,0 +1,37 @@
+22:56 < chenwj_> __gcc_personality_v0 is C personality routine?
+22:56 < chenwj_> or C++?
+22:57 < richi> the basic language independent one (so, C, yes)
+22:58 < chenwj_> __gxx_personality_v0 is C++ specific?
+22:59 < chenwj_> you say "basic language independent one", does this mean it can be used for any language?
+22:59 < chenwj_> or just for languages have no their own personality routine?
+22:59 < richi> it can be used for any language in some circumstances
+23:01 < chenwj_> any document on it?
+23:08 < t4nk382> hi
+23:14 < iant> chenwj_: __gcc_personality_v0 is the C personality routine
+23:14 < chenwj_> iant: but... richi> it can be used for any language in some circumstances
+23:15 < iant> it can certainly appear in a program written predominantly in some other language, if that is what you are asking
+23:15 < iant> because it can be used by C support routines linked into programs written in some other language
+23:16 < iant> but it will not be used directly by anything other than the C compiler, as far as I know
+23:18 < chenwj_> talk about personality routine, is there any document/article talk about it
+23:19 < iant> chenwj_: there is http://www.airs.com/blog/archives/464
+23:19 < chenwj_> for example, I'd like to know language has what personality routine
+23:19 < chenwj_> iant: it's your blog! :)
+23:19 < iant> well, yes
+23:20 < iant> I don't know of any actual list of personality routines, but they mostly all have the language in the name, except for the C one
+23:21 < chenwj_> you mean for lang A, its personality routine can be called "__A_personality_v0" something like that?
+23:21 < iant> yes, the name can be anything but in practice that is what all the languages use
+23:21 < chenwj_> i see
+23:22 < chenwj_> one more question,
+23:23 < chenwj_> cleanup attribute only works when we enable -fexceptions?
+23:23 < iant> the cleanup attribute works either way if the function returns normally
+23:24 < iant> if some exception is thrown by a called function, then the cleanup attribute only works if you use -fexceptions
+23:24 < iant> as far as I know
+23:24 < chenwj_> ok
+23:24 < patrickm> Hello
+23:24 < richi> iant: we drop to the C personality if it suffices
+23:24 < chenwj_> hi
+23:24 < richi> iant: see function_needs_eh_personality ()
+23:25 < iant> richi: oh, thanks
+23:27 < richi> was invented for cross-language LTO
+23:28 < chenwj_> you mean function_needs_eh_personality?
+23:28 < richi> yes

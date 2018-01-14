@@ -1,0 +1,14 @@
+16:41 < chenwj> dump question, what "vanilla GCC"?
+16:42 < richi> (I don't think it's a forwprop issue)
+16:42 < richi> jantje_: test 4.7 and 4.8
+16:43 < jantje_> Ok, I will get to it right away.
+16:44 < TobFZJ> chenwj: vanilla GCC is a GCC which hasn't any other flavour added to it, i.e. no vendor-specific patches or other patches which aren't in
+                the official GCC release / GCC trunk.
+16:45 < chenwj> ok, so vanilla GCC means the one I download from GCC website and build myself?
+16:47 < TobFZJ> Yes, or form a place/vendor where you know that the build doesn't have any additional patches.
+16:48 < chenwj> TobFZJ: thanks
+16:48 < TobFZJ> For instance, Macports or MinGW/MinGW-w64 don't seem to have (m)any own patches.
+16:51 < chenwj> not a native english speaker... why say it's vanilla, something about ice cream?
+16:55 < TobFZJ> I think the idea is that vanilla ice cream is ice cream without added flavour. (I disagree with that, but I also don't regard
+                apple-pie-flavoured ice cream a proper ice cream ;-)
+16:57 < chenwj> ha, I see

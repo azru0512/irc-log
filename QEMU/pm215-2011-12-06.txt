@@ -1,0 +1,31 @@
+18:05 < chenwj> one question. how long can I ping someone if my patch being ignored?
+18:08 < pm215> chenwj: roughly speaking, the system assumes that as the submitter you continue to ping indefinitely
+18:08 < pm215> (assuming that it's not being ignored because you've failed to deal with review comments from previous versions, for example)
+18:09 < pm215> the 1.0 freeze has obviously meant we've not been applying patches for a while but that should start to unblock now
+18:19 < pm215> chenwj: (which patch, by the way?)
+18:56 < chenwj> pm215: http://permalink.gmane.org/gmane.comp.emulators.qemu/124321
+18:56 < chenwj> so what should I do? resent the patch or?
+18:57 < chenwj> and this one http://permalink.gmane.org/gmane.comp.emulators.qemu/125400
+19:07 < pm215> you should check that the patches still apply to current master. if they don't then you need to redo them against master (rebase them). if
+               the old patches do still apply cleanly you can just follow up to them with a 'ping?' email
+19:07 < pm215> make sure you cc relevant maintainers (riku for linux-user)
+19:07 < chenwj> ok
+19:08 < chenwj> redo means I should resent the patch?
+19:09 < chenwj> if so, should I change the version number?
+19:11 < pm215> redo> if you have to change the text of the patches you need to resend them, obviously, and bump the version number
+19:11 < pm215> if the patches you sent last time apply exactly still then they're ok and need not be resent
+19:11 < pm215> by 'redo' I mean 'stg rebase' or 'git rebase' or whatever set of git tools you use to maintain your patches
+19:12 < chenwj> i see
+19:14 < chenwj> btw, it turns out the problem I mentioned on the mailing list is we don't consider cross page boundary in our optimization
+19:14 < pm215> yeah, that's one of the tricky cases
+19:14 < pm215> tcg ducks the issue by stopping at a page boundary
+19:16 < chenwj> http://lists.gnu.org/archive/html/qemu-devel/2011-12/msg00634.html
+19:18 < chenwj> duck? I am not a native eng speaker
+19:19 < pm215> avoid
+19:22 < chenwj> not worth to track cross page block linking? as Max said in https://lists.gnu.org/archive/html/qemu-devel/2011-09/msg03208.html
+19:23 < davidgiluk> chenwj, It depends, some parts change mapping often, some things don't - e.g. it's probably worth it in the kernel for example
+19:24 < chenwj> you mean system mode emulation?
+19:24 < davidgiluk> yes; in user mode emulation it's probably worth it a lot of the time - but you have to be careful to cope with the rare cases someone
+                    changes the mapping
+19:26 < chenwj> tlb mapping?
+19:28 < davidgiluk> chenwj, yes (although in user I guess it just thinking about it from a mmap point of view than actually thinking of TLBs)

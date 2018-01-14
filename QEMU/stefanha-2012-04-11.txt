@@ -1,0 +1,28 @@
+20:13 < chenwj_> is there speed difference between system mode and user mode
+20:13 < chenwj_> perhaps user mode can be faster?
+20:14 < stefanha> chenwj_: Yes, faster at some things because it doesn't need to emulate the MMU
+20:14 < stefanha> It just uses the host's virtual memory like any userspace process.
+20:15 < afaerber> define "slow" ;) some I/O can be much faster on the host, and CPU depends on how fast the real CPU is compared to the host CPU
+20:16 < afaerber> so Intel-on-Intel system emulation will be slow, yes
+20:20 < Jia> hi all, if I wanna make qemu support a new BUS, just copy&modify hw/isa*?
+20:21 < chenwj_> afaerber: ... how fast the real CPU is compared to the host CPU <- what's difference between real and host CPU?
+20:22 < stefanha> chenwj_: real cpu == arm, host cpu == x86, result == seems like you have a fast arm but that's only because a small arm is slow compared
+                  to a decent x86
+20:22 < stefanha> "real cpu" is the "target cpu".
+20:22 < chenwj_> I see
+20:22 < afaerber> chenwj_: when you emulate an MCU (e.g., ARM Cortex-M3) then an Intel or AMD host CPU is likely much faster and, e.g., a SATA hard disk on
+                  the host may be significantly faster than an SD card
+20:23 < pm215> you might get 100-200MHz equivalent on a fast x86 host. These days that's nearly an order of magnitude slower than actual leading-edge ARM
+               hardware
+20:26 < stefanha> pm215: That's why I said "small arm" :)
+20:26 < afaerber> pm215, you may be right but chenwj_ was asking a general question and RL78 goes up to 32 MHz for instance - there's a whole range of
+                  targets and the speed depends on host, target and usage scenario
+20:27 < pm215> afaerber: yes. depending on what you're emulating, you can be well within the sweet spot for qemu
+20:28 < afaerber> most people probably don't run QEMU emulation (as opposed to virtualization) due to execution speed but either because of convenience
+                  (flashing may be complicated and slow) and debugging capabilities - that's how I promote it ;)
+20:29 < pm215> "I don't have the hardware" is the other classic reason
+20:29 < afaerber> right :)
+20:29 < chenwj_> another question, is it possible to improve current exception/interrupt handling/self-modifying code mechanism in qemu?
+20:29 < pm215> but at some point if qemu is too much slower than the h/w then the convenience factor disappears
+20:31 < chenwj_> the question might be weird, but since our performance gain comes from executing trace smoothly.
+20:31 < chenwj_> we don't want exit trace too often

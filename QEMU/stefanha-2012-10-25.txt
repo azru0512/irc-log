@@ -1,0 +1,38 @@
+16:16 < chenwj> anyway to detect that qemu is runnig with kvm enable inside the guest?
+16:20 < stefanha> chenwj: CPU vendor "KVMKVM"
+16:20 < chenwj> cool
+16:20 < stefanha> Maybe "CPU vendor" is wrong but you get the idea... :)
+16:20 < stefanha> It comes from CPUID
+16:23 < kashyap> chenwj, you could also use the virt-what (if you're using rpm based distros)
+16:23 < kashyap> (running 'virt-what' inside the guest that is)
+16:42 < mjt> cpu vendor can be set to anything
+16:42 < mjt> for example, with -cpu host it is the same as on the host itself, and you don't know if it is running in qemu
+             at all :)
+16:43 < chenwj> mjt: wow
+16:43 < mjt> i think it has -cpu foo,vendor=bar
+16:44 < mjt> strictily speakig there's no way to detect qemu in the first place.  Easy ways like cpuid works only by default.
+16:44 < mjt> not to mention distinction between qemu tcg and qemu kvm.
+16:48 < stefanha> mjt: Sure, it's not 100%.
+16:48 < stefanha> The distinction between QEMU and KVM is there because we set KVMKVM somewhere by default and you see it in
+                  dmesg(1) IIRC
+16:48 < stefanha> That doesn't happen under TCg.
+16:48 < stefanha> It can all be changed but by default I think you'll see it.
+16:49 < mjt> i always use -cpu host ;)
+16:49 < mjt> it is -cpu kvm64 wich does KVMKVM
+16:51 < mjt> i've seen various guests being confused by this cpuid - both kvm64 and host actually
+16:52 < mjt> especially nice when you don't pass -smp (which means default single core), and in guest you see something like
+             "Intel soopir-multi-core-cpu (number of cores: 1)"
+16:52 < mjt> (with -cpu host)
+16:53 < stefanha> :)
+16:54 < mjt> actually i think it is possible to have in real life too -- it is possible to disable some cores in bios.  Yet I've seen win8 being confused by
+             such single-multi-core cpu
+23:45 < chenwj> can QEMU be used to monitor guest behavior, like load driver, hard disk r/w, memory usage... etc
+23:45 < chenwj> ^^^ anyone :)
+23:46 < stefanha> chenwj: Sure but some of these things are very invasive
+23:47 < stefanha> They would basically be hacks tuned to a single OS release and build.
+23:47 < stefanha> Because sometimes you need information from inside the guest.
+23:47 < stefanha> The cleaner way to do that is with an agent inside the guest, like qemu-ga.
+23:50 < chenwj> what qemy-ga can do? communicate with out side world?
+23:51 < stefanha> Yes, it uses virtio-serial and allows host/guest to communicate.
+23:51 < stefanha> So you could ask them guest for memory usage info
+23:51 < stefanha> or to load a device driver.

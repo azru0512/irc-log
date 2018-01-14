@@ -1,0 +1,25 @@
+18:22 < pm215> qom question: if you have a type and a subtype and they both have properties, you can set the properties of the type on an instance of the
+               subtype, right?
+18:37 < chenwj> is it possible using some tools to inspect how kvm works? for QEMU (w/o kvm), I can use GDB.
+18:50 < chenwj> pm215: are you talking about object_property_add ?
+19:43 < afaerber> pm215: yes. are you running into some problem?
+19:45 < pm215> afaerber: the sdhci patches have a thing where the sdhci class defines some properties but then the exynos4210_sdhci subclass redefines
+               properties with the same name and filling in the same struct fields
+19:45 < pm215> which seems kind of odd
+19:45 < afaerber> chenwj: KVM has tracepoints that can be enabled through /sys/kernel/debug/tracing/events/*, they can then be read through
+                  /sys/kernel/debug/tracing/trace_pipe
+19:46 < afaerber> pm215: sounds like a bug
+19:46 < afaerber> pm215: we had to rename some in-tree properties because of such conflicts
+19:47 < pm215> bug> yeah, or maybe code predating this workin
+19:47 < pm215> *working
+19:47 < pm215> I mentioned it in my review, anyway
+19:47 < pm215> I think the only patches I still need to review are the axistream ones
+19:48 < pm215> oh, do I remember correctly taht you had a concern about whether we should merge the imx31 patches?
+19:48 < afaerber> pm215, my concern has been addresses in the latest version :)
+19:48 < afaerber> *addressed
+19:50 < pm215> ok, in that case I'll put the patches in arm-devs.next
+19:51 < afaerber> pm215: I admit I couldn't do much runtime testing of sdhci on tegra yet, so if you gave/give it a short that would be great. tegra is not
+                  that far yet
+19:52 < afaerber> pm215: one tiny thing, I had suggested a better machine description for i.MX31 that was not addressed on the previous version yet;
+                  shouldn't be a blocker though
+19:52 < pm215> I don't have any boards I have testable kernels with that use sdhci

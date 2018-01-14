@@ -1,0 +1,19 @@
+16:47 < chenwj> hi guys, :)
+16:47 < chenwj> http://stackoverflow.com/questions/12724397/why-cygwin-needs-recompile-application-but-wine-does-not
+16:47 < chenwj> anyone want to give comment on this ^^^ ?
+17:30 < hackomatic> chenwj: cygwin provides source compatibility, wine - both binary+source, find the difference :)
+17:33 < chenwj> hrm.. it's because wine deal with binary at the first place, so it have to interpret windows binary itself?
+17:36 < KittyCat> because wine loads the windows binary into memory, and implements the DLLs the apps expect
+17:37 < KittyCat> it also makes sure the process's memory layout is as windows apps would expect
+17:38 < chenwj> KittyCat: and cygwin just doesn't do that > loads the binary into memory. that's the difference?
+17:40 < KittyCat> cygwin would have to load the binary into memory, and act as the glue between the app and system, reimplementing whatever apps need
+17:41 < KittyCat> in the end, you're better off just using a version of linux that can run in windows
+17:42 < KittyCat> that's essentially how wine works. it's a version of windows that can run in linux (and other *nixes)
+17:50 < killall-9> it would be possible to write an ELF loader for windows and reimplement all system libraries (like wine does) but there's little
+                   incentive since binaries are not having an uniform format across *NIX implementations
+17:51 < killall-9> the reason wine exists is that there are many binary only applications for Windows
+17:52 < chenwj> reimplement all system libraries is a huge work
+17:52 < killall-9> while for *NIX applications usually exista in portable source format (since you need to recompile them anyway for each target)
+17:53 < killall-9> chenwj: that's what wine does - reimplements windows libraries on top of POSIX and X
+17:53 < chenwj> I think *NIX all use ELF format, right? > since binaries are not having an uniform format across *NIX implementations
+17:54 < killall-9> not all use ELF and even so there are call convention differences, multiple versions, etc.

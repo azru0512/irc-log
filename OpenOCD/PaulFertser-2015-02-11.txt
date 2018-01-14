@@ -1,0 +1,12 @@
+[17:46] <chenwj> PaulFertser: http://sourceforge.net/p/openocd/mailman/message/33395116/  <- check this out :-)
+[17:47] <PaulFertser> chenwj: but hidapi is already available in msys2...
+[17:47] <chenwj> ya, just another way :p
+[17:48] <karlp> zapb_: this trace stuff is obscure enough as it is, a tcp port is l33t and rad, but it's never going to get more people to use it.  by all means add tcp, but please not only tcp, please have a file as standard, people know how to work with those.  Further, they automatically record, without having to insert yet another tool to actually record teh damn trace.
+[17:48] <PaulFertser> nc localhost 7777 | tee tracelog | itmdump -d1
+[17:50] <PaulFertser> chenwj: thank you for your work BTW
+[17:50] <PaulFertser> chenwj: are you a Cygwin developer?
+[17:51] <chenwj> nope. It's my first time to be a pkg mantainer
+[17:51] == kuldeepdhaka [~kuldeepdh@unaffiliated/kuldeepdhaka] has joined #openocd
+[17:51] <chenwj> my daily work is on cygwin
+[17:52] <karlp> PaulFertser: yes, and learnign netcat is a nobel goal, but if you have to do that, "nc localhost magicnumber | tee file | itmdump" _as well_ as having to get the trace configured, I feel that's a major loss in usability for the easiest users
+[17:52] <PaulFertser> What I liked about msys2 is that they have an actively maintained repository.

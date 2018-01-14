@@ -1,0 +1,19 @@
+16:14 < chenwj> does setjmp/longjmp in C be implemented as stack unwind?
+16:20 <@baldrick> chenwj: are you asking: can it be implemented as stack unwind, or are you asking: is it implemented as stack unwind?
+16:21 < Jia> yeah, he is asking that
+16:21 < chenwj> baldrick: latter :)
+16:22 < chenwj> if you like to answer the first one, that's cool!
+16:23 <@baldrick> chenwj: IIRC, setjmp notes the stack address, and longjmp sets the stack pointer back to that address, causing a kind of instant massive
+                  stack unwind
+16:23 <@baldrick> but it's not a "successively unwind your way up the call stack" kind of thing like dwarf exception handling does
+16:23 < chenwj> baldrick: I see
+16:23 < nicholas> i suppose you could include libstdc++ inside your llvm .so file
+16:24 < nicholas> i don't know offhand how to do that.
+16:24 < chenwj> baldrick: so strictly speaking setjmp/longjmp is not implemented as stack unwind, right?
+16:24 <@baldrick> chenwj: no, it's not
+16:25  * chenwj sigh
+16:25 <@baldrick> I think it can be implemented that way, but isn't as it would be less efficient
+16:26 < chenwj> baldrick: you know, sometimes I get confused by "no, it's not". I don't know it's a positive or negative answer
+16:26 <@baldrick> chenwj: it is not implemented as stack unwind
+16:26 < chenwj> thanks :p
+16:27 <@baldrick> chenwj: yeah, other languages (like French) have additional yes/no forms that make this kind of statement much less ambiguous

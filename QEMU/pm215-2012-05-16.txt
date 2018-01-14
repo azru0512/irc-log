@@ -1,0 +1,56 @@
+21:02 < chenwj> can user mode run different guest OS binary on another?
+21:07 < pm215> chenwj: no, it has to be the same guest OS on host and target (we just pass syscalls through with minimal adjustment)
+21:07 < kwolf> quodt: Yes, it's a completely new image, so the metadata will be consistent. But if you can, verify the data on it.
+21:08 < kwolf> quodt: Which version of qemu are using, btw?
+21:09 < quodt> kwolf: i'm using qemu-kvm
+21:09 < quodt> Version     : 0.12.1.2
+21:09 < chenwj> pm215: _in theory_, it should can run different OS binary, right?
+21:09 < pm215> no
+21:09 < chenwj> no?
+21:09 < pm215> it only works at all because you can have a very thin layer which doesn't have to do any work
+21:09 < chenwj> cannot map different OS syscall?
+21:09 < pm215> mapping one OS's interface to another is a lot of work -- look at Wine, which does this for windows-to-Linux
+21:10 < chenwj> pm215: I think system mode doesn't have such issue?
+21:10 < mjt> there was 0.12.1.2
+21:10 < mjt> since 0.12.1 had a packaging bug in it
+21:10 < mjt> it was qemu-kvm not qemu
+21:11 < mjt> http://sourceforge.net/projects/kvm/files/qemu-kvm/
+21:11 < pm215> chenwj: by definition, system mode isn't emulating an OS
+21:12 < pm215> it doesn't care what guest OS you run
+21:12 < mjt> pm215: where one can read these definitions? :)
+21:12 < kwolf> mjt: Okay, makes sense
+21:12 < chenwj> I see, it just emulate the machine
+21:12 < pm215> mjt: I hand them out on IRC on demand :-)
+21:12 < mjt> gimme a few please :)
+21:13 < kwolf> quodt: If it's really upstream qemu-kvm, I'd strongly advise an upgrade. There have been a few corruption fixes to the snapshot code since
+               then.
+21:13 < mjt> seriously, i use/work with qemu for some years but yet to understand what is qemu-system and qemu-user...
+21:13 < mjt> (and qemu-user-static)
+21:15 < pm215> mjt: qemu-user is "linux-user" mode, ie run one linux binary for CPU architecture A on a host Linux OS for CPU architecture B
+21:16 < pm215> qemu-system is "emulate hardware", it models a whole machine that you run an OS on
+21:16 < quodt> kwolf: this is the version currently provided by scientificlinux.org
+21:16 < mjt> i "guessed" what system mode does. but can't grok user mode :)
+21:16 < pm215> the shared code is basically the CPU emulation parts and not a lot else
+21:16 < quodt> kwolf: however, which version do you use?
+21:16 < mjt> heh
+21:16 < aliguori> yeah, i really think we should find a way to split off linux-user...
+21:17 < pm215> I'd rather we didn't fragment the TCG users
+21:17 < aliguori> pm215, i know :-)
+21:18 < pm215> the first phase in splitting it off would be making a cleaner set of APIs between the CPU emulation and the syscall-interception layers
+21:18 < pm215> and I think if you do that then you've dealt with a lot of the pain anyway and you might as well leave it all in one source tree
+21:18 < pm215> Alternatively we could kick the KVM code back out again :-)
+21:19 < chenwj> pm215: bring kvm code back?
+21:19 < aliguori> pm215, we could always drop kvm and resurrect kqemu ;-)
+21:20 < aliguori> pm215, i think providing tcg as a library would have wide appeal
+21:20 < mjt> and my atom-based router will be able to use qemu agan!
+21:20 < aliguori> there are a lot of folks that want to use tcg but not the device model, and vice versea
+21:22 < pm215> aliguori: I agree that there are a lot of people in that position. If any of them want to step up and do the work of making it properly
+               modular I'm happy to review their patches.
+21:23 < pm215> unfortunately it would be a lot of work to untangle assumptions about single global instances of things, provide clean APIs so devices don't
+               need to reach into CPU state structs, and so on
+21:28 < chenwj> pm215: I still not sure I understand you correctly. Is it because there is a lot of work mapping one OS interface to another, so user mode
+                doesn't support it. Or it's just can't be done?
+21:29 < pm215> chenwj: it would be so much work that we have simply declared that it's not what user-mode is for
+21:30 < pm215> if you wanted to do this then you could just do it with a separate layer running on top of qemu. eg for windows x86 binaries on ARM linux you
+               would use wine to translate them to x86 syscalls and then qemu to turn them into arm syscalls
+21:30 < chenwj> I see

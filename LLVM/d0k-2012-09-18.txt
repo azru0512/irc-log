@@ -1,0 +1,15 @@
+17:02 < chenwj> I saw there is "// DISABLE: xxx" in test cases. is it the same as "XFAIL"?
+17:07 < j`ey_w> chenwj: DISABLE sounds like it won't run, XFAIL = runs but is expected to fail
+17:08 < chenwj> ok
+17:08 < j`ey_w> (That's just what it looks like, I don't know for sure)
+17:13 < d0k> chenwj: it's a failure when a test marked XFAIL passes, DISABLE is for tests that may or may not pass
+17:14 < chenwj> may or may not pass?
+17:16 < chenwj> what's that actually mean? I thought there should be pass not not pass, but not both
+17:18 < j`ey_w> heisentest
+17:19 < chenwj> ?
+17:21 < d0k> chenwj: there can be tests that fail once in 10 runs, but the more common example are windows tests that depend on the software installed on
+             the host
+17:21 < sunnynarula> Hi I have a LLVM module loaded at runtime and I am trying to debug it through gdb. Source language is c. The problem is I can see
+                     source symbols from the base project which loads it but not from the module. Please help
+17:21 < d0k> i.e. depend on some unix-style tool that's not installed by default on windows
+17:22 < chenwj> d0k: I see

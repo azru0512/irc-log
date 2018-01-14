@@ -1,0 +1,14 @@
+16:44 < chenwj> baldrick: I saw your TYPE_DEBUG_REPRESENTATION_TYPE commit log :)
+16:45 <@baldrick> chenwj: it could be better, since it probably doesn
+16:45 <@baldrick> doesn't do the right thing for arrays of vectors
+16:45 < vreddyg> Does llvm have any command that allows the .o files to be linked together?
+16:45 <@baldrick> but I don't understand why this routine isn't just recursive
+17:01 < chenwj> baldrick: someone'll file the bug report someday :)
+17:02 < chenwj> baldrick: but I don't understand why this routine isn't just recursive <- what routine?
+17:02 <@baldrick> chenwj: the one that had TYPE_DEBUG_REPRESENTATION_TYPE in it
+17:02 < chenwj> you mean the old DebugInfo::createArrayType?
+17:07 <@baldrick> chenwj: yup.  You would expect that it would create the debug info for the element type (this is where the recursion comes in), then
+                  create debug info for an array of those
+17:08 <@baldrick> instead it looks to see if the element type is an array and if so adds bounds for those, and repeats
+17:09 <@baldrick> maybe dwarf can directly handle multi-dimensional arrays, so it is trying to synthesize multi-dimensional array debug info out of nested
+                  one-dimensional arrays

@@ -1,0 +1,122 @@
+15:56 <@chenwj> sby: 看起來 mmap 不能一次要 4g 甚至 4m 也不行
+15:57 <+sby> chenwj: 4m為什麼不行
+15:59 <@chenwj> sby: oh, 剛剛我把 start 設成從 4k 開始
+15:59 <@chenwj> sby: 會 segfault
+16:00 <+sby> chenwj: 你確定有mmap成功?
+16:00 <+sby> chenwj: 會segfault應該是沒成功吧
+16:00 <@chenwj> sby: 我有加檢查
+16:00 <@chenwj> sby: http://pastebin.com/YdpTaH6p
+16:00 <@chenwj> sby: 這個是我把 start 設成 0
+16:01 <@chenwj> sby: 如果 mmap(START, ...) 會噴掉
+16:01 <@chenwj> sby: 還是我要讓它直接 abort 掉?
+16:02 <+sby> chenwj: 什麼意思?
+16:03 <@chenwj> sby: 就是 start 從 4k，讓它要 4m，失敗的話印出訊息就 abort()
+16:04 <@chenwj> sby: 不行 還是會 segfault
+16:04 <+sby> chenwj: segfault是發生在哪?
+16:05 <@chenwj> sby: http://pastebin.com/wcFZ9FQU
+16:07 <+sby> chenwj: libc裡面?
+16:07 <+sby> chenwj: 這樣看不出來發生在哪
+16:08 <@chenwj> sby: 我覺得應該是在 library 裡面...
+16:09 <+sby> chenwj: lib 裡面通常不可能會發生sigfault
+16:09 <@chenwj> sby: :~
+16:09 <+sby> chenwj: 有的話就是lib的bug了
+16:11 <+sby> chenwj: 喔
+16:11 <@chenwj> sby: ?!
+16:11 <+sby> chenwj: 我想到一個原因
+16:11 <@chenwj> sby: 蓋掉自己的 image?
+16:11 <+sby> chenwj: sudo sysctl vm.mmap_min_addr
+16:12 <+sby> chenwj: linux 會設定這個 option 限制 mmap 最小的 address
+16:12 <+sby> chenwj: 你要把它改小
+16:12 <+sby> chenwj: 不然通常這個數值都蠻大的
+16:12 <@chenwj> sby: 你說 start?
+16:12 <+sby> chenwj: 至少64K
+16:12 <+sby> chenwj: 我說 vm.mmap_min_addr
+16:12 <+sby> chenwj: 用 sysctl 去改
+16:13 <@chenwj> sby: 我是說 限制 mmap 最小的 address 是指 mmap start 參數的最小值?
+16:13 <+sby> chenwj: 對
+16:13 <@chenwj> sby: 可是我可以這樣設
+16:13 <@chenwj> sby: http://pastebin.com/YdpTaH6p
+16:14 <@chenwj> sby: 你看 line 14, 16
+16:14 <@chenwj> sby: 我 cat /proc/`pidof test`/maps 可以看到
+16:14 <@chenwj> sby: 00000000-00100000 rwxp 00000000 00:00 0
+16:17 <+sby> chenwj: 所以?
+16:17 <+sby> chenwj: 不然你就把 lib d9
+16:18 <+sby> chenwj: 用有 debug info 的 lib 進去看是掛在哪
+16:19 <@chenwj> sby: 我的意思是說 start 可以設成 0，看起來不是 vm.mmap_min_addr 的關係?
+16:19 <@chenwj> sby: lib d9?
+16:22 <@chenwj> sby: http://pastebin.com/enSrnaPK
+16:23 <@chenwj> sby: 我覺得應該是蓋掉自己 image 某些地方
+16:23 <+sby> chenwj: 喔
+16:23 <+sby> chenwj: 0 是例外
+16:23 <@chenwj> sby: 你說 vm.mmap_min_addr?
+16:23 <+sby> chenwj: 恩
+16:24 <+sby> chenwj: 0 表示隨便 map 一塊空間
+16:24 <+sby> chenwj: 是有特別意義的
+16:24 <@chenwj> sby: 沒有喔，我 flag 有下 MAX_FIXED
+16:28 <+sby> chenwj: 所以0有map成功?
+16:28 <@chenwj> sby: 對
+16:28 <@chenwj> sby: http://pastebin.com/06rtuTuH
+16:28 <@chenwj> sby: 這個 ok
+16:29 <@chenwj> sby: 要到 5m 就會噴
+16:29 <+sby> chenwj: 那你確定page boundary是4K?
+16:29 <@chenwj> sby: 我看看
+16:32 <@chenwj> sby: $ getconf PAGESIZE
+16:33 <@chenwj> sby: 4096
+16:34 <+sby> chenwj: 那可能4m以上剛好有人用了吧
+16:35 <@chenwj> sby: 有辦法把 image 往上挪嗎?
+16:35 <+sby> chenwj: 改 linker script
+16:39 <@chenwj> sby: $ gcc -Wl,-T script.ld test.c -o test <-?
+16:39 <+sby> chenwj: hmm
+16:40 <@chenwj> sby: 那有可能我 script 寫錯了 :/
+16:40 <+sby> chenwj: 你有自己改ldscript?
+16:41 <@chenwj> sby: 不是要吃自己的 script 要 image 往上抬嗎?
+16:42 <@chenwj> sby: $ gcc -Wl,-Ttext 0x800000 test.c -o test
+16:43 <+sby> chenwj: 光text可能不構
+16:43 <+sby> chenwj: 搞不好還有其他的
+17:03 <@chenwj> sby:   3 .interp       0000001c  00000000004002a8  00000000004002a8  000002a8  2**0
+17:04 <@chenwj> sby: 感覺兇手是他 ...
+17:25 <@chenwj> sby: gcc -Wl,-Ttext-segment=0x200000
+17:48 <+sby> chenwj: 直接從ldscript下手比較保險, 只下這個參數可能還不夠
+17:49 <@chenwj> sby: 我發覺 1G 可以。gcc -Wl,-Ttext-segment=0x40000000 test.c -o test
+17:49 <@chenwj> sby: 2G 就不行
+17:50 <@chenwj> sby: http://pastebin.com/ZEbmWJ0S
+17:50 <@chenwj> sby: linker 在叫
+17:51 <+sby> chenwj: 所以我跟你說要改script
+17:51 <@chenwj> sby: 拿他 default script 來改嗎?
+17:51 <+sby> chenwj: hmm
+11:38 <@chenwj> sby: hello
+11:38 <+sby> chenwj: hi
+11:39 <@chenwj> sby: http://pastebin.com/X0khZRj8
+11:39 <@chenwj> sby: size_t len = 2 * 1024 * 1024 * 1024 <- 這行 compiler 會說 interger overflow
+11:40 <@chenwj> sby: size_t 不是夠大嗎?
+11:41 <+sby> chenwj: 你看 sizeof(size_t) 阿
+11:42 <+sby> chenwj: size_t 沒有規定一定要多大
+11:42 <@chenwj> sby: sizeof(size_t): 8
+11:48 <+sby> chenwj: hmm, 那應該夠大
+11:58 <+sby> chenwj: 我的 size_t 是 4 byte
+11:58 <+sby> chenwj: 這樣好像是會 overflow 沒錯
+11:58 <+sby> chenwj: 8 byte 應該是不會
+11:59 <+sby> chenwj: 可能是你的 compiler 把它當成 4 byte
+12:00 <@chenwj> sby:   printf("sizeof(size_t): %lu\n", sizeof(size_t));
+12:00 <@chenwj> sby: 這樣印出來 8 是對的?
+12:00 <@chenwj> sby: compiler 把它當成 4 byte...
+12:03 <+sby> chenwj: #include <stdint.h>
+12:03 <+sby> chenwj:
+12:03 <+sby> chenwj: #define SIZE ((uint64_t)2 << 30)
+12:03 <+sby> chenwj: 這樣就好了
+12:04 <+sby> chenwj: 或是這樣 #define SIZE (2UL << 30)
+12:05 <@chenwj> sby: 我試試
+12:06 <+sby> chenwj: 你原本那樣寫 2 * 1024 * 1024 * 1024,
+12:06 <+sby> chenwj: 2 是 int type
+12:06 <+sby> chenwj: 這樣就 overflow 了
+12:06 <@chenwj> sby: 喔
+12:07 <@chenwj> sby: 所以他把
+12:07 <@chenwj> sby: 2 當 int 去算，所以會 overflow
+12:07 <+sby> chenwj: yup
+12:07 <@chenwj> sby: - -b
+12:08 <@chenwj> sby: 昨天那個要把 image move 到 4g 以上的問題，最後是把它編成 pie
+12:09 <+sby> chenwj: XD
+12:10 <@chenwj> sby: 幸好我有上 ml 問，要不然想破頭都不知道要這樣搞
+12:10 <+sby> chenwj: hmm
+12:12 <@chenwj> sby: 很好很好 可以要到整個 4g
+12:12 <@chenwj> sby: eat 81

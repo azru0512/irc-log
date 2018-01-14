@@ -1,0 +1,65 @@
+21:46 < agraf_> chenwj: GPUs usually have a bunch of context processing pipes that are reasonably separate of each other                                                                      21:46 < agraf_> chenwj: however, IIUC there's no memory protection between them
+21:46 < agraf_> chenwj: (yet)
+21:46 < agraf_> chenwj: if you're seriously interested, let's talk about this in private ;)
+21:48 < chenwj> agraf_: definitely :)
+21:48 <agraf_> alrighty :)
+21:48 <agraf_> so there is some stuff in the works that I'm not allowed to talk about publically
+21:48 <chenwj> totally understand :)
+21:49 <agraf_> essentially, AMD is trying to get their GPUs fully context separated and integrated with the IOMMU
+21:49 <agraf_> so that you can pass a virtual GPU context to your guest
+21:49 <agraf_> mostly for GPGPU workloads
+21:49 <agraf_> but IIUC there's very very little keeping you from actually using all of that for graphics virtualization
+21:50 <agraf_> I can get you in touch with the relevant folks at AMD if you like
+21:50 <chenwj> "pass a virtual GPU context to your guest" <- to guest or host?
+21:50 <chenwj> sure
+21:50 <agraf_> hrm
+21:50 <agraf_> do you know what SR-IOV is?
+21:50 <chenwj> nope
+21:50 <agraf_> ok, so SR-IOV is a PCI standard
+21:51 <agraf_> that allows you to get multiple virtual PCI devices from a single host PCI device
+21:51 <chenwj> ok
+21:51 <agraf_> imagine a 10GBit ethernet adapter
+21:51 <agraf_> those beasts usually have a lot of queues to handle all this load
+21:51 <agraf_> now, imagine you have 64 queues
+21:51 <agraf_> you can either use 64 queues for one adapter
+21:51 <agraf_> or split them to 64 adapters
+21:52 <agraf_> so you can basically have 64 network adapters in your system
+21:52 <agraf_> even though there's only a single card
+21:52 <agraf_> the idea is the same
+21:52 <chenwj> I see
+21:53 <agraf_> just a bit more sophisticated
+21:53 <agraf_> I don't know all the details myself, but the idea was to allow context switches on the GPU
+21:53 <agraf_> and multiple channels to be devided
+21:53 <agraf_> divided*
+21:53 <agraf_> so you can either split your GPU in half and assign one to a guest and one to the host
+21:53 <chenwj> pretty cool
+21:53 <agraf_> or you can use the full thing and just context switch whenever you go out/in to the guest
+21:54 <agraf_> but again, I only know that they're working on it, not of the technical details :)
+21:55 <agraf_> are you a research student or assistant?
+21:55 <chenwj> assistant :)
+21:55 <agraf_> at which university? :)
+21:56 <chenwj> http://www.iis.sinica.edu.tw/
+21:56 <chenwj> It's not a university but a research center, I think
+21:56 <agraf_> sinica?
+21:56 <agraf_> ah :)
+21:58 <chenwj> it's a Latin word, means "chinese"
+21:58 <agraf_> oh
+21:58 <agraf_> :)
+21:59 <chenwj> so it's the same as "Chinese Academy"
+21:59 <agraf_> nod :)
+21:59 <chenwj> do you really mean it? -> "I can get you in touch with the relevant folks at AMD if you like"
+21:59 <agraf_> alrighty, mail sent out
+21:59 <agraf_> yeah, already done
+21:59 <chenwj> cool, thanks
+21:59 <agraf_> sure :)
+22:00 <agraf_> Chris is the head of the open source center at AMD
+22:00 <agraf_> Joerg is the maintainer for IOMMUs in the kernel, working in that center
+22:01 <agraf_> I do know for a fact that they're both involved in that project, but I kept the mail open enough for them to deny it :)
+22:03 <chenwj> the _big_ boss want us to give a proposal to AFOSR (US Air Force)
+22:03 <chenwj> a 3 year project
+22:03 <agraf_> sounds like a good fit then, no? :)
+22:04 <chenwj> no idea, the deadline is March 7. They need to *real* and detailed proposal. :)
+22:05 <agraf_> well, it's worth a try at least
+22:05 <agraf_> I have no idea what the AFOSR really needs ;)
+22:06 <chenwj> haha
+

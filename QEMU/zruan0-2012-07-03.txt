@@ -1,0 +1,139 @@
+17:36 < zruan0> Hi I have some confusion against hvm switching context to guest.
+17:36 < zruan0> could some one help me?
+17:38 < zruan0> I see these following code in asm language:
+17:39 < zruan0> II"cmpl $0, %c[launched](%0) \n\t"
+17:39 < zruan0> II/* Load guest registers.  Don't clobber flags. */
+17:39 < zruan0> II"mov %c[rax](%0), %%"R"ax \n\t"
+17:39 < zruan0> II"mov %c[rbx](%0), %%"R"bx \n\t"
+17:39 < zruan0> II"mov %c[rdx](%0), %%"R"dx \n\t"
+17:39 < zruan0> II"mov %c[rsi](%0), %%"R"si \n\t"
+17:39 < zruan0> II"mov %c[rdi](%0), %%"R"di \n\t"
+17:39 < zruan0> II"mov %c[rbp](%0), %%"R"bp \n\t"
+17:39 < zruan0> #ifdef CONFIG_X86_64
+17:39 < zruan0> II"mov %c[r8](%0),  %%r8  \n\t"
+17:39 < zruan0> II"mov %c[r9](%0),  %%r9  \n\t"
+17:40 < zruan0> This piece of code seems used to switch context to a guest, right?
+17:40 < zruan0> this piece of code is used in vmx_vcpu_run
+17:51 < zruan0> Hello, who can kindly provide help on my question? :-)
+17:59 < agraf> I don't see a question
+18:02 < chenwj> maybe he need someone to confirm it's doing a context switch to guest?
+18:04 < zruan0> agraf, I am newbie to kvm tech... I have a confusion about how kvm switch context to guest.
+18:04 < zruan0> chenwj, Yes, is this piece of code doing a context switch?
+18:05 < chenwj> I am a newbie, too!
+18:05 < zruan0> haha, :-)
+18:05 < agraf> zruan0: the actual context switch is done by a special instruction
+18:06 < agraf> zruan0: which iirc comes inside the snippet you posted
+18:06 < agraf> zruan0: but further down
+18:06 < zruan0> is it vmlaunch or vmresume?
+18:06 < agraf> vmlaunch
+18:06 < agraf> if you're having trouble reading the intel spec, i can totally understand that :)
+18:06 < agraf> it's horribly written
+18:06 < chenwj> so that piece of code is preparing to enter guest mode?
+18:07 < agraf> (and vmx is horrible in itself too)
+18:07 < zruan0> yeah, if so, it is quite reasonable.
+18:07 < agraf> yes, it's moving around register
+18:07 < agraf> s
+18:07 < chenwj> zruan0: if you're looking at vmx_xxx , you should find vmentry instruction
+18:07 < chenwj> vmlauch is used by AMD, iir
+18:08 < chenwj> iirc
+18:08 < zruan0> but, as I know to vmx, the guest fields should be automatically filled by cpu itself, we do need to fill these registers.
+18:08 < agraf> zruan0: but not all registers
+18:08 < agraf> zruan0: the ones that vmlaunch does not take care of are done in software around the instruction
+18:08 < chenwj> some are left to vmm to decide, I think
+18:09 < agraf> zruan0: check out page 404 on http://support.amd.com/us/Processor_TechDocs/24594_APM_v3.pdf
+18:09 < agraf> zruan0: that's the amd version
+18:09 < agraf> zruan0: and it's a _lot_ easier to read :)
+18:09 < agraf> zruan0: you will find that the registers in question above are not touched by the instruction
+18:11 < zruan0> vmentry, I only see it once in vmx.c, but it is in comment... and I never see this instr before.
+18:12 < chenwj> agraf: we can get the conclusion from "from the VMCB at physical address rAX, load guest state: ..."?
+18:13 < agraf> chenwj: rAX points to a page in memory where the guest state is stored to
+18:13 < agraf> s/to/in/
+18:13 < zruan0> agraf, I only read manuals for intel, the comments you posted above is for AMD, or intel also has same issue?
+18:14 < agraf> zruan0: it's amd, and the world switch is done similarly
+18:14 < chenwj> zruan0:                 /* Enter guest mode */
+18:14 < chenwj>                 "jne .Llaunched \n\t"
+18:14 < chenwj>                 __ex(ASM_VMX_VMLAUNCH) "\n\t"
+18:14 < agraf> yup
+18:15 < chenwj> zruan0: x86/include/asm/vmx.h:#define ASM_VMX_VMLAUNCH          ".byte 0x0f, 0x01, 0xc2"
+18:15 < agraf> that's where the actual world switch happens
+18:16 < zruan0> you mean this filled instr is where the actually "vmlanuch" happens?
+18:16 < agraf> that _is_ the vmlaunch instruction
+18:17 < agraf> it's just encoded in hex because older compilers don't know about it yet
+18:17 < zruan0> Great! I have been puzzled by these filled bytes just now... I don't know who it is.. :-)
+18:17 < chenwj> agraf: now I know why it is written in that way
+18:17 < agraf> s/compilers/assemblers/ :)
+18:18 < zruan0> agraf: I understood it now, it is quite reasonable.
+18:33 < zruan0> agraf: I read the vmx manual again, it seems that guest field in vmcs does contain fields for regular regs, such as ax, bx,.
+18:33 < agraf> zruan0: maybe an extension?
+18:34 < zruan0> sorry for wrong typing just now... does _NOT_ contain..
+18:34 < agraf> ah :)
+18:37 < chenwj> zruan0: http://download.intel.com/products/processor/manual/326019.pdf page 13?
+18:37 < zruan0> I knew it now, the regs in vcpu.arch.regs should be given special care. They are defined in kvm_reg.
+18:40 < chenwj> seems both intel and amd use the same kvm_regs
+18:42 < zruan0> chenwj, 24.4 in you posted manual.
+18:42 < zruan0> amd and intel are considered some differently in kvm.
+18:47 < zruan0> agraf, is emulate.c used to emulate execution of some  instructions? how do we need to emulate instructions? sse instr?
+18:47 < agraf> zruan0: yup :)
+18:47 < zruan0> why do we need to emulate instructions?
+18:47 < agraf> zruan0: we need to emulate in 2 situations mostly
+18:47 < agraf> zruan0: 1) MMIO
+18:47 < agraf> zruan0: 2) real mode
+18:48 < agraf> older intel cpu's can't handle real mode properly, so we need to emulate every instruction manually there
+18:48 < agraf> IIRC it's also used for PIO, but recent CPUs should have hints for those
+18:49 < agraf> ah, it's also used for the shadow mmu code
+18:50 < zruan0> firstly, you mean some older instrs, such as 286 instrs ?
+18:50 < zruan0> what is IIRC? I don't know it
+18:50 < chenwj> if i remeber correcly
+18:51 < agraf> could be any instruction really
+18:51 < zruan0> sure, got it
+18:52 < chenwj> agraf: you said older intel cpu, you mean older intel cpu with vt extension?
+18:52 < zruan0> but, kvm also uses qemu, why don't use qemu to emulate such instrs?
+18:52 < agraf> chenwj: yes
+18:52 < agraf> chenwj: only vt version 3 got actual real mode support
+18:53 < agraf> zruan0: that's what the first few versions of kvm did, but it made the interface horribly wide
+18:53 < chenwj> so now it is handled by kvm itseld?
+18:53 < chenwj> itself
+18:53 < agraf> yes
+18:54 < zruan0> ah, it is reasonable, but what does kvm use qemu to do? I saw that some file descriptors would be used by qemu, but how does it take effect?
+18:55 < chenwj> zruan0: qemu is used to emulate device io, and qemu will allocate its virtual mem to the guest vm
+18:56 < chenwj> zruan0: the fd you saw in qemu should be KVM handler
+18:57 < zruan0> yes, these fds should reference kvm, vcpus, etc
+18:57 < chenwj> qemu will issue VM_RUN on fd, then kvm take over, launch guest vm
+19:00 < zruan0> agraf & chenwj, thank you you guys' helps very much!
+19:01 < zruan0> :-)
+19:01 < agraf> :)
+19:01 < chenwj> you're welcome, I also learn something from you and agraf ;p
+19:01 < agraf> it's been a while since i looked at the x86 code :)
+19:02 < agraf> and i never liked vt in the first place, so bear with me if i don't know all the details ;)
+19:02 < chenwj> why?
+19:02 < agraf> 1) the documentation was horrible - not sure if that changed
+19:02 < agraf> 2) it's too complex
+19:03 < chenwj> any better way to achieve virtualization?
+19:03 < chenwj> agraf: intel doc is always horrible, I know
+19:03 < agraf> -rw-r--r-- 1 agraf suse 111K 2012-06-19 12:49 arch/x86/kvm/svm.c
+19:03 < agraf> -rw-r--r-- 1 agraf suse 209K 2012-06-19 12:49 arch/x86/kvm/vmx.c
+19:03 < chenwj> ^^^ try to show me what? :)
+19:03 < agraf> vmx is 2x the size
+19:04 < chenwj> true
+19:04 < agraf> but then again, everything sucks in comparison to s390's sie instruction :D
+19:04 < chenwj> but amd and intel implement the same thing? I mean maybe intel has more extension
+19:04 < agraf> 148KIarch/s390/kvm/
+19:05 < agraf> the actual world switching code is only a few instructions
+19:05 < chenwj> ibm s390?
+19:05 < zruan0> another question, is kvm supported SMP guest now?
+19:05 < chenwj> zruan0: sure
+19:05 < agraf> 960KIarch/x86/kvm/
+19:05 < agraf> yeah, ibm s390 ;)
+19:06 < agraf> chenwj: right, intel has more extensions because they rushed things more
+19:06 < chenwj> agraf: doesn'y ibm design s390 with virtualization in mind from the beginning?
+19:06 < agraf> chenwj: so on intel, everything is glued on as an after-thought
+19:06 < agraf> chenwj: while the amd implementation is actually _designed_ ;)
+19:06 < agraf> chenwj: well, the s/360 only got virtualization in the s/370-something days
+19:07 < agraf> chenwj: so it wasn't attached to it from the beginning - and it still looks pretty similar
+19:07 < agraf> chenwj: either way, you can tell that designing something really helps :)
+19:08 < chenwj> then it's a good design, it must leave some space for futhur use
+19:08 < agraf> yeah :)
+19:08 < agraf> you can also tell that the guy amd bought to design theirs was bought from ibm ;)
+19:10 < chenwj> but intel still beat amd on the market?
+19:13 < agraf> by far, yeah
+19:20 < chenwj> zruan0: iiuc (if I understand correctly), the guest vm is a qemu process, the vcpus are ran as threads

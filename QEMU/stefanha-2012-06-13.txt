@@ -1,0 +1,21 @@
+16:57 < chenwj> any git guru here? how do I maintain a qemu git mirror?
+17:07 < bonzini> chenwj: what exactly do you want to do?
+17:07 < bonzini> chenwj: a cron job that does "git fetch origin" should do
+17:08 < bonzini> chenwj: if you create the repo with "git init && git remote add --mirror=fetch origin URL"
+17:08 < bonzini> chenwj: i don't know how you run the git server though
+17:11 < chenwj> which means I can't use something like github to create a mirror?
+17:12 < chenwj> I don't think github allow me to setup a cron job...
+17:21 < chenwj> stefanha: thanks, I saw your reply
+17:26 < chenwj> stefanha: does Lluíswork on this? -> http://wiki.qemu.org/Features/Tracing
+17:27 < stefanha> chenwj: I think he has extended the tracing support in QEMU so that it can instrument TCG guests.
+17:27 < stefanha> So he's really building on top of the QEMU tracing functionality that exists today.
+17:28 < chenwj> cool
+17:29 < chenwj> but what "instrument TCG guest" means?
+17:29 -!- Jia` is now known as Jia
+17:30 < chenwj> my impression on tracing is it can see what "fucntions" have been executed
+17:30 < stefanha> QEMU tracing allows you to define trace events and trigger them from locations in the QEMU codebase.
+17:31 < stefanha> You call something like: trace_rtc_readb(addr, val);
+17:32 < stefanha> But we have no way to plant trace_*() calls in TCG generated code.
+17:32 < stefanha> And the trace events that have been defined in ./trace-events are not particularly useful for observing TCG guests.
+17:33 < stefanha> chenwj: Something like guest load/store tracing is possible but not trivial.  But I think with Lluis' code it may be supported.
+17:33 < chenwj> ok, wait for his reply :)

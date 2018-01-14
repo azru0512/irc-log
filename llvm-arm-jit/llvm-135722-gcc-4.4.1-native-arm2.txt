@@ -1,0 +1,121 @@
+llvm[0]: Running test suite
+make[1]: Entering directory `/nfs_home/chenwj/test/native-build/arm2/test'
+Making a new site.exp file...
+Making LLVM 'lit.site.cfg' file...
+Making LLVM unittest 'lit.site.cfg' file...
+( ulimit -t 600 ; ulimit -d 512000 ; ulimit -m 512000 ; ulimit -v 1024000 ; \
+	  /nfs_home/chenwj/test/llvm/utils/lit/lit.py -s -v . )
+-- Testing: 6052 tests, 4 threads --
+Testing: 0 .. 10.
+FAIL: LLVM :: CodeGen/Generic/2008-02-04-Ctlz.ll (1032 of 6052)
+******************** TEST 'LLVM :: CodeGen/Generic/2008-02-04-Ctlz.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm/test/CodeGen/Generic/2008-02-04-Ctlz.ll
+--
+Exit Code: 139
+Command Output (stderr):
+--
+0   0x016726b8  + 1230792
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'ARM Instruction Selection' on function '@main'
+/nfs_home/chenwj/test/native-build/arm2/test/CodeGen/Generic/Output/2008-02-04-Ctlz.ll.script: line 2: 23832 Segmentation fault      '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc' < '/nfs_home/chenwj/test/llvm/test/CodeGen/Generic/2008-02-04-Ctlz.ll'
+--
+
+********************
+Testing: 0 .. 10..
+FAIL: LLVM :: CodeGen/Generic/llvm-ct-intrinsics.ll (1093 of 6052)
+******************** TEST 'LLVM :: CodeGen/Generic/llvm-ct-intrinsics.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm/test/CodeGen/Generic/llvm-ct-intrinsics.ll
+--
+Exit Code: 139
+Command Output (stderr):
+--
+0   0x01672828  + 1231160
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'ARM Instruction Selection' on function '@ctlztest'
+/nfs_home/chenwj/test/native-build/arm2/test/CodeGen/Generic/Output/llvm-ct-intrinsics.ll.script: line 2: 23960 Segmentation fault      '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc' < '/nfs_home/chenwj/test/llvm/test/CodeGen/Generic/llvm-ct-intrinsics.ll'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/2003-08-15-AllocaAssertion.ll (3191 of 6052)
+******************** TEST 'LLVM :: ExecutionEngine/2003-08-15-AllocaAssertion.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/lli /nfs_home/chenwj/test/llvm/test/ExecutionEngine/2003-08-15-AllocaAssertion.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+Unhandled instruction encoding format!
+UNREACHABLE executed at /nfs_home/chenwj/test/llvm/lib/Target/ARM/ARMCodeEmitter.cpp:532!
+0  libc.so.6 0x402e5000
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/lli /nfs_home/chenwj/test/llvm/test/ExecutionEngine/2003-08-15-AllocaAssertion.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm2/test/ExecutionEngine/Output/2003-08-15-AllocaAssertion.ll.script: line 2: 32263 Aborted                 '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/lli' '/nfs_home/chenwj/test/llvm/test/ExecutionEngine/2003-08-15-AllocaAssertion.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/2003-08-23-RegisterAllocatePhysReg.ll (3193 of 6052)
+******************** TEST 'LLVM :: ExecutionEngine/2003-08-23-RegisterAllocatePhysReg.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/lli /nfs_home/chenwj/test/llvm/test/ExecutionEngine/2003-08-23-RegisterAllocatePhysReg.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+Unhandled instruction encoding format!
+UNREACHABLE executed at /nfs_home/chenwj/test/llvm/lib/Target/ARM/ARMCodeEmitter.cpp:532!
+0  libc.so.6 0x402e5000
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/lli /nfs_home/chenwj/test/llvm/test/ExecutionEngine/2003-08-23-RegisterAllocatePhysReg.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm2/test/ExecutionEngine/Output/2003-08-23-RegisterAllocatePhysReg.ll.script: line 2: 32268 Aborted                 '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/lli' '/nfs_home/chenwj/test/llvm/test/ExecutionEngine/2003-08-23-RegisterAllocatePhysReg.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/test-loadstore.ll (3219 of 6052)
+******************** TEST 'LLVM :: ExecutionEngine/test-loadstore.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/lli /nfs_home/chenwj/test/llvm/test/ExecutionEngine/test-loadstore.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+Unhandled instruction encoding format!
+UNREACHABLE executed at /nfs_home/chenwj/test/llvm/lib/Target/ARM/ARMCodeEmitter.cpp:532!
+0  libc.so.6 0x402e5000
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/lli /nfs_home/chenwj/test/llvm/test/ExecutionEngine/test-loadstore.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@varalloca'
+/nfs_home/chenwj/test/native-build/arm2/test/ExecutionEngine/Output/test-loadstore.ll.script: line 2: 32308 Aborted                 '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/lli' '/nfs_home/chenwj/test/llvm/test/ExecutionEngine/test-loadstore.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.. 
+Testing Time: 420.68s
+********************
+Failing Tests (5):
+    LLVM :: CodeGen/Generic/2008-02-04-Ctlz.ll
+    LLVM :: CodeGen/Generic/llvm-ct-intrinsics.ll
+    LLVM :: ExecutionEngine/2003-08-15-AllocaAssertion.ll
+    LLVM :: ExecutionEngine/2003-08-23-RegisterAllocatePhysReg.ll
+    LLVM :: ExecutionEngine/test-loadstore.ll
+
+  Expected Passes    : 5449
+  Expected Failures  : 47
+  Unsupported Tests  : 551
+  Unexpected Failures: 5
+make[1]: Leaving directory `/nfs_home/chenwj/test/native-build/arm2/test'

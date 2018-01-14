@@ -1,0 +1,65 @@
+17:13 < chenwj_> pm215: when translating arm pte to x86 pte (if possible), should I care about other bits (except AP bit), like nG, S, XN?
+18:16 < pm215> chenwj_: the requirement is to present the correct behaviour to the guest, whether you do that by translating to x86 equivalent or by saying
+               "this can't be handled, fall back to the slow path"
+18:18 < chenwj_> so I can ignore them, is that what you mean?
+18:18 < pm215> no, you have to make them behave correctly one way or another
+18:18 < chenwj_> I saw in qemu it only handle ap bit, xn
+18:19 < chenwj_> ap + xn bit
+18:19 < chenwj_> is seems qemu doesn't care about other bits
+18:20 < pm215> for bits related to Secure/NonSecure, bear in mind that qemu is an implementation without TrustZone
+18:22 < pm215> for nG we implement this in TCG by flushing the TLB more than we would have to if our TLB distinguished global/non-global/ASID
+18:23 < chenwj_> I see
+18:24 < chenwj_> does qemu care about cacheable and bufferable bit?
+18:25 < pm215> not in TCG because we neither cache nor buffer anything
+18:26 < pm215> it's one of the interesting problem areas if we ever expand to one thread per cpu
+18:28 < chenwj_> you mean since system mode use rr, so it not an issue?
+18:29 < pm215> since system mode runs everything in one host thread, we always see a coherent view of the world from each guest cpu, so it is as if we have
+               no caches
+18:30 < pm215> if we had one host thread per guest cpu then we would have to deal with mismatches between the host's memory model and the guest's
+18:33 < chenwj_> ok, *if* we leave address translation to hw by translating arm page table to x86 one first, as you said in system mode we only have one
+                 host thread, do we still need to take care of c and b bit?
+18:34 < pm215> I think in that case you are probably ok
+18:35 < chenwj_> probably. :p
+18:36 < chenwj_> arm has very finegrain control about cache and write buffer, afaik about x86
+18:38 < pm215> you should bear in mind that the ARM ARM finegrained distinctions are there to allow various different implementations, and an implementation
+               will often not have so many levels
+18:39 < pm215> in particular, qemu is an implementation, and one of the valid implementations is "treat everything as non-cacheable"
+18:45 < agraf> pm215: so you're always allowed to be more strict?
+18:45 < agraf> i strict the right word here?
+18:45 < agraf> coherent maybe
+18:46 < pm215> agraf: yeah, the memory attributes define what the software can rely on, so it defines a minimum for the implementation
+18:46 < agraf> pm215: cool, same as ppc then :)
+18:47 < agraf> so yeah, that makes arm-on-x86 easy
+18:47 < agraf> the other way around is quite tricky
+18:47 < agraf> pm215: speaking of which, how does arm linux do icache flushes on swap? :)
+18:47 < pm215> (by the way, "cacheable" and "bufferable" are obsolete terms these days -- the C and B bits are actually encoding memory attributes like
+               Normal, Strongly-Ordered, Device etc)
+18:48 < chenwj_> agraf: makes arm-on-x86 easy? translate what?
+18:49 < pm215> icache flushes on swap?
+18:49 < agraf> chenwj_: well, x86 is quite coherent when it comes to memory accesses
+18:49 < agraf> chenwj_: so since it's more strict, you don't need to worry about it usually
+18:49 < agraf> pm215: yeah, arm also has manual icache control, no?
+18:50 < pm215> yes
+18:50 < chenwj_> you mean its memory model is more strict?
+18:50 < agraf> chenwj_: yes
+18:50 < agraf> pm215: so when you swap out a page
+18:50 < agraf> pm215: and then swap a page in
+18:50 < agraf> pm215: the icache on that page could still have bogus data
+18:50 < agraf> pm215: so you need to flush the icache on first execution of a page
+18:50 < agraf> pm215: in fact, it should even happen without swap
+18:51 < agraf> pm215: but with swapping it's easier to reproduce
+18:51 < agraf> pm215: how does arm linux take care of that case?
+18:51 < agraf> pm215: ppc has some funky hooks into the linux pte write path to set/clear PG_arch_1
+18:52 < agraf> pm215: which translates to "flush icache on map"
+18:53 < pm215> not a kernel expert, but I think this is probably handled by __sync_icache_dcache http://lxr.linux.no/#linux+v3.5/arch/arm/mm/flush.c#L227
+18:55 < agraf> pm215: ah, so you guys have the same bug I'm fighting with
+18:55 < agraf> pm215: good, I'll make my hook an arch callback then
+18:56 < pm215> bug? that code is a bit of a blunderbuss I think but I would expect it ought to work...
+18:57 < agraf> pm215: the guest pages are not executable
+18:57 < agraf> pm215: at least from qemu's point of view
+18:58 < pm215> oh, this is a bug in kvm?
+18:59 < agraf> yeah
+19:01 < pm215> if you could cc kvmarm@lists.cs.columbia.edu on whatever patch/explanation you produce that would be cool
+19:02 < agraf> sure :)
+19:02 < agraf> I have a local hack that works for me at least
+19:02 < agraf> but yes, I will create a proper framework around it since you guys need it as well

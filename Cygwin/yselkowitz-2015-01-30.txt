@@ -1,0 +1,33 @@
+[16:24] <chenwj> if I install a library through setup.exe, it seems mingw-gcc cannot find it?
+[16:25] <chenwj> Do I have to manually copy lib/libxxx.a into usr\x86_64-w64-mingw32\sys-root\mingw\lib to make things work?
+[16:25] <yselkowitz> no, no
+[16:26] <chenwj> then what's the correct way?
+[16:27] <yselkowitz> either install a package built for x86_64-w64-mingw32, or build it yourself
+[16:27] <yselkowitz> what are you trying to accomplish here?
+[16:29] <chenwj> I install mingw-gcc and llibrary through setup.exe, and I want to build a source by using mingw-gcc to get native windows binary.
+[16:30] <chenwj> cygwin gcc works, but mingw-gcc complains it cannot find the library
+[16:30] <yselkowitz> cygwin libraries aren't compatible with mingw ones
+[16:30] <chenwj> I see
+[16:33] <chenwj> install a package built for x86_64-w64-mingw32 << you mean download the pre-built package, then extract library into usr\x86_64-w64-mingw32\sys-root\mingw\lib?
+[16:33] <yselkowitz> no
+[16:33] <yselkowitz> what library do you need?
+[16:33] <chenwj> libusb
+[16:37] <yselkowitz> API 0.1 or 1.0?
+[16:37] <chenwj> 1.0 is preferred
+[16:39] <yselkowitz> https://sourceforge.net/p/cygwin-ports/mingw64-x86_64-libusb1.0/ci/master/tree/mingw64-x86_64-libusb1.0.cygport
+[16:42] <chenwj> you mean download the cygport and libusb source, build & install by myself?
+[16:44] <yselkowitz> or you can download the binary package from ftp://ftp.cygwinports.org/pub/cygwinports/noarch/release/mingw64-x86_64-libusb1.0/
+[16:44] <chenwj> that's cool
+[16:45] <chenwj> so basically, the library installed through setup.exe only can be used with cygwin-gcc?
+[16:47] <yselkowitz> libraries in /usr/lib are for gcc, g++, etc.
+[16:47] <yselkowitz> libraries in /usr/$TARGET/sys-root/$prefix/lib are for $TARGET-gcc etc.
+[16:48] <chenwj> okay, now I finish `cygport mingw64-x86_64-libusb1.0.cygport all`.
+[16:50] <chenwj> I feel embarrass, so `cygport mingw64-x86_64-libusb1.0.cygport install` DOES NOT install libusb for me?
+[16:50] <yselkowitz> no
+[16:53] <chenwj> I need to copy inst/usr/ to C:\cygwin64\usr ?
+[16:54] <yselkowitz> you could do that
+[17:20] <chenwj> yselkowitz: what's the purpose of adding cygport mirror like the link says -> https://sourceware.org/cygwinports/
+[17:21] <MetaNova> because cygwinports has many additional packages not found in the regular cygwin repos
+[17:21] <chenwj> oh, I see
+[17:28] <chenwj> MetaNova, yselkowitz: thanks for help :-)
+[17:28] <MetaNova> chenwj: sure thing

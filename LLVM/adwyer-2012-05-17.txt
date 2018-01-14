@@ -1,0 +1,33 @@
+16:16 < adwyer> Hello, does anyone know the status of the 3.1 release?  I couldn't find any info in the llvm-dev archives.
+16:16 < chenwj> adwyer: It should be released on 5/16
+16:17 < chenwj> 5/14
+16:17 < chenwj> but I am not sure what block its release
+16:17 < Bigcheese> No news in here.
+16:18 < Ralith> it should be released three days ago?
+16:19 < chenwj> seems so
+16:21 < adwyer> Is there usually discussion in llvm-dev about releases, or another place where status is talked about?
+16:21 < chenwj> llvm-dev should be fine
+16:21 < chenwj> adwyer: you can ask what the 3.1 status is
+16:23 < adwyer> chenwj:  Thanks, I may do that.  I am mostly excited to use the Intel Amplifier support that seems to be releasing with 3.1.
+16:23 < chenwj> profiling?
+16:24 < llvmbb> build #1060 of llvm-arm-linux is complete: Success [build successful]  Build details are at
+                http://lab.llvm.org:8011/builders/llvm-arm-linux/builds/1060
+16:25 < Ralith> Intel Amplifier?
+16:25 < chenwj> y
+16:25 < adwyer> Intel Amplifier is the new name for VTune
+16:26 < chenwj> adwyer: so it's profiling
+16:26 < adwyer> I saw a commit by Eli Bendersky adding Amplifier support
+16:27 < adwyer> chenwj: Indeed.  Hoping to see more than just "unknown code" in my profiles…should be pretty awesome if it works.
+16:27 < chenwj> if it works ;)
+16:28 < nadav> adwyer: Yes, Eli added support for VTune.
+16:28 < adwyer> Excellent!
+16:29 < chenwj> adwyer: what file? do u know?
+16:29 < adwyer> chenwj, I think I can get you the commit message…one sec
+16:30 < adwyer> Ah darn I have the LLVM svn repo on another machine from this one.  Just svn log and look for eliben, you'll see his change.  Wasn't too
+                long ago.
+16:32 < chenwj> ok
+16:35 < chenwj> adwyer: Add profiling support for Intel Parallel Amplifier XE (VTune) for JITted code in LLVM. <- this one?
+16:35 < adwyer> Aye!  That's the one.
+16:36 < adwyer> VTune support along with some refactoring to share some profiling logic with the existing oprofile support.  Nice :)
+16:40 < adwyer> Thanks for the discussion, good night!
+16:44 < chenwj> good night

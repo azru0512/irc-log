@@ -1,0 +1,27 @@
+17:31 < chenwj> amker: 在嘛?
+17:34 < amker> 在
+17:35 < chenwj> amker: 想問一下 http://old.nabble.com/question-on-inconsistent-generated-codes-for-builtin-calls-td33132678.html
+17:36 < chenwj> It is then set in following codes when expanding sqrtf call in function a <-
+17:36 < chenwj> 在編譯 function a 的時候，DECL_ASSEMBLER_NAME_SET_P 回傳 false
+17:36 < chenwj> 這時候不會 expand_call
+17:36 < chenwj> 對嗎?
+17:37 < amker> 嗯
+17:37 < amker> 这个问题似乎没有邮件里面认为的这么简单, 这个check可能有其他的用途
+17:37 < chenwj> It is then set in following codes when expanding sqrtf call in function a <- 那這句話是什麼意思?
+17:37 < amker> 你了解吗?
+17:38 < chenwj> 不
+17:38 < chenwj> expanding sqrtf call in function a <- 剛剛不是說不會 expand_call?
+17:40 < amker> 条件为false, 走fallup的代码, 会用浮点指令实现sqrtf, 但gcc还需要做math check, 检查sqrtf调用是否合法, 这个check只能用call来实现,
+               所以虽然不走那个check处的expand, 后面还是会进入到expand_call中
+17:43 < chenwj> 接下來編譯 function b 的時候，DECL_ASSEMBLER_NAME_SET_P 就會回傳 true，cj rul42l4
+17:43 < chenwj> 呼叫到 expand_call
+17:44 < chenwj> 同樣是會呼叫
+17:44 < amker> 是的
+17:44 < chenwj> expand_all，為什麼兩邊生成的 assembly 不一樣?
+17:44 < amker> 但是control flow却不一样了
+17:45 < amker> 因为control flow不一样, 编译a时不仅仅调用expand_call, 它只是副作用而已
+17:45 < chenwj> ok
+17:46 < amker> 不过这个问题似乎没原来想的这么简单  这个check似乎会影响到builtin function的调用  还需要再看看
+17:47 < chenwj> 看 DECL_ASSEMBLER_NAME_SET_P 的註解有幫助嗎?
+17:47 < amker> nope, comment很简单
+17:49 < chenwj> DECL_WITH_VIS_CHECK <-?

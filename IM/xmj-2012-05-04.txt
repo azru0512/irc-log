@@ -1,0 +1,77 @@
+15:11 < chenwj_> 有人有空嗎?
+15:11 < xmj> 咋了
+15:12 < chenwj_> 幫我測個小東西
+15:12 < xmj> 怎么测
+15:12 < chenwj_> $ git clone git://github.com/azru0512/linux-0.12.git; cd linux-0.12; make
+15:13 < chenwj_> ramdisk.c:36: error: can't find a register in class 'CREG' while reloading 'asm'
+15:13 < xmj> ok
+15:13 < chenwj_> 這個錯誤我一直搞不定
+15:14 < chenwj_> http://stackoverflow.com/questions/10437990/cant-find-a-register-in-class-creg-while-reloading-asm-memcpy-inline-asm
+15:14 < chenwj_> 問了也解不了
+15:14 < xmj> 我先把git装上。。。
+15:14 < chenwj_> ok
+15:17 < xmj> include/asm/memory.h
+15:17 < xmj> 内嵌汇编的问题
+15:17 < xmj> 导致gcc reload的时候报错
+15:18 < chenwj_> 不是給 ramdisk.c:36:10: error: can't find a register in class 'CREG' while reloading 'asm'
+15:18 < chenwj_> ?
+15:18 < xmj> 不过这是x86的模板，constant有问题
+15:18 < xmj> constraints
+15:19 < xmj> s/constant/constraints/
+15:19 < chenwj_> xmj: 是 memcpy (include/string.h) 的問題?
+15:19 < xmj> 这个memcpy是宏定义
+15:20 < xmj> 在llinux-0.12/include/asm/memory.h
+15:20 < chenwj_> :/
+15:21 < chenwj_> 我怎麼找到 include/string.h ??
+15:21 < xmj> 肯定是gcc对内嵌汇编中的约束（constraint）有改动，不向下兼容了
+15:21 < xmj> 找string.h干什么？
+15:21 < chenwj_> 他裡面也有個 memcpy
+15:22 < xmj> 你是想不用linux-0.12自带的memcpy？
+15:22 < chenwj_> xmj: 不不
+15:23 < chenwj_> 我 make 的 error 是 ramdisk.c:36: error ...
+15:23 < chenwj_> 他有 #include string.h
+15:23 < chenwj_> 所以我往那找
+15:24 < xmj> 不是那个问题。
+15:24 < chenwj_> 等等
+15:24 < xmj> 你发的那个stackoverflow帖子解释的很详细了
+15:24 < chenwj_> linux-0.11 把 asm/memory.h 給註解掉了
+15:24 < chenwj_> 然後改掉 string.h memcpy 的 clobber
+15:24 < chenwj_> 我試試
+15:25 < chenwj_> xmj: memory.h 那個要幹掉
+15:25 < chenwj_> orz
+15:27 < chenwj_> 見鬼了
+15:28 < chenwj_> xmj: 多虧你多一雙眼睛 看到 asm/memory.h
+15:28 < xmj> 我用的CTAGS :-)
+15:28 < chenwj_> 怎麼用
+15:28 < chenwj_> 趁機學一下
+15:30 < xmj> 在顶层目录linux-0.12下，$ ctags -R
+15:30 < chenwj_> then?
+15:30 < xmj> 然后，在memcpy光标下ctrl + ]
+15:30 < xmj> 就跳到宏定义那里了
+15:31 < chenwj_> 你說在 ramdisk.c 用到 memcpy 那裏下 ctl + ] ?
+15:31 < xmj> 是的
+15:31 < xmj> 跳回来用 ctrl + o
+15:32 < chenwj_> xmj: nice, thanks!
+15:33 < xmj> 再加上cscope和taglist，vim基本上对于c程序可以作为source insight了
+15:33 < chenwj_> 還是透過教訓學比較有感覺
+15:33 < chenwj_> ok, 我查查怎麼用
+15:33  * xmj -> away
+16:13 < xmj> 先让make打印出详细的编译信息
+16:18 < xmj> 是asm/memory.h
+16:20 < xmj>  gcc
+16:20 < xmj> gcc会先找asm/memory.h，如果注释掉，就会找string.h
+16:28 < chenwj_> make V=1?
+16:32 < xmj> 都可以
+16:32 < xmj> 然后，你就可以看到gcc编译的命令
+16:33 < xmj> 单独执行那个命令，加上 -v -save-temps，就可以打印整个编译过程
+16:33 < xmj> 然后，把预处理过程的命令单独执行，加上-P
+16:34 < xmj> 查看.i文件，就可以发现是使用的asm下的宏
+16:36 < chenwj_> ctag 怎麼做到知道是 memory.h 而不是 string.h 的 memcpy
+16:37 < chenwj_> 這樣看來 ctag 省是不少
+16:37 < chenwj_> 事
+16:37 < xmj> ctags有时未必准确
+16:37 < xmj> 最准确的，是看预处理文件的实际代码
+16:37 < chenwj_> 你是說 .i 檔?
+16:38 < xmj> 是的
+16:38 < chenwj_> 恩
+

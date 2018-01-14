@@ -1,0 +1,18 @@
+17:10 < chenwj_> what softmmu in qemu does is translating guest virtual addr to guest physical addr, right?
+17:11 < stefanha> chenwj_: yes
+17:13 < chenwj_> does qemu do some guest virtual -> *host* virtual mapping?
+17:19 < pm215> in system mode, we emulate the mmu, which does guest virt -> guest phys; qemu then internally does some minor tweaks to turn guest phys into
+               a ramaddr_t which is (more or less) host virtual
+17:19 < pm215> in linux-user mode there's a simple mapping from guest virt to host virt (roughly, adding an offset)
+17:24 < agraf_> pm215: looking at exec.c:2327 we actually store the HVA in qemu's internal TLB
+17:24 < agraf_> (or the diff between GVA and HVA)
+17:26 < chenwj_> agraf_: should I look qemu-0.15?
+17:26 < agraf_> chenwj_: well, I was checking current HEAD
+17:27 < chenwj_> see
+17:27 < agraf_> chenwj_: but the function you're interested in is tlb_set_page
+17:27 < agraf_> chenwj_: that gets called when the softmmu target code wants to add a qemu tlb entry for a GVA->GPA mapping
+17:28 < chenwj_> agraf_: then it'll store HVA actually?
+17:29 < agraf_> chenwj_: it'll store (gva - hva) and on resolution probably just adds that value to the gva
+17:29 < chenwj_> see
+17:32 < pm215> yeah, good point. there are conceptually two stages (gva->gpa->hva) to the translation but qemu's data structures do the optimisation of just
+               collapsing things down for the tlb-hit case

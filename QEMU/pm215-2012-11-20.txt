@@ -1,0 +1,51 @@
+13:28 < e_voevodin> [PATCH v5 0/6] Running Microport UNIX (ca 1987)
+13:28 < e_voevodin> My first read: [PATCH v5 0/6] Running Microsoft UNIX (ca 1987)
+13:30 < jia> MS UNIX==SCO??
+14:25 < chenwj> e_voevodin: should be Microport lolo
+15:53 < armbru> jia, http://en.wikipedia.org/wiki/Xenix and http://en.wikipedia.org/wiki/Microport
+15:53 < jia> armbru: I knew it, thanks
+16:10 < e_voevodin> Why do we need to use offsetof(TranslationBlock, phys_hash_next) when calling tb_remove()? Why not using tb1->phys_hash_next in
+                    tb_remove() instead?
+16:10 < e_voevodin> exec.c
+16:40 < e_voevodin> Guys?
+19:31 < _benoit_> kwolf: Hi
+19:48 < e_voevodin> Sorry for repeat, but... exec.c: Why do we need to use offsetof(TranslationBlock, phys_hash_next) when calling tb_remove()? Why not
+                    using tb1->phys_hash_next in tb_remove() instead?
+19:49 < kwolf> Hi _benoit_
+19:50 < chenwj> e_voevodin: static inline void tb_remove(TranslationBlock **ptb, TranslationBlock *tb,
+19:50 < chenwj>                              int next_offset)
+19:51 < chenwj> you mean why bother pass next_offset to tn_remove?
+19:51 < e_voevodin> Yes
+19:51 < pm215> check the git history. when this function was added it was used to remove TBs from more than one list
+19:52 < pm215> in the current codebase it's only used with the next_offset value equal to offsetof(phys_hash_next), which is why it looks odd
+19:57 < e_voevodin> Maybe clean this up?
+19:58 < chenwj> e_voevodin: I will do!
+19:59 < e_voevodin> ok
+19:59 < chenwj> I'll cc to you. :)
+20:01 < pm215> it should probably change name to tb_hash_remove() if you drop the generality
+20:01 < pm215> (compare tb_page_remove and tb_jmp_remove)
+20:01 < chenwj> tb_remove -> tb_hash_remove?
+20:02 < pm215> yes
+20:02 < pm215> because if it doesn't take an arbitrary next_offset then it is only for removing the tb from the hash list
+20:06 < chenwj> I see
+20:18 < chenwj> pm215: stupid question.. how do you know tb_remove was for remove TBs from more than one list, I see no such info in `git log`
+20:19 < pm215> (1) use 'git blame exec.c' to find out when the function was added [commit fd6ce8f6] (2) use 'git show fd6ce8f6' to see that there are
+               several calls to tb_remove added in that commit, with different next_offsets
+20:21 < e_voevodin> I still can't catch why offsetof is used there ). In my opinion it's usefull only if struct TranslationBlock variates between archs
+20:21 < e_voevodin> But even in that case...
+20:21 < e_voevodin> I don't see a reason )
+20:22 < pm215> the three calls pass different field names to offsetof
+20:22 < e_voevodin> Ah, yeah. You're right
+20:22 < e_voevodin> No we have single
+20:22 < pm215> it's a workaround for C not letting you pass a struct field name as a token to a function
+20:22 < e_voevodin> *Now
+20:24 < e_voevodin> I definitely should read twice what you wrote before asking questions )). There were three different lists of TBs and now we have only
+                    one
+20:26 < chenwj> pm215: the other calls are replaced by tb_page_remove?
+20:27 < e_voevodin> Seems so
+20:28 < chenwj> ok
+20:28 < pm215> chenwj: yes
+20:29 < e_voevodin> Where can I get materials from KVM forum?
+20:29  * lupine_85 wonders if postcopy migration is a still a thing
+20:31 < chenwj> e_voevodin: http://www.linux-kvm.org/page/Main_Page
+20:31 < chenwj> e_voevodin, pm215 patch sent

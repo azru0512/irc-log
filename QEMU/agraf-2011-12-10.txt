@@ -1,0 +1,228 @@
+00:37 < agraf_> pm215: btw - did you understand how the llvm thing goes from tcg to llvm mode?
+00:37 < pm215> agraf_: no, I haven't looked at it
+00:37 < agraf_> pm215: too bad
+00:38 < friggle> ah yes, T+Cs. I gues ARM fast models would be an example of a proprietary product
+00:38 < pm215> also different products may be aiming at different places on the "accuracy of emulation" scale, which then affects how fast they can go
+00:42 < pm215> one of the ironies of cpu modelling is that the more detailed your modelling of all the twiddly bits that exist purely to make the hardware
+               faster, the slower your model is
+00:43 < friggle> indeed
+00:45 < chenwj> agraf_: talk about our project?
+00:48 < agraf_> chenwj: yes :)
+00:48 < agraf_> chenwj: I didn't understand your mail :)
+00:48 < agraf_> chenwj: and I assumed it's the middle of the night for you now ;)
+00:49 < chenwj> agraf_: yes!
+00:49 < agraf_> chenwj: so when you create the trace, how do you generate llvm input?
+00:49 < chenwj> we use QEMU frontend to parse guest binary into TCG IR
+00:49 < agraf_> chenwj: guest and host arch are different, right?
+00:50 < chenwj> y
+00:50 < agraf_> chenwj: ok, so if you're running arm for example
+00:50 < chenwj> QEMU will store TCG IR and its operand somewhere
+00:50 < agraf_> chenwj: you just call target-arm/translate.c again
+00:50 < agraf_> there is no TCG IR O_o
+00:50 < pm215> er, there is, but it's transient
+00:50 < chenwj> wait
+00:51 < agraf_> pm215: yes, it's nothing that's represented as bytes
+00:51 < chenwj> agraf_: gen_opc_buf and gen_opparam_buf
+00:52 < stefanha> afaerber: Try http://git.qemu.org/ again and make sure it's not cached in your browser.  gitweb is up.
+00:52 < pm215> it's in a pair of arrays rather than a single bytestream, but it's there, as chenwj says
+00:52 < chenwj> or opcode I should say
+00:52 < agraf_> oh? guess I never went that deep in TCG :)
+00:52 < agraf_> ok
+00:52 < chenwj> then we prepare functions for each TCG IR/opcode
+00:53 < chenwj> we consume gen_opc_buf and gen_opparam_buf, call function according to the opcode
+00:53 < agraf_> yeah, that makes sense
+00:53 < chenwj> those functions generate corresponding LLVM IR
+00:53 < agraf_> so how do you tell the translator to go beyond jumps?
+00:53 < chenwj> go beyond jumps?
+00:54 < agraf_> usually the translator stops translating (ending the TB) on conditional jumps
+00:54 < agraf_> IIUC your traces try to accomodate for that
+00:54 < chenwj> we follow what qemu does
+00:54 < chenwj> yes, but that's a different story
+00:54 < agraf_> because you already executed guest code, you know the "high change" condition
+00:55 < agraf_> s/change/chance/
+00:55 < chenwj> no matter it's block or trace, we rely on qemu translation. no much modification here.
+00:56 < chenwj> when we find a trace, here the flow
+00:57 < agraf_> ah, so you're doing the linking in the external llvm generator?
+00:57 < chenwj> yes
+00:58 < chenwj> we leave some room for patching
+00:58 < chenwj> 1. we call qemu frontend _again_ to get those blocks' tcg op/operand
+00:59 < chenwj> 2. pass tcg op/operand to llvm codegen to generate host binary and link those blocks
+01:00 < agraf_> chenwj: "and link those blocks" - do you link them while at it or later on?
+01:01 < chenwj> two cases:
+01:01 < agraf_> chenwj: so do you allow llvm top optimize over a full trace or only over a single TB?
+01:01 < chenwj> full trace of course
+01:01 < chenwj> single tb is meaningless
+01:01 < agraf_> yes, that's what i was expecting too :)
+01:01 < agraf_> just want to make sure i understand correctly
+01:02 < chenwj> 1. if the destination address, say bb2, is known at the jit time, then we fill the address into bb1 jump target
+01:02 < agraf_> so you jump to the old tcg tb?
+01:03 < chenwj> 2. otherwise, we wait until we know the actual address then do the patch
+01:03 < agraf_> or you use it as a marker?
+01:03 < chenwj> new one
+01:03 < agraf_> ok, so you can't really do branch prediction like real CPUs do
+01:03 < agraf_> where indirect jumps are also accelerated
+01:03 < chenwj> wait, I could be wrong
+01:03 < agraf_> but that's fine
+01:04 < chenwj> jump to old tb, or jump to existing trace
+01:04 < chenwj> perhaps
+01:04 < chenwj> but since trace execute sequentially most of the time, so
+01:05 < agraf_> well, imagine code like:
+01:05 < agraf_> foo()
+01:05 < agraf_> bar()
+01:05 < agraf_> jmp x;
+01:05 < agraf_> foo()
+01:05 < agraf_> x:
+01:05 < agraf_> then you're doing a forward jump and you don't know at translation time of the jmp if x will be in your trace
+01:05 < agraf_> well - you actually could know
+01:05 < agraf_> because you know your trace
+01:07 < chenwj> _if_ the trace we predict doesn't execute sequentially, it's called early exit
+01:07 < chenwj> that's could be happened since we predict the trace
+01:07 < chenwj> the execution flow might change latter on
+01:07 < friggle> chenwj: is your working going to be open source?
+01:08 < chenwj> friggle: I really do
+01:08 < chenwj> but I'm not the decision maker
+01:08 < chenwj> I'll push it open source of course
+01:08 < chenwj> perhaps next year
+01:09 < chenwj> I really do want it to be open source
+01:09 < chenwj> but you know research community :)
+01:10 < pm215> there's an argument that it should be open source in order for your research to be reproducible
+01:11 < chenwj> my big boss afraid other research group might steal our idea if we open source
+01:11  * chenwj sigh
+01:11 < chenwj> old man
+01:13 < chenwj> pm215: we have man shortage. I think we can get help from qemu commnity if we open source
+01:14 < chenwj> since qemu has its own problem, or bugs
+01:14 < chenwj> if we don't open source or upstream our work
+01:14 < chenwj> then we have to solve those bugs ourself
+01:14 < chenwj> which make no sense to me
+01:15 < friggle> I know all too well how it's hard to find the time to clean up patches to go from research prototype quality to something you'd be happy
+                 for other people to use (and they'd accept upstream!)
+01:15 < chenwj> yaya
+01:15 < friggle> but you're right, there are potentially large gains
+01:15 < davidgiluk> but it doesn't need to be that cleaned up to be published for people to comment on the ideas
+01:15 < chenwj> those phd student have graduate deadline
+01:16 < chenwj> davidgiluk: they have no such custom, I think
+01:17 < friggle> chenwj: you get pretty nice initial results with SPEC right?
+01:17 < chenwj> friggle: yes
+01:17 < chenwj> friggle: not me, since the work mainly done others
+01:18 < chenwj> I have to we/our
+01:18 < chenwj> to say
+01:18 < friggle> sure
+01:18 < chenwj> we have a CGO 2012 paper accepted
+01:19 < agraf_> chenwj: wait, i thought the whole point of traces was that they could be non-sequential?
+01:19 < friggle> chenwj: awesome! look forwards to reading it
+01:19 < agraf_> chenwj: tight loops can already be optimized by tcg
+01:19 < chenwj> agraf_: they could be
+01:20 < chenwj> but, the point is they should execute sequentially most of the time
+01:20 < chenwj> exit trace early need to restore CPU state/cleanup
+01:20 < chenwj> that's overhead
+01:21 < chenwj> friggle: would you go to CGO next year
+01:21 < agraf_> chenwj: uh, you can always exit early
+01:21 < agraf_> chenwj: especially in system mode
+01:21 < chenwj> we tend to go to there and give a tutorial
+01:21 < agraf_> chenwj: every time a page fault could occur for example
+01:21 < chenwj> agraf_: ya
+01:21 < agraf_> (though that's handled cleverly in tcg)
+01:22 < chenwj> agraf_: I have to consider it in the future, we deal user mode currently
+01:22 < agraf_> but there are quite a number of TCG helpers that require synced state in env
+01:22 < chenwj> inline them :)
+01:22 < chenwj> oh
+01:23 < chenwj> we compile some TCG helpers into llvm ir, and inline them if it's worth
+01:23 < chenwj> use llvm-gcc/clang will do
+01:23 < friggle> chenwj: small chance, if I get a paper in to one of the workshops
+01:23 < agraf_> chenwj: hah - that's a neat trick :)
+01:23 < chenwj> others?
+01:23 < agraf_> chenwj: could end up pretty complex though
+01:23 < agraf_> chenwj: because op_helpers could call external helpers
+01:23 < agraf_> chenwj: which could also use env again
+01:24 < chenwj> external helpers?
+01:24 < agraf_> chenwj: IIRC we do that in the ppc mmu code
+01:24 < chenwj> IIRC, we compile most helpers into llvm ir
+01:24 < agraf_> chenwj: well, functions in helper.c instead of op_helper.c
+01:24 < chenwj> should include op_helper.c and helper.c ;-(
+01:24 < chenwj> ;-)
+01:24 < agraf_> chenwj: so if a function from op_helper.c (which you would inline) calls a function from helper.c
+01:24 < agraf_> then you would still make an external call
+01:25 < agraf_> and have a potential synchronization point
+01:25 < agraf_> i suppose you should just check if your inlining does any external calls
+01:25 < chenwj> I think we compile op_helper.c and helper.c into llvm ir
+01:25 < agraf_> and resolve them recursively
+01:25 < pm215> inlining op_helper.c functions is interesting because they assume the global cpu_env is in EBP...
+01:26 < agraf_> hrm, that probably covers all the cases i can think of now, yeah
+01:26 < agraf_> except for
+01:26 < agraf_> hrm
+01:26 < agraf_> you still need to sync on mmio
+01:26 < chenwj> we modify llvm backend to ping env on particular reg
+01:26 < agraf_> but you could hook into the hooks we have for kvm there already
+01:26 < pm215> not all helper functions live in op_helper/helper. eg cp15 functions for pxa2xx call out to hw/pxa2xx.c
+01:26 < chenwj> pm215: if that's you want to ask
+01:27 < agraf_> because on x86 for example, the vmware pv bus accesses cpu registers directly
+01:27 < agraf_> yeah, for ppc we have hw/ppc.c
+01:27 < agraf_> but we need synchronization hints for kvm there too
+01:28 < pm215> most of the functions where there's a benefit from inlining the helper we should just be inlining in translate.c in the first place IMHO
+01:28 < agraf_> pm215: no, tcg is horrible when you inline complex stuff
+01:28 < pm215> I mean simple stuff!
+01:28 < agraf_> pm215: anything with conditional branches turns a lot slower than helpers
+01:29 < agraf_> i guess for starters we could simply have llvm generate il for op_helper.c and on every call do a heavy-weight synchronization point
+01:29 < chenwj> agraf_: are you Alexander Graf?
+01:30 < agraf_> chenwj: yup :)
+01:30 < chenwj> friggle: and you?
+01:30 < pm215> agraf_: does that include conditions done via setcond ?
+01:30 < agraf_> and then take it from there and optimize towards moving stuff out of helper.c towards op_helper.c
+01:30 < agraf_> or towards inline functions in headers
+01:30 < agraf_> pm215: i dislike the hw/ppc.c part too btw
+01:31 < agraf_> pm215: to me that file should rather be in target-ppc/
+01:31 < agraf_> pm215: since hardware shouldn't know anything about cpu internal registers
+01:31 < agraf_> similar to how the x86 lapic should be in target-i386
+01:31 < agraf_> pm215: it depends on the size of your helper
+01:31 < agraf_> pm215: but i had a lot of very interesting optimization effects with s390
+01:32 < pm215> I mean, target-arm does all the variable shifts in helpers
+01:32 < agraf_> pm215: in some cases i could get insane speedups from doing stuff inline
+01:32 < agraf_> pm215: in others (even easier cases) i ended up being slower
+01:32 < agraf_> pm215: even with setcond
+01:32 < pm215> and also add-with-carry which really hurts us IIRC
+01:32 < agraf_> pm215: it was very unpredictable
+01:32 < agraf_> hrm
+01:33 < agraf_> depends on the type of helper, no?
+01:33 < pm215> slower> is this because we generate worse code for setcond-constructions than we could do?
+01:33 < agraf_> if it's const and pure, it should be fast
+01:33 < agraf_> the problem with const is that we only have a single return value
+01:34 < agraf_> if we could have 2 return values from a helper, I could probably make 90% of s390 helpers const
+01:34 < pm215> the adc in particular is the 'and set condition codes' one
+01:35 < agraf_> pm215: don't you usually want condition codes to be optimized away?
+01:35 < pm215> but yes, it's the pain of having to benchmark the two versions that's left me not doing any of this
+01:35 < chenwj> btw, arm -> arm speedup ratio is much lower than x86 -> arm
+01:35 < chenwj> we guess it might be the arm frontend issue
+01:35 < pm215> agraf_: ARM doesn't do the condition-code optimisation thing
+01:42 < agraf_> pm215: yikes
+01:43 < agraf_> pm215: that was like an x2 speedup or so for me
+01:43 < agraf_> pm215: don't fully remember - maybe it was even more
+01:43 < pm215> mostly for ARM code insns won't set condition flags unless they wanted to use the results
+01:43 < agraf_> pm215: like really a _lot_
+01:43 < pm215> but yeah, we should probably put it in there
+01:43 < pm215> (esp since thumb is much freer about setting flags)
+01:43 < agraf_> well, even if you want to use it you can use conditional branches with only the single condition you care about
+01:44 < agraf_> either way, gotta run
+01:44 < agraf_> ttyl :)
+01:44 < pm215> me too
+01:47 < friggle> chenwj: not a qemu developer, just a lurker. PhD student (http://asbradbury.org/research)
+01:49 < chenwj> seems you play a lot lua
+01:49 < chenwj> http://code.google.com/p/llvm-lua/
+02:09 < friggle> chenwj: yeah, haven't updated any of my public projects for a long time but it's a lovely language. LuaJIT2 is a *massively* impressive
+                 tracing JIT
+02:11 < friggle> I do a lot of work with LLVM/clang, though haven't looked llvm-lua or LLVM's JIT
+02:12 < chenwj> cool
+02:12 < chenwj> which part of llvm/clang you're working on?
+02:14 < davidgiluk> hmm I think I'm hitting a timer issue; I can boot this grub image with -cpu 486  but without it I get a triple fault on a divide
+02:15 < friggle> chenwj: I'm working on a compilation techniques for a many-core research architecture. So I did an LLVM backend, am working on optimisation
+                 passes, and did some frontend work for C with extra annotations to help mapping applications to this architecture
+02:15 < friggle> rather too much time on infrastructure and not enough publishable results so far really, but hopefully I'm mostly through that ;)
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+02:15 < chenwj> i see
+02:23 < friggle> something close to that at least. I don't know if you're familiar with the MIT RAW architecture but the architecture has similarities to
+                 that (software-exposed communication channels etc)
+02:27 < chenwj> it's not a easy thing to simulate a many-core, I think
+02:28 < friggle> not quickly :)
+02:28 < chenwj> ya, I can image
+02:36 < friggle> we haven't done much large-scale simulations. Many hours for a mibench benchmark though.
+02:36 < friggle> anyway, got to go. Later
+02:36 < chenwj> bye

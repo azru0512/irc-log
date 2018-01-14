@@ -1,0 +1,77 @@
+17:04 < chenwj_> anyone has used buildboot here?
+17:04 < chenwj_> http://buildroot.uclibc.org/
+17:07 < stefanha> chenwj_: yes, I've helped with the QEMU buildbot.
+17:07 < stefanha> chenwj_: oh, sorry, you mean buildroot
+17:07 < chenwj_> yes
+17:08 < chenwj_> qemu has buildbot?
+17:08 < stefanha> chenwj_: I'm pretty sure you can find people here who have.  Maybe wait a little until pm215 and davidgiluk are on.
+17:08 < chenwj_> sure
+17:08 < stefanha> http://wiki.qemu.org/ContinuousIntegration
+17:08 < stefanha> http://buildbot.b1-systems.de/
+17:08  * davidgiluk yawns and looks up
+17:09 < chenwj_> I think it's a good idea to put a tutorial on how to use buildroot to make a image & rfs for qemu
+17:09 < davidgiluk> no, hadn't used the buildbot
+17:09 < chenwj_> haha
+17:09 < stefanha> davidgiluk: There was a typo confusion, but we are talking about buildroot, I think :)
+17:10 < chenwj_> can we buildbot to test system-mode?
+17:10 < stefanha> The buildbot currently only does builds but in theory we can add tests too.
+17:10  * davidgiluk always just uses debootstrap to make roots for usermode and the linaro images for system mode images
+17:16  * stefanha adds syborg removal to ChangeLog/Next on wiki as pm215 suggested
+17:17 < davidgiluk> stefanha, syborg removal sounds like a good skill to have....
+17:17 < chenwj_> can qemu boot linux 3.x?
+17:18  * davidgiluk has seen it boot 3.x ARM images, but I've seen some bugs go past on x86
+17:18 < davidgiluk> chenwj_, But don't forget the changes from 2.38 to 3.0 weren't particularly special
+17:40 < chenwj_> do we need to do something special when add a new host so that qemu can do block linking for us?
+17:56 < afaerber> chenwj_: what host would that be?
+17:56 < chenwj_> I was wrong, I mean add a new guest
+17:57 < afaerber> not that I'm aware of, but I don't claim to be an expert :)
+21:00 < davidgiluk> stefanha, If qemu never uses the old context in the swapcontext why doesn't it just use setcontext?
+21:04 < stefanha> davidgiluk: It looks like setcontext() would be possible instead of swapcontext().
+21:04 < stefanha> Using swapcontext() is probably an artifact of how this code was developed.
+21:04 < stefanha> Original we only use swapcontext() - no setjmp()/longjmp().
+21:05 < stefanha> I think setcontext() in, longjmp() out would work.
+21:05 < davidgiluk> stefanha, The only thing I can see is that it might be trying to avoid setcontext being declared as a no-return, and with that evil mix
+                    of context swapping and setjmp's the compiler is probably confused as heck to whether the code after it can be reached
+21:06  * davidgiluk would have sympathy for the compiler
+21:18 < chenwj_> weird
+21:18 < pm215> interesting, qemu linux-user seems to be causing guest system() calls to fail EINVAL (clone() fails)
+21:19 < pm215> oh, I know why, i386 guest ;-)
+21:19 < chenwj_> I remove the cross page constraint in target-i386/translation.c and run the kernel image/root fs built from buildroot
+21:19 < chenwj_> everything is fine
+21:20 < pm215> cross page constraint> that's the one that says "stop this TB at a page boundary" ?
+21:20 < chenwj_> I am talking about block linking
+21:20 < chenwj_> hang on
+21:21 < chenwj_> http://lists.nongnu.org/archive/html/qemu-devel/2011-08/msg02249.html
+21:21 < chenwj_> but when I run linux image download from the website, it crash
+21:22  * chenwj_ sigh
+21:23 < chenwj_> don't knoe what make linux-0.2.img so special
+21:27 < pm215> in general if you remove a check which has the comment 'we cannot safely do X' then you can expect that it will crash randomly...
+21:28 < chenwj_> randomly...
+21:29 < chenwj_> does Fabrice write that part?
+21:29 < pm215> check git blame if you care
+21:30 < pm215> by 'randomly' I mean 'if the guest happens to do whatever the rare / timing-dependent thing is that the check is guarding against'
+21:31 < davidgiluk> ..preferably at somewhere particularly hard to debug
+21:31 < chenwj_> Fabrice write that part
+21:31 < chenwj_> could I ask him about that?
+21:32 < pm215> fabrice has very little interest in qemu these days
+21:32 < pm215> qemu-devel is the best you're going to get for answers
+21:32 < chenwj_> sok
+21:32 < chenwj_> ok
+21:42 < pm215> any differences between that and linux-0.2.img will really just be down to variously (a) different compiler (b) different kernel config (c)
+               different kernel version (d) doing more or different things in guest userspace
+21:44 < davidgiluk> and anything even tiny things that could cause code to be layed out differently - e.g. crossing a page in a different routine; stuff as
+                    simple as the kernel name
+21:44 < davidgiluk> (not file, but config name)
+21:44 < chenwj_> pm215: linux-0.2.img crash while booting
+21:45 < davidgiluk> chenwj_, To debug these things it's best to work with kernels that you have symbols for, or built yourself - so you can figure out
+                    exactly where it crashed and maybe add some debug
+21:45 < davidgiluk> chenwj_, Once you've got that reliable then it's easier to move onto images
+21:46 < chenwj_> I'd like to know linux-0.2.img config
+21:56 < pm215> chenwj_: if it's not in the image (in /boot or /in /proc) then it's probably been lost in the mists of time
+21:57 < chenwj_> well well well
+21:59 < chenwj_> I see there is a linux-2.6.20.config in /boot :)
+21:59 < davidgiluk> ooh, crusty
+22:01 < chenwj_> what?
+22:01 < davidgiluk> old!
+22:01 < chenwj_> old 2.5.20 kernel?
+22:02 < chenwj_> 2.6.20

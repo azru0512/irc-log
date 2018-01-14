@@ -1,0 +1,23 @@
+21:58 < chenwj> baldrick: hi
+21:58 <@baldrick> chenwj: yo!
+21:59 < chenwj> baldrick: is there a better way to see gcc commit log? I get stuck with http://gcc.gnu.org/viewcvs/
+21:59 <@baldrick> chenwj: check out GCC using subversion
+22:00 < chenwj> ok
+22:01 <@baldrick> chenwj: then you can use "svn blame" which is pretty useful
+22:12 < chenwj> it takes quite long time...
+22:19 < chenwj> baldrick: actually I have no idea how to solve TYPE_DEBUG_REPRESENTATION_TYPE problem
+22:20 <@baldrick> chenwj: OK, I will solve it then
+22:24 < chenwj> baldrick: are you going to use TYPE_VECTOR_SUBPARTS to calculate the lower/upper bound rather then using
+                TYPE_MIN_VALUE(Domain)/TYPE_MAX_VALUE(Domain)?
+22:27 < pcc> chenwj: gcc also has a git mirror... git://gcc.gnu.org/git/gcc.git
+22:28 < chenwj> pcc: thanks
+23:13 <@baldrick> chenwj: I think VECTOR_TYPE is supposed to be encoded exactly the same as ARRAY_TYPE.  However the methods for accessing details of
+                  ARRAY_TYPE are not the same as for VECTOR_TYPE, eg: how to get the array length and so on
+23:14 <@baldrick> chenwj: I think GCC got around this by synthesizing an ARRAY_TYPE out of a VECTOR_TYPE (this could be accessed using
+                  TYPE_DEBUG_REPRESENTATION_TYPE)
+23:14 <@baldrick> chenwj: now this needs to be solved by abstracting the array code in some way so that it works uniformly for ARRAY_TYPE and VECTOR_TYPE
+23:14 < chenwj> "supposed"
+23:16 < llvmbb> build #1762 of llvm-gcc-x86_64-linux-selfhost is complete: Success [build successful]  Build details are at
+                http://google1.osuosl.org:8011/builders/llvm-gcc-x86_64-linux-selfhost/builds/1762
+23:16 < chenwj> baldrick: have to go home, bye
+23:17 <@baldrick> chenwj: bye

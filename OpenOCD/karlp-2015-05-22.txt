@@ -1,0 +1,14 @@
+13:34] <chenwj> hi, my colleague want to add a new script "lpc4337.cfg" copied from "lpc4350.cfg" under script/targets
+[13:35] <chenwj> but openocd give him errors below:
+[13:35] <chenwj> User : 46 71 command.c:666 command_run_line(): Runtime Error: share\openocd\scripts/target\lpc4337.cfg:37: jtag newtap lpc4350 m4 -irlen 4 -ircapture 0x1 -irmask 0xf -expected-id 0x4ba00477: command requires more arguments in procedure 'script'
+[13:36] <chenwj> any ideas on what might go wrong? :-)
+[14:11] <chenwj> and here is what lpc4337.cfg looks like > http://pasted.co/c6c79e3d
+[14:13] <chenwj> lpc4337.cfg is copied from lpc4350.cfg > http://pasted.co/7258bcbd
+[14:13] <chenwj> they are nearly the same
+[17:27] <karlp> chenwj: are you copying script's from a different version of openocd?
+[17:27] <chenwj> nope
+[17:27] <chenwj> both are 0.8.0
+[17:30] <chenwj> karlp: now I try to use 0.9.0
+[17:31] <chenwj> I use lpc4350.cfg on lpc4337, and get errors below:
+[17:31] <chenwj> Debug: 199 65 cmsis_dap_usb.c:583 cmsis_dap_swd_run_queue(): SWD ack not OK: 0 JUNK Debug: 200 65 command.c:628 run_command(): Command failed with error code -4 User : 201 65 command.c:689 command_run_line(): in procedure 'init' in procedure 'ocd_bouncer'
+[17:32] <chenwj> > http://pasted.co/72ae582c

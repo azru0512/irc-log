@@ -1,0 +1,97 @@
+14:03 < chenwj> echristo: I ran regression test on arm, but have quite a lot failure. Should I file them onne by one?
+14:04 < chandlerc> i wonder some times... ;]
+14:04 < echristo> chenwj: what's failing? and arm-linux i assume?
+14:04 < echristo> chandlerc: i tell you if we're complaining about you :)
+14:04 < chenwj> echristo: yes, you want to see the log?
+14:04 < chandlerc> echristo: always good to know
+14:04 < chandlerc> echristo: in other news, i'll have to try harder. ;]
+14:04 < echristo> chenwj: sure.
+14:05 < echristo> heh.
+14:05 < chenwj> echristo: http://people.cs.nctu.edu.tw/~chenwj/tmp/regression-test.txt
+14:06 < echristo> ok. ignore all of the arc stuff.
+14:06 < chenwj> arc?
+14:06 < echristo> those should probably go under "darwin only"
+14:06 < echristo> hmm.. they all have triples, but still.
+14:07 < chenwj> ARCMT?
+14:07 < echristo> yean
+14:07 < echristo> chandlerc: can you look at that? it's appearing to have a problem with the triple.
+14:08  * chandlerc wakes up
+14:08 < echristo> i.e. ignoring? something else?
+14:08 < echristo> i'm not sure
+14:09 < chandlerc> that's... weird
+14:09 < chenwj> "Unexpected Passing Tests" is good or bad thing?
+14:10 < chandlerc> echristo: the segfaults make me thing something more fundamental is wrong
+14:10 < echristo> yeah. that's what i was thinking.
+14:11 < echristo> chenwj: "answer hazy, try again later"
+14:11 < echristo> "i don't know"
+14:11 < chandlerc> i think the clang binary has been miscompiled
+14:11 < echristo> that's a reasonable guess
+14:11 < chandlerc> or has undefined behavior on the host
+14:11 < chandlerc> echristo: one of these is an error claiming that the input isn't in objective-c, so it's not just the triple that's missing
+14:12 < echristo> chenwj: is this bootstrapped or single compiled?
+14:12 < echristo> one stage
+14:12 < echristo> something.
+14:12 < chenwj> echristo: phase1
+14:12 < chenwj> that's what tou want to ask?
+14:16 < echristo> yeah.
+14:16 < echristo> what's your initial compiler?
+14:19 < chenwj> echristo: I run a cross compile on a x86_64 machine, then run the regression on the arm machine
+14:19 < chenwj> so it's arm-unknown-linux-gnueabi-gcc
+14:20 < chandlerc> thats the host platform, not the cross compiler
+14:20 < chandlerc> echristo: check out char-literal.c test case
+14:20 < chandlerc> echristo: that one looks like fully generic memory corruption
+14:20 < chandlerc> candidate ideas:
+14:21 < chandlerc> 1) some flag weirdness -- we've seen bugs like this in the past due to -fno-signed-char
+14:21 < chandlerc> 2) miscompile via cross toolchain
+14:21 < chandlerc> 3) architecture-specific fundamental bug
+14:21 < chandlerc> #3 seems really unlikely... #1 or #2 actually seem more likely here
+14:21 < chenwj> chandlerc: for 2), should I have a native run?
+14:22 < chandlerc> the miscompile might be specific to the cross
+14:22 < chandlerc> but you could try a non-cross w/ the same version of your toolchain
+14:23 < chenwj> the majot verion is the same
+14:23 < chenwj> major
+14:23 < chandlerc> it would really hepl to know what your original compiler is
+14:23 < chenwj> you mean arm native compiler?
+14:23 < chandlerc> i mean whatever you're using to compile Clang & LLVM
+14:24 < chenwj> chandlerc: http://lists.cs.uiuc.edu/pipermail/llvmdev/2012-April/048860.html
+14:30 < chandlerc> chenwj: can you verify that -fno-strict-aliasing is passed during your build?
+14:30 < chandlerc> if not, can you try rebuilding LLVM/Clang w/ -fno-strict-aliasing and see if this goes away?
+14:31 < chenwj> ok
+14:39 < chandlerc> chenwj: if that doesn't work, the next step is to turn off all optimizations when building LLVM/Clang, and see if the tests pass then
+14:39 -!- andersca_ is now known as andersca
+14:43 < chenwj> chandlerc: how can I add "-fno-strict-aliasing" to the compiler? through llvm/configure?
+14:52 < chandlerc> yes, likely
+14:52 < chandlerc> CFLAGS and CXXFLAGS
+14:52 < chenwj> ok
+14:53 < chenwj> but how to disable all options...?
+14:53 < chandlerc> --disable-optimization or something?
+14:53 < chandlerc> i forget the configure flags
+14:53 < chandlerc> it has a --help
+14:54 < chandlerc> echristo would likely be more familiar
+14:56 < echristo> hmm?
+14:58 < chenwj> I modify test-release.sh,
+14:58 < chenwj>     env CC="$c_compiler" CXX="$cxx_compiler" \
+14:58 < chenwj>     CFLAGS="-fno-strict-aliasing" CXXFLAGS="-fno-strict-aliasing"
+14:58 < echristo> that'll work.
+15:01 < llvmbb> build #931 of llvm-arm-linux is complete: Success [build successful]  Build details are at
+                http://lab.llvm.org:8011/builders/llvm-arm-linux/builds/931
+15:03 < chenwj> I don't see arm-unknown-linux-gnueabi-gcc append -fno-strict-aliasing option
+15:31 < echristo> weird.
+15:31 < chenwj> echristo: so the build is with or without -fno-strict-aliasing?
+15:33 < chandlerc> without -- you'll need to setup the flags differently somehow
+15:35 < chenwj> http://people.cs.nctu.edu.tw/~chenwj/tmp/test-release.txt
+15:35 < chenwj> my script
+15:35 < chandlerc> i dunno how Bill's release test script works at all, so i'm not going to be much use here
+15:35 < chandlerc> poke him on the mailing list maybe
+15:36 < chenwj> ok
+15:36 < echristo> yeah. me either :)
+15:36 < chenwj> :p
+15:38 < chenwj> I post it on the ML and cc to Bill?
+15:40 < echristo> yup
+15:41 < chandlerc> yay, multiply mimization ported to reassociate
+15:41 < chandlerc> reassociate is crufty... missing most of the niceties of instcombine
+15:42 <@baldrick> chandlerc: yeah, reassociate is old and it shows
+15:43 <@baldrick> chandlerc: so what are you doing?  Forming some kind of balanced DAG out of arithmetic?
+15:43 < chenwj> echristo: before Bill's reply, do you think running a native arm build is a good idea?
+15:43 < echristo> i have no idea :)
+15:44 <@baldrick> chandlerc: if so, I guess architectures which can issue lots of parallel arithmetic operations will love you :)

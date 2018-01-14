@@ -1,0 +1,10 @@
+16:50 < chenwj_> hi
+17:29 < chenwj_> does wine deal with translating windows syscall to a linux one?
+17:30 <@_Marcus_> what do you mean with "windows syscall" specifically?
+17:32 < chenwj_> something like "int $2e", I guess
+17:37 <@_Marcus_> the nt style syscalls we do not emulate as far as i know.
+17:37 <@_Marcus_> is there a good reason to do so? what apps does use it?
+17:47 < chenwj_> _Marcus_: just asking :)
+18:07 <@_Marcus_> and iOS app? you would need to emulate the interface at the point where you want to put Linux under it
+18:08 <@_Marcus_> so yes, emulate what the apps need from below that level, but it probalby doesnt need the lower level details
+18:10 < oiaohm> In some ways iOS would be simpler there is a kind of a posix core hidden in there.

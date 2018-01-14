@@ -1,0 +1,26 @@
+17:32 < zruan0> hello,
+17:33 < zruan0> Is kvm_vm_fault to handle vm page fault?
+17:35 < zruan0> could anyone help me?
+17:35 < zruan0> :-)
+17:46 < chenwj> let me check ;)
+17:47 < zruan0> :-)
+17:47 < zruan0> I am confused about when it is called.
+17:48 < zruan0> I think it should be called in a page fault context, then do_page_fault may process it, but why kvm would do that ?
+17:51 < chenwj> hmm, at first I think you should look at kvm_vmx_exit_handlers. but seems it only handle ept fault
+17:52 < chenwj> kvm should inject guest page fault into vmcs, then resume guest vm, let guest os handle its page fault
+17:53 < chenwj> zruan0: when kvm_vm_fault got called?
+17:57 < chenwj> zruan0: I think kvm_vm_fault doesn't handle guest page fault
+17:58 < zruan0> do_page_fault->handle_mm_fault->handle_pte_fault->do_linear_fault (or do_nonlinear_fault) -> __do_fault ->vma->vm_ops->fault(vma, &vmf)
+17:59 < zruan0> This will be called when a hardware page fault exception occurs.
+17:59 < zruan0> chenwj: see above.
+17:59 < chenwj> do_page_fault in what file?
+18:01 < zruan0> chenwj: defined by each arch, for example, for x86, arch/x86/mm/fault.c
+18:03 < chenwj> basically, guest page fault should left to guest os. the only reason I think that kvm might get involved is kvm need to update ept
+18:04 < zruan0> chenwj: probably no, it depends on different situation. for shadow page table case, it should be intercepted by kvm.
+18:06 < chenwj> I mean guest os handle guest page fault first, then leave to kvm to update ept/shadow page table
+18:06 < zruan0> chenwj: actually, it is reasonable kvm_vm_fault be called in a page fault context, I just saw kvm_vcpu_fault, I can't understand what is
+                this call to do.
+18:06 < chenwj> where?
+18:07 < zruan0> chenwj: kvm_main.c
+18:08 < chenwj> ah, I see
+18:09 < chenwj> virt/kvm/kvm_main.c:    vma->vm_ops = &kvm_vcpu_vm_ops;

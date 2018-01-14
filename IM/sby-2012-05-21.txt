@@ -1,0 +1,127 @@
+15:49 <@chenwj> sby: 徐老師今天在交大有安排一場演講 你知道嗎??
+17:21 <+sby> chenwj: 剛剛聽說了
+17:22 <@chenwj> sby: ㄟ 哪有去聽嘛?
+17:22 <+sby> chenwj: 沒有耶
+17:22 <+sby> chenwj: 我人那時候不再新竹
+17:22 <@chenwj> sby: 噢噢
+17:22 <+sby> chenwj: morain 應該有去
+17:22 <@chenwj> sby: +_+
+17:23 <@chenwj> sby: 老闆只有找博班去? 我問學弟 他們都不知道
+17:23 <+sby> chenwj: 大概吧
+17:23 <@chenwj> sby: 恩恩
+17:23 <+sby> chenwj: 其實我也不知道
+17:24 <+sby> chenwj: 是 morain 問我要不要去
+17:24 <+sby> chenwj: 我剛好不再
+17:24 <@chenwj> sby: 有夠神秘的 xd
+17:25 <@chenwj> morningrain: !!
+17:25 < morningrain> chenwj: ?
+17:25 <+sby> chenwj: XD
+17:25 <@chenwj> morningrain: 有去聽演講嘛?
+17:25 < morningrain> chenwj: 有阿
+17:25 <+sby> chenwj: 所以你原本也想去聽是嗎? XD
+17:25 <@chenwj> sby: 對 不過早上有 meeting
+17:26 <@chenwj> morningrain: !!!
+17:26 <@chenwj> morningrain: 有給他簽書嘛? xd
+17:26 < morningrain> chenwj: XD
+17:26 < morningrain> chenwj: 忘了
+17:26 <@chenwj> morningrain: orzorzorz
+17:26 < morningrain> chenwj: X
+17:26 < morningrain> chenwj: XD
+17:26 < morningrain> chenwj: 還真沒想到
+17:26 <@chenwj> morningrain: 你應該要讓他簽在衣服上
+17:27 < morningrain> chenwj: 千在臉上
+17:27 <@chenwj> morningrain: o.o 真的嗎? JS 會嚇到吧?
+17:27 <+sby> chenwj: 恩
+17:28 <@chenwj> sby: jim smith 說 isa 互轉作爛了，問說想不想做 os 互轉
+17:28 <@chenwj> sby: 就是不同 os syscall 互轉的樣子
+17:29 <@chenwj> sby: 據說很難?
+17:29 < morningrain> chenwj: 開玩笑的
+17:29 < morningrain> chenwj: 別那麼認真 冏
+17:30 <+sby> chenwj: 我覺得還好...也是很多苦工
+17:30 <+sby> chenwj: 就把每個 syscall 在另一個 os 實作一次而已
+17:31 <@chenwj> sby: 不過像 windows 或是 ios 那種要怎麼弄? 這種應該不知道他們有什麼 syscall 吧?
+17:31 <@chenwj> sby: 他那時候是想做成 automatic
+17:31 <@chenwj> sby: 看有沒有辦法
+17:32 <@chenwj> sby: 就不要綁死
+17:32 <+sby> chenwj: isa 互轉都沒辦法 automatic 了, os 互轉能嗎 XD
+17:32 <@chenwj> sby: 挖馬母災
+17:33 <@chenwj> morningrain: 他今天講什麼?
+17:33 <+sby> chenwj: 我覺得難的地方反而不是在 syscall, 而是 library
+17:33 <+sby> chenwj: windows 下一般 app 也不會直接呼叫 syscall
+17:40 <@chenwj> sby: 意思是用到 windows syscall 就掛了?
+17:41 <+sby> chenwj: 一般 app 不會直接用到 syscall
+17:41 < morningrain> chenwj: 恩恩
+17:41 < morningrain> chenwj: vecotr SIMD SIMT
+17:41 <+sby> chenwj: 如果像是跑一些遊戲用到 DirectX / OpenGL 之類的就掛了
+17:42 <+sby> chenwj: 因為沒支援 XD
+17:42 <@chenwj> sby: 瞭改
+17:43 <+sby> chenwj: 我下個月要去德國報告一篇paper, 老闆居然說他也要去
+17:44 <+sby> chenwj: 現在我除了自己玩還要幫老闆排行程 = =
+17:44 <@chenwj> sby: 找旅行社阿
+17:44 <@chenwj> sby: 那篇 paper?
+17:44 <+sby> chenwj: 我都自助的, 不跟旅行社 XD
+17:44 <+sby> chenwj: mc2llvm 那篇
+17:44 <@chenwj> sby: ㄜ... 那找旅行社幫老闆排行程
+17:44 <+sby> chenwj: XD
+17:44 <@chenwj> sby: cool
+17:45 <@chenwj> sby: 老闆應該不會跟你跑吧?
+17:45 <+sby> chenwj: 看起來會
+17:45 <@chenwj> sby: |||||
+17:45 <+sby> chenwj: 那時候剛好期末考後
+17:45 <+sby> chenwj: 老闆說他很閒
+17:45 <@chenwj> sby: 我是說他會跟在你旁邊?
+17:45 <+sby> chenwj: 對= =
+17:45 <@chenwj> sby: orz
+17:45 <@chenwj> sby: 保重
+17:46 <+sby> chenwj: 好險他只玩一周...我說我要玩兩周= =
+17:46 <@chenwj> sby: 科科
+17:46 <+sby> chenwj: 這樣至少還有一周我是一個人Orz
+17:46 <@chenwj> sby: 真的是一個人嘛?
+17:46 <+sby> chenwj: XD
+17:46 <@chenwj> sby: 嘖嘖
+17:47 <@chenwj> sby: 6 月初要到 yokohama
+17:48 <+sby> chenwj: 在哪? 日本? XD
+17:48 <@chenwj> sby: 橫濱 看 linux
+17:48 <+sby> chenwj: 嗯嗯
+17:48 <+sby> chenwj: 好像很接近災區 XD
+17:49 <@chenwj> sby: 日本應該不用簽證?
+17:49 <@chenwj> sby: = 3=
+17:49 <+sby> chenwj: 嗯, 30 天內好像免簽
+17:49 <@chenwj> sby: 應該有段距離
+17:49 <@chenwj> sby: 所以我護照拿去過海關就好?
+17:49 <+sby> chenwj: 對
+17:49 <@chenwj> sby: nice
+17:50 <+sby> chenwj: 不過海關一樣會問你問題, 問你要幹嘛
+17:51 <@chenwj> sby: haha
+17:51 <+sby> chenwj: 所以基本的資料準備一下就好, 像是問你住哪間旅館, 參加什麼會議, 有沒有邀請函之類的
+17:51 <@chenwj> sby: 恩恩
+17:51 <@chenwj> sby: 日本有像美國一樣不准帶東西嘛?
+17:51 <+sby> chenwj: 有
+17:51 <+sby> chenwj: 但是我不清楚
+17:51 <+sby> chenwj: 我沒去過日本, 都只有在日本轉機 XD
+17:51 <@chenwj> sby: 我上次 manq 直接被丟掉
+17:52 <@chenwj> sby: ok
+17:52 <+sby> chenwj: 身上盡量少帶東西, 怕被丟的都放行李箱 XD
+17:52 <@chenwj> sby: 他也會檢查行李阿 不是嗎?
+17:52 <+sby> chenwj: 日本很關檢查挺嚴格的
+17:52 <+sby> chenwj: 行李通常都抽查
+17:53 <+sby> chenwj: 不然就是X光看過去沒注意到啥異樣就沒問題
+17:53 <@chenwj> sby: 恩恩
+17:53 <+sby> chenwj: 有些東西是可以放在行李箱
+17:53 <+sby> chenwj: 但是不能帶在身上
+17:54 <+sby> chenwj: 像我現在連筆電都丟行李箱 XD
+17:54 <+sby> chenwj: 帶在身上過海關都還要拿出來檢查
+17:54 <+sby> chenwj: 很麻煩
+17:55 <+sby> chenwj: 然後褲子也都穿運動褲...不然過海關還要把皮帶拿下來= =
+17:55 <@chenwj> sby: xd
+17:55 <+sby> chenwj: 日本檢察超嚴格
+17:55 <@chenwj> sby: ~"~
+17:55 <+sby> chenwj: 冬天的話外套都要脫掉
+17:55 <+sby> chenwj: 鞋子也要拖
+17:55 <+sby> chenwj: 穿拖鞋比較方便 XD
+17:55 <@chenwj> sby: ...
+17:56 <@chenwj> sby: 你真的穿拖鞋嘛? ||
+17:56 <+sby> chenwj: 沒有啦
+17:56 <+sby> chenwj: 不要穿鞋帶很難繫的那種就好
+17:56 <+sby> chenwj: 不然過海關很花時間
+17:56 <@chenwj> sby: 恩

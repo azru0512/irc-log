@@ -1,0 +1,3 @@
+[10:25] <chenwj> is there any library/utility like AddressSanitizer or Valgrind on MinGW?
+[10:26] <DavidEGrayson> chenwj: Dr. Memory is not compiled with MinGW but nonetheless it can successfully debug all sorts of memory issues of MinGW programs:  http://www.drmemory.org/
+[10:29] <chenwj> DavidEGrayson: thanks, I'll give it a try

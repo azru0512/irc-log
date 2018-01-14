@@ -1,0 +1,25 @@
+15:44 < chenwj> Jia: 你之前跟我提過 apple 有一類 os 是 open source 的?
+15:47 < Jia> xnu darwin
+15:47 < chenwj> darwin 是以前的 apple os?
+16:04 < chenwj> Jia: 應該是 mac os 跟 ios 的 kernel 部分?
+16:06 < Jia> 你可以这么理解，xnu=linux  darwin=gnu OSX= linux+gnu+kde
+16:08 < chenwj> xnu = kernel darwin = kenel + utility OSX = darwin + GUI?
+16:09 < Jia> 差不多吧
+16:09 < Jia> iOS是OSX的精简
+16:09 < chenwj> 或是是這樣看，一個有 4 圈的同心圓
+16:10 < chenwj> 由內到外是 xnu, darwin, OSX, app
+16:10 < Jia> iOS也是字符界面+Auqa+iOS GUI
+16:10 < Jia> 恩，可以那么画
+16:11 < chenwj> app 看到的應該都是 OSX 給的 api?
+16:11 < Jia> Aqua是OSX的图形子系统
+16:11 < Jia> iOS的API是OSX的子集
+16:11 < Jia> 虽然内核是同一套代码，但是配置却不同
+16:12 < chenwj> app 看到的應該都是 OSX/iOS 提供的 api?
+16:12 < Jia> 对
+16:12 < Jia> NS
+16:12 < Jia> 也就是Frameworks提供的API
+16:13 < Jia> 分为几个subsysytem
+16:13 < Jia> OSX是微内核/混合内核结构
+16:14 < Jia> 其实这种示意图，差不多就可以
+16:15 < chenwj> 你說我畫的同心圓?
+16:16 < Jia> 可以，挺合理的

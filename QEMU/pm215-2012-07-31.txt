@@ -1,0 +1,61 @@
+17:26 < chenwj_> pm215: does arm mmu work the same across versions?
+18:04 < pm215> chenwj_: across versions of what?
+19:30 < chenwj_> pm215: let me rephase my question. if I want to understand what cpu_arm_handle_mmu_fault (target-arm/helper.c) does, what document I should
+                 look?
+19:30 < chenwj_> pm215: arm website has many documemt, but I don't know exactly what is I need to read.
+19:43 < pm215> which document> you want the ARM ARM (architecture reference manual)
+19:46 < pm215> chenwj_: do you care about the system-emulation version or the user-mode emulation one?
+19:49 < pm215> the bits the ARM ARM will be useful for are in get_phys_addr() mostly. the rest is just recording the address/details of the fault in the
+               cp15 registers. plus some qemu specific stuff because this function handles qemu tlb misses as well as real mmu faults
+19:55 < pm215> chenwj: the ARM ARM is http://infocenter.arm.com/help/topic/com.arm.doc.ddi0406c/index.html -- you'll need to register on the website but
+               that is fairly easy
+21:33 < chenwj_> pm215: about I am care about the system mode one,
+21:34 < chenwj_> pm215: sorry, I mean about cpu_arm_handle_mmu_fault, I only care about the system mode one
+21:36 < pm215> chenwj_: well, conceptually it's simple enough: walk the ARM page tables to translate the virtual address to a physical one. if we find a
+               physaddr for it, this was a QEMU TLB miss, so update the tlb and continue. otherwise we're going to either prefetch abort or data abort, so
+               we save some info about what happened and return 1 to the caller to cause the exception to happen
+21:40 < chenwj_> well, it might sounds crazy. the reason why I am studying that part is we are looking for if we can translate ARM page table into x86
+                 format, and let x86 mmu walk that page table for us.
+21:41 < pm215> right. you'll need to read all the details of the page table formats and behaviour for both architectures to see how well or badly they match
+               up...
+21:43 < chenwj_> so ARM ARM is the only thing I need to read? or I should also read VMSA?
+21:43 < pm215> the ARM ARM includes all the details of VMSA (which is bit of the architecture dealing with memory system behaviour for systems with MMUs)
+21:45 < pbrook> You'll need to do shadow paging. At that point it really doesn't matter how well things line up, as long as your host pages are no larger
+                then your guest pages.  i.e. as long as you ignore armv5 1k pages you should be ok.
+21:45 < chenwj_> that's why I ask if the spec change across differenet ARM ISA version
+21:46 < pbrook> And yes, there are at least 4 different variants.
+21:46 < pm215> the v7 ARM ARM has appendices which describe the behaviour of previous versions
+21:46 < chenwj_> pm215: ok
+21:47 < chenwj_> pbrook: At that point it really doesn't matter how well things line up <- not sure what you mean
+21:47 < pbrook> The v7 ARMARM probably doesn't describe the LPAE format. That's a newer addition.
+21:47 < pm215> that is in rev C
+21:47 < pm215> (rev C was the big update that added all the LPAE/virtualization info)
+21:48 < pbrook> Once you're doing shadow paging you're creating a whole new pagetable.
+21:48 < chenwj_> I thought I have to map ARM pte to x86 pte somehow
+21:48 < chenwj_> those permissin bit or something like that
+21:48 < pbrook> Your physical addresses are different, so even if you wetre doing x86-on-x86 you wouldn't be able to use the netries directly.
+21:49 < pbrook> Given you're copying and modifying the entry, you get format translation for free.
+21:50 < pbrook> I suspect the question you meant to ask is whether the arm permission model can be usefully mapped onto [a subset of] the x86 permission
+                model without having to do a full TLB flush on every state change.
+21:52 < pbrook> My guess is probably not.
+21:53 < pbrook> But that probably just means maintaining separate shadow tables for user and system mode.  A relatively small hardship compared to the other
+                issues you're likely to hit.
+21:56 < pbrook> TBH if you're not familiar enough with both the host and guest architectures to answer these questions confidently then I wouldn't even
+                attempt the sort of project you're describing.
+21:56 < pbrook> Page table formats is the tip of the iceberg.
+21:57 < chenwj_> TBH?
+21:57 < pm215> "to be honest"
+21:58 < chenwj_> ha
+22:02 < aliguori> wow, the hold music is pretty upbeat now
+22:08 < chenwj_> what music?
+22:09 < pm215> I guess your IRC client doesn't have that feature :-)
+22:09 < zwu|meeting> heh, phone ringing music
+22:10 < chenwj_> kvm call?
+22:10 < zwu|meeting> right
+22:10 < chenwj_> I thought it was on skype not on irc
+22:10 < pm215> it's a real phone call call
+22:12 < chenwj_> wow, what number I should dial
+22:17 < zwu|meeting> chenwj_: Taiwan Dial-In #: 00801127141
+22:18 < pm215> I don't generally dial in personally, there's not often something on the agenda I care about
+22:22 < zwu|meeting> Have you also used out of your meeting quota this year?
+22:23 < dunrong> zwu|meeting: What's the number in beijing?

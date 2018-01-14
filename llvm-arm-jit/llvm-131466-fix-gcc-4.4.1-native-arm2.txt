@@ -1,0 +1,39 @@
+llvm[0]: Running test suite
+make[1]: Entering directory `/nfs_home/chenwj/test/native-build/arm2/test'
+Making a new site.exp file...
+Making LLVM 'lit.site.cfg' file...
+Making LLVM unittest 'lit.site.cfg' file...
+( ulimit -t 600 ; ulimit -d 512000 ; ulimit -m 512000 ; ulimit -v 1024000 ; \
+	  /nfs_home/chenwj/test/llvm-131466-fix/utils/lit/lit.py -s -v . )
+-- Testing: 6030 tests, 4 threads --
+Testing: 0 .. 10.. 20.
+FAIL: LLVM :: CodeGen/Thumb/select.ll (1650 of 6030)
+******************** TEST 'LLVM :: CodeGen/Thumb/select.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131466-fix/test/CodeGen/Thumb/select.ll -march=thumb | grep beq | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/count 1
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131466-fix/test/CodeGen/Thumb/select.ll -march=thumb | grep bgt | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/count 1
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131466-fix/test/CodeGen/Thumb/select.ll -march=thumb | grep blt | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/count 3
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131466-fix/test/CodeGen/Thumb/select.ll -march=thumb | grep ble | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/count 1
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131466-fix/test/CodeGen/Thumb/select.ll -march=thumb | grep bls | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/count 1
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131466-fix/test/CodeGen/Thumb/select.ll -march=thumb | grep bhi | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/count 1
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131466-fix/test/CodeGen/Thumb/select.ll -mtriple=thumb-apple-darwin | grep __ltdf2
+--
+Exit Code: 1
+Command Output (stderr):
+--
+Expected 3 lines, got 1.
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.. 
+Testing Time: 398.06s
+********************
+Failing Tests (1):
+    LLVM :: CodeGen/Thumb/select.ll
+
+  Expected Passes    : 5436
+  Expected Failures  : 45
+  Unsupported Tests  : 548
+  Unexpected Failures: 1
+make[1]: Leaving directory `/nfs_home/chenwj/test/native-build/arm2/test'

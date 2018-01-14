@@ -1,0 +1,7 @@
+14:56 < npx> so, uh... why does g++ > 4.6 defined __STDC and __cplusplus?
+14:57 < npx> 4.4 doesn't have this behavior and it doesn't seem to make sense at all
+15:02 < chenwj> to distinguish old c/c++ and c11/c++11?
+15:05 < npx> well, no, I mean it defines __STDC__ *and* __cplusplus, which seems broken; you'd distinguish between c++11 and older versions by setting
+             __cplusplus > 199711L unless I'm mistaken
+15:12 < jakub> npx: it is documented, and 4.4 definitely has this behavior as well                                                                           15:13 < jakub> npx: __STDC__ macro says that the preprocessor is C conformant
+15:13 < jakub> npx: which is true also for C++ obviously

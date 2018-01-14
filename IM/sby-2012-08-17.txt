@@ -1,0 +1,254 @@
+14:03 <@chenwj> sby: 我是想問說一般 memory access 都要經過 process 的 page table 轉成 physical addr
+14:04 <@chenwj> sby: 那如果 os 想改那一個 process 某個 page table entry，os 也是走那個 process 的 page table 找到那個 page table entry 的 physical addr 嗎?
+14:05 <+sby> chenwj: yup
+14:06 <@chenwj> sby: http://stackoverflow.com/questions/11966676/does-pte-modifying-go-through-the-same-page-table-as-usual-memory-access-do
+14:07 <@chenwj> sby: 第一個 answer 底下的第一個 comment
+14:09 <@chenwj> sby: 所以基本上一個 process 就只會有一份 page table, os 也是用那一份?
+14:13 <+sby> chenwj: 不太懂你要問的, page table 是設給 MMU 看的阿
+14:14 <+sby> chenwj: OS 只會去改他不會去用他來做 memory access
+14:16 <@chenwj> sby: 那 os 去改 (a) 目前正在 running 的 process 跟 (b) 被 switch out 的 process，它們的 pte 的時候
+14:18 <@chenwj> sby: (a) 會用正在 running 的 process 的 page table 去找到 pte 的 physical addr?
+14:19 <+sby> chenwj: 你要這麼說也可以, 這只是實作上的問題, 像是 32-bit linux 會保留 3G-4G 的空間給 kernel
+14:19 <+sby> chenwj: 每個 process 的 page table 的 3G-4G 內容是一樣的
+14:20 <@chenwj> sby: 恩恩
+14:20 <@chenwj> sby: 你說實作上的問題是指說 實際上要怎麼 map pte 方法各有不同嗎?
+14:20 <+sby> chenwj: process 的 table 也是放在這塊
+14:21 <+sby> chenwj: 所以 OS 就只是去 kernel space 找到那個 process 的 table, 看他的page table的physical address在哪
+14:22 <+sby> chenwj: 然後設到某個register就好了
+14:22 <@chenwj> sby: process 的 table? 它不是 cr3 指到的那一個?
+14:23 <+sby> chenwj: OS 課本裡面不是有講OS會幫每個process記錄一個啥 process description table
+14:23 <+sby> chenwj: 然後裡面就會記錄那個 process 的 page table 的 physical address
+14:23 <@chenwj> sby: 我猜他是記在 task_struct 之類的資料結構?
+14:23 <+sby> chenwj: 恩
+14:25 <+sby> chenwj: 所以你的問題有答案了嗎?
+14:26 <+sby> chenwj: OS 只要找到要 switch 的那個 process 的 task_struct 就能找到他的 page table physical address
+14:26 <@chenwj> sby: 感覺不是很踏實
+14:27 <+sby> chenwj: 這個動作跟目前這個 process 的 page table 沒啥直接的關係
+14:27 <+sby> chenwj: 不然你的問題在哪?XD
+14:27 <@chenwj> sby: but if the kernel is in the context of a process different from the one whose PTEs it wants to modify, then, yes, either it will have
+                to create a temporary mapping to modify those PTEs or it will need to temporarily switch to that process
+14:28 <@chenwj> sby: 我想想要怎麼問 xd
+14:28 <+sby> chenwj: 所以通常不會這樣做啊
+14:28 <+sby> chenwj: 這樣很麻煩
+14:28 <@chenwj> sby: 怎樣做?
+14:29 <+sby> chenwj: 所以 kernel 在不同 process 都會 share 同樣的 memory space
+14:30 <+sby> chenwj: 你的問題應該是要問哪個 OS 下才會有比較標準的答案
+14:31 <+sby> chenwj: 有的 OS 甚至所有 process 共用一個 page table
+14:31 <+sby> chenwj: 這樣你的問題的答案又不一樣了
+14:31 <@chenwj> sby: 科科
+14:32 <@chenwj> sby: 其實這是從 vm mmu virtualization 那邊關於 vmm 要怎麼 sync guest page table 跟 shadow page table 問過來的
+14:33 <@chenwj> sby: 先假設每個 process 各有自己的 pd 跟 pt
+14:33 <@chenwj> sby: pd 跟 pt 在底下 vmm 各有對應的 shadow page table
+14:34 <@chenwj> sby: vmm 要 sync 好像是要把 shadow page table 中某些指向 guest page table 的 entry 設成 read-only
+14:36 <@chenwj> sby: 所以我才想要問在沒有 virtualization 的情況下，os 要去改 pte 是不是會經過 process 的 pd 跟 pt 作位址轉換
+14:37 <+sby> chenwj: OS 就直接去改, 位址轉換是 MMU 做的
+14:37 <@chenwj> sby: 所以 os 那邊就只是 *pte = new_value 這樣?
+14:38 <+sby> chenwj: yes
+14:38 <+sby> chenwj: 只是改完後還會有 flush TLB 之類的小動作
+14:39 <@chenwj> sby: 那改目前正在 running process 跟被 swicth out 的 process 有差別嗎? 我的意思是指說在 *pte = new_value 之前，os 需不需要 change cr3 的
+                value?
+14:40 <@chenwj> sby: 改目前正在 running process 應該是不用，那如果是改被 swicth out 的 process 會是怎樣?
+14:40 <+sby> chenwj: 不需要, 因為 *pte 所指到的 address 是 kernel space
+14:40 <+sby> chenwj: 在不同 process 都是 share 的
+14:40 <+sby> chenwj: 有沒有 switch 沒有插
+14:40 <+sby> chenwj: 在 Linux 下是這樣
+14:41 <@chenwj> sby: 我要消化一下這一句 " *pte 所指到的 address 是 kernel space"
+14:41 <@chenwj> sby: oh
+14:42 <@chenwj> sby: 你是指說每個 process 的 page table 都是 allocate 在 kernel space 的 data structure
+14:42 <+sby> chenwj: 對
+14:42 <+sby> chenwj: 不然 user 就可以亂改啦
+14:42 <+sby> chenwj: user 要改要透過 system call
+14:42 <+sby> chenwj: 他一定是放在 kernel space
+14:44 <+sby> chenwj: 如果 user 可以亂改一定會有 security 的問題
+14:45 <@chenwj> sby: 所以如果 os 要改被 swicth out 的 process B 情況會是怎樣? os 會先在 kernel space 抓到 process B task_struct 中的 cr3?
+14:45 <+sby> chenwj: yes
+14:46 <@chenwj> sby: 這邊我想 os 應該就 follow process B cr3 指到的位址一路找到要改的 pte，它不會把 process B cr3 assign 到機器的 cr3
+14:46 <@chenwj> sby: 然後就 *pte = new_value
+14:47 <+sby> chenwj: 恩, 對, 如果只是要修改的話就這樣
+14:47 <@chenwj> sby: 比較清楚了
+14:48 <+sby> chenwj: 如果是改目前的 process 的 *pte 才需要另外 flush TLB, 改其他的就只是 *pte = new_value
+14:48 <@chenwj> sby: ok
+15:04 <@chenwj> sby: 你覺得有可能把 arm page table 轉成 x86 format 嗎?
+15:05 <+sby> chenwj: XD
+15:05 <+sby> chenwj: x86_64 or x86_32?
+15:05 <@chenwj> sby: 64
+15:06 <+sby> chenwj: 可能有點麻煩, x86_64 一個 pte 多大?
+15:06 <@chenwj> sby: 64 bit
+15:06 <@chenwj> sby: 我沒記錯的話
+15:06 <+sby> chenwj: 應該說一個table有幾個pte?
+15:07 <@chenwj> sby: 1024
+15:07 <+sby> chenwj: 那一個pte是對到多大個range?
+15:08 <@chenwj> sby: 4k or 4m
+15:08 <+sby> chenwj: 我記得ARM的一個pte好像可以是1M 4K 1K 都可以
+15:08 <@chenwj> sby: 我同事是說他觀察到好像只用到 4k
+15:09 <+sby> chenwj: 恩 Linux 是這樣
+15:09 <@chenwj> sby: 他說之前編 arm linux 要調 page size 就編不過
+15:09 <+sby> chenwj: 所以你是針對 Linux?
+15:09 <+sby> chenwj: 如果別的 OS 不一定是這樣
+15:09 <@chenwj> sby: 我想應該是
+15:09 <+sby> chenwj: 那應該簡單一點
+15:10 <+sby> chenwj: 如果都是 4K 應該不難 mapping
+15:10 <@chenwj> sby: 我想應該不是只要考慮 read/write/exe 這幾個 bit 這邊簡單
+15:11 <+sby> chenwj: r/w/x 好像不能針對每個 pte 去設?
+15:12 <+sby> chenwj: 我記得應該是一次設一個 table ( 1024 個)
+15:13 <@chenwj> sby: http://download.intel.com/products/processor/manual/253668.pdf
+15:13 <@chenwj> sby: fig 4.4
+15:13 <@chenwj> sby: pte 也有 r/w/x
+15:14 <@chenwj> sby: hmm, x 不知道是哪一個 bit
+15:16 <+sby> chenwj: 恩, 沒有 x 正常, x 是 OS 自己搞出來的
+15:16 <@chenwj> sby: 0.o
+15:16 <+sby> chenwj: security 考量, hardware 不管這個
+15:17 <@chenwj> sby: oh 好像是 x64 有 x bit
+15:18 <+sby> chenwj: 可是你轉了候要怎麼用?
+15:19 <+sby> chenwj: ARM Linux 還是會去看 ARM 的 format
+15:19 <@chenwj> sby: 其實是這樣的
+15:19 <@chenwj> sby: qemu 裡面是用 software 是翻譯 gva -> gpa -> hva
+15:19 <@chenwj> sby: 上面想要用 hw 作這一塊
+15:20 <+sby> chenwj: 喔喔
+15:20 <+sby> chenwj: 那應該問 hw 的人 XD
+15:20 <@chenwj> sby: ?
+15:21 <@chenwj> sby: 應該是說想看能不能用 hw mmu 來做這個
+15:21 <+sby> chenwj: software 一定可以啊, hardware 做的話搞不好成本很高
+15:22 <@chenwj> sby: you know... 上面只負責想 idea
+15:22 <+sby> chenwj: 畢竟 MMU 本來就已經佔 CPU chip 不少空間了, 如果弄得更複雜我不清楚可不可行
+15:23 <@chenwj> sby: ㄜ 是利用現有的 mmu，不是另外去 design
+15:25 <+sby> chenwj: 不懂, x86 的 MMU 如何董 ARM MMU 在做啥?
+15:25 <@chenwj> sby: 所以應該要先把 arm page table 轉成 x86 format
+15:26 <+sby> chenwj: 所以這邊還是 software 轉?
+15:27 <@chenwj> sby: 對 xd
+15:27 <@chenwj> sby: 我覺得即使能轉 應該也不划算
+15:27 <+sby> chenwj: XD
+15:28 <@chenwj> sby: 不過上面算是下死命令了
+15:28 <+sby> chenwj: 那妳可以研究看看 XD
+15:34 <@chenwj> sby: 有辦法把 userspace 的某一個空間
+15:34 <@chenwj> sby: map 到 kernel 裡嗎?
+15:34 <@chenwj> sby: 我們可能需要把 QEMU 的 code cache 放到 kernel 去執行
+15:35 <@chenwj> sby: :~
+16:04 <+sby> chenwj: kernel 本來就可以執行 user space 的 code 吧? 不一定要把 code 放在 kernel space 裡面
+16:04 <+sby> chenwj: 放到 kernel 內的目的是啥?
+16:05 <@chenwj> sby: 我想想
+16:06 <@chenwj> sby: 應該是要在 code cache 要執行到原本 guest memory access 相關指令的時候，切到 arm page table 相對應的 page table
+16:15 <+sby> chenwj: code cache 是 vmm 的? 你要放到 guest OS 內?
+16:16 <@chenwj> sby: code cache 是 QEMU 的一塊 array
+16:16 <@chenwj> sby: 這是在 userspace
+16:17 <+sby> chenwj: 喔
+16:17 <@chenwj> sby: 想說如果要切 cr3 的話，把 code cache 放到 kernel 去執行，就不用 userspace <-> kernel 切換
+16:18 <+sby> chenwj: 一般來說沒辦法這樣做, 除非你把 QEMU 整個塞到 kernel 內
+16:19 <@chenwj> sby: how?
+16:20 <+sby> chenwj: 你只塞 code cache 的話那每次 siwtch 回 QEMU 也是要做 user <-> kernel 的 context switch?
+16:20 <@chenwj> sby: 也對
+16:21 <+sby> chenwj: 所以沒必要把 code cache 放到 kernel 內, 讓 kernel 直接執行 code cache 內的 code 也很危險
+16:22 <@chenwj> sby: code cache 裡沒有特權指令不是就沒問題了嗎?
+16:28 <+sby> chenwj: 不一定阿
+16:28 <@chenwj> sby: 怎麼說?
+16:29 <+sby> chenwj: 也許某段 code 本來就會有 segmentation fault 的問題, 會址到錯誤的地方, 原本 kernel 會擋下來
+16:29 <+sby> chenwj: 但是你變成 kernel mode 執行這樣原本沒權限 access 的 memory 就變成有權限了
+16:29 <+sby> chenwj: 這樣就有 security 的問題
+16:29 <@chenwj> sby: hmmmm...
+16:30 <@chenwj> sby: 只到錯誤的地方... 這一般會出現嗎?
+16:30 <@chenwj> sby: 指到
+16:31 <+sby> chenwj: 寫錯的程式就會出現阿, 你不能預期 QEMU run 到的都是正常的程式
+16:31 <+sby> chenwj: 除非你有辦法保證所有 QEMU 跑的程式都經過 verify
+16:32 <+sby> chenwj: 也有可能跑的程式本身中毒了或者有木馬之類的
+16:32 <@chenwj> sby: 好吧... 可以先假設我們不會在 qemu 跑到寫錯的程式 qq
+16:35 <+sby> chenwj: 那你 OS 可能要做些小修改讓他去執行 code cache
+16:35 <+sby> chenwj: 不然 kernel 通常執行 user code 前都會 switch 回 user mode
+16:35 <+sby> chenwj: 你可以寫個 system call 要他在 kernel mode 執行 code cache
+16:36 <+sby> chenwj: 但是這樣就變成 user 隨時都可以透過那個 system call 拿到 root 就是了 XD
+16:36 <@chenwj> sby: well... 上面覺得 syscall overhead 太大
+16:36 <+sby> chenwj: 這個會經常發生嗎?
+16:36 <+sby> chenwj: QEMU 是跑在 system mode?
+16:37 <@chenwj> sby: usermode
+16:37 <@chenwj> sby: 它就只是一般的 process
+16:38 <+sby> chenwj: 我的意思是 QEMU 是跑成 system vm or process vm?
+16:39 <@chenwj> sby: system vm
+16:39 <+sby> chenwj: system call 只要執行一次的話 overhead 就不會大啦
+16:40 <@chenwj> sby: 可以進出 code cache 都要作 syscall
+16:40 <@chenwj> sby: 因為它會從 code cache 回到 qemu 做其它事
+16:40 <+sby> chenwj: 是阿, 因為你只把 code cache 放在 kernel
+16:41 <+sby> chenwj: 就算不是 system call 也是要從 code cache switch 回 user mode 執行 qemu
+16:41 <+sby> chenwj: 這樣 overhead 跟執行 system call 沒兩樣阿
+16:42 <@chenwj> sby: 對...
+16:42 <@chenwj> sby: 所以應該要把 qemu 弄進 kernel 執行?
+16:42 <+sby> chenwj: 如果你要完全不 switch 的話只能這樣
+16:42 <+sby> chenwj: 不然你就不用要用一般 Linux
+16:43 <+sby> chenwj: 用 uCLinux 之類的, 完全沒有 MMU, 就沒有 switch 的問題了 XD
+16:44 <@chenwj> sby: mmu 跟 swict user/kernel mode 有什麼關係?
+16:44 <+sby> chenwj: 應該說 uClinux 完全沒有用到 MMU
+16:45 <+sby> chenwj: 沒有 user mode / kernel mode 的區別
+16:45 <+sby> chenwj: MMU 有一部分功能就是做 protection 的阿, user/kernel mode 的 protection 是透過 mmu 做的
+16:45 <@chenwj> sby: 恩
+16:46 <+sby> chenwj: uClinux 沒有分 user / kernel mode, 所有 process 都是跟 kernel 一樣 run 在同一個 mode
+16:46 <@chenwj> sby: 這不會很危險嗎?
+16:46 <+sby> chenwj: 對阿, 所以是 for embedded system 用的
+16:47 <+sby> chenwj: run 的程式都是特定的
+16:47 <+sby> chenwj: 很多 embedded OS 都是只有一個 mode
+16:47 <@chenwj> sby: 那一般 linux 要怎麼把 qemu 弄進 kernel 以 kernel mode 執行?
+16:48 <+sby> chenwj: 就想辦法把 QEMU 跟 kernel static linking 再一起就是了
+16:48 <@chenwj> sby: 噗
+16:48 <+sby> chenwj: 然後 user 要執行 QEMU 就是呼叫一個 system call, 然後那個 system call 就去 call QEMU
+16:48 <+sby> chenwj: 這樣就綁在一起了
+16:48 <@chenwj> sby: soga
+16:49 <@chenwj> sby: 只要 qemu 和上面跑的 guest 不出錯，就不會有問題?
+16:50 <+sby> chenwj: 對阿, 可是這樣的話跟用 single mode 的 OS 意思沒兩樣
+16:50 <@chenwj> sby: 不是很懂
+16:50 <+sby> chenwj: 你用 uClinux 的跑 QEMU 的話還不是一樣?
+16:51 <+sby> chenwj: 你能保證 guest 不出錯, 那就一個 mode 就好啦
+16:51 <+sby> chenwj: 不需要分 user / kernel
+16:51 <@chenwj> sby: qemu 跟底下的 kernel 都跑在同一個 mode 的意思?
+16:52 <+sby> chenwj: uCLinux 這類 embedded OS 下所有 process 都跟 kernel 跑在同一個 mode
+16:52 <+sby> chenwj: 沒有分 user / kernel mode
+16:52 <@chenwj> sby: 恩
+16:52 <+sby> chenwj: 這樣就連把 QEMU 跟 linux static linking 和寫個 system call 的工作都省了
+16:52 <@chenwj> sby: 科科
+16:53 <@chenwj> sby: uCLinux 應該有 x86 版本?
+16:53 <+sby> chenwj: 有
+16:53 <@chenwj> sby: 只要它不開 paging
+16:53 <+sby> chenwj: 對阿, OS 不開 paging 就根本沒有你說的問題了 XD
+16:59 <@chenwj> sby: user 透過 syscall 去執行 qemu，qemu 在執行 code cache 的時候再 switch 到 guest 翻譯過後的 page table，這會有問題嗎?
+17:01 <@chenwj> sby: 有沒有可能 switch 到其他 process 會造成問題?
+17:01 <+sby> chenwj: 你是問執行上會不會有問題還是說會不會有 security 之類的其他問題? XD
+17:01 <@chenwj> sby: 先問執行上 xd
+17:02 <+sby> chenwj: 這樣 page table 的翻譯是什麼時候做?
+17:02 <+sby> chenwj: guest OS 每次修改 page table 就要做一次翻譯?
+17:03 <@chenwj> sby: 我們可能會仿造 shadow page table 的作法，實際上 cr3 一開始指到的是空的 shadow page table
+17:04 <@chenwj> sby: 這樣一開始會 page fault，我們處理 page fault 的時候會去 traverse guest page table，翻譯然後填進 shadow page table
+17:06 <+sby> chenwj: 那這樣 page table 每次修改過後就要重新指到空的 shadow page table?
+17:07 <+sby> chenwj: 所以每次修改 page table 後都會有 page fault 產生? 然後重新 traverse guest page table?
+17:07 <@chenwj> sby: 你說修改 pte?
+17:07 <+sby> chenwj: 嗯
+17:07 <@chenwj> sby: y
+17:08 <@chenwj> sby: kvm shadow page table 那邊也是這樣做
+17:08 <+sby> chenwj: 那這樣 overhead 也不小吧? @@
+17:08 <@chenwj> sby: 把 shadow page table 裡面指向 guest page table 的 entry 設成 read-only
+17:09 <@chenwj> sby: 另外一種可能是學 xen
+17:09 <@chenwj> sby: 改 guest os，那它在改 page table 的時候 call 到 qemu
+17:09 <+sby> chenwj: hmm
+17:12 <+sby> chenwj: 所以你這樣做會把 guset OS 下的一個 process 對應到 host OS 下的 process 是嗎?
+17:13 <@chenwj> sby: 在 qemu sysem mode 底下應該是分不出 guest process
+17:13 <@chenwj> sby: 整個 qemu 就是一個 process
+17:14 <@chenwj> sby: 我是說原本的情況
+17:15 <+sby> chenwj: 嗯
+17:16 <+sby> chenwj: 可是你不是說要把 guest OS 的 process 的 page table 設到 host 的 cr3?
+17:19 <@chenwj> sby: 對
+17:19 <+sby> chenwj: 這樣不就是 guest OS 的 process 會對到 host OS 的 process 的意思嗎? XD
+17:20 <@chenwj> sby: 好吧 可以這麼說
+17:20 <+sby> chenwj: hmm
+17:20 <+sby> chenwj: 那這樣不會有 address overlap 嗎?
+17:21 <+sby> chenwj: guest OS 的 kernel space 跟 host OS 的 kernel space 在 host process 的 page table 會有 overlaping?
+17:22 <@chenwj> sby: 之前跟同事討論好像也有講到類似的問題
+17:22 <+sby> chenwj: hmm
+17:23 <@chenwj> sby: guest virtual addr 跟 host virtual addr 可能會撞在一起
+17:23 <+sby> chenwj: 嗯
+17:23 <+sby> chenwj: 不過如果你是 32-bit ARM 在 64-bit x86 下也許有辦法避免 XD
+17:23 <+sby> chenwj: 32-bit ARM 在 32-bit x86 下問題就大了
+17:24 <@chenwj> sby: 好吧 那我們是前者
+17:24 <+sby> chenwj: hmm
+17:25 <@chenwj> sby: 我同事是說他要把 qemu 搬到 4g 以上
+17:31 <+sby> chenwj: hmm
+17:31 <+sby> chenwj: 這問題能解決其他問題應該不大
+17:34 <@chenwj> sby: 這樣就沒問題了?
+17:34 <@chenwj> sby: 我是說 overlapping 的部分
+17:34 <+sby> chenwj: hmm
+17:36 <@chenwj> sby: 所以現在 qemu 是 kernel 的一部分，guest page table 轉換後的內容都是在 4G 以下
+17:37 <@chenwj> sby: 其它 host 相關的東西都在 4G 以上

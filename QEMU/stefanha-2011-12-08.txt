@@ -1,0 +1,20 @@
+18:35 < memstick> Alright :) Anyway, was wondering, what is the qemu_malloc(..) function for (with regards to malloc())?
+18:38 < stefanha> memstick: You're probably using an old version of the QEMU source code, it now uses g_malloc()/g_new() from glib instead of its own malloc
+                  wrapper.
+18:39 < stefanha> Having a wrapper allows us to paper over portability issues (I think there were differences between host platforms when you malloc 0
+                  bytes) and also lets us add a QEMU trace event that is useful for debugging.
+18:40 < chenwj> paper over == avoid?
+18:41 < stefanha> Yeah, we can code around it.
+18:41 < kwolf> Actually, the main point of qemu_malloc() was that it aborts instead of returning NULL on failure
+18:41 < stefanha> Ah, yes
+18:42 < kwolf> The broken qemu_malloc(0) semantics was only a detail
+18:42 < memstick> Yeah, I'm using qemu 0.15, but I'd like to stay in that world for the time being
+18:43 < memstick> So if I wanted to malloc some data, would it make sense to use qemu_malloc over malloc?
+18:43 < stefanha> memstick: Yes, in QEMU everything uses qemu_malloc().
+18:44 < memstick> stefanha: right. Maybe that's why my qemu binary crashes (I'm using malloc instead of qemu_malloc)?                                        18:45 < kwolf> It normally shouldn't cause crashes                                                                                                           18:45 < kwolf> Look at the implementation of qemu_malloc, it's just a thin wrapper around malloc
+18:46 < memstick> Right, I'll have a look :)
+19:39 < dwg> stefanha: uh.. it used to, but now that's been replaced by g_malloc()
+19:40 < stefanha> 10:38 < stefanha> memstick: You're probably using an old version of the QEMU source code, it  now uses g_malloc()/g_new() from glib
+                  instead of its own malloc wrapper.
+19:41 < dwg> stefanha: sorry, read insufficient scrollback :)
+19:41 < stefanha> dwg: Happens to me too :)

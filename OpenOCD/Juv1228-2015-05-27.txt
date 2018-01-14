@@ -1,0 +1,137 @@
+[14:32] <chenwj> I would want to know why 0.9.0 can fix this issue > http://sourceforge.net/p/openocd/mailman/message/34134667/
+[14:32] <chenwj> any comment? :)
+[14:36] <chenwj> I found 0.8.0 autoselect 'cmsis-dap', and has trouble on 'jtag newtap' command. however, 0.9.0 autoselect 'swd', and use 'swd newdap' command.
+[14:37] <chenwj> seems selected transport doesn't match the command is the cause?
+[15:28] <chenwj> PaulFertser: sorry for the bothering. do you think my issue (http://sourceforge.net/p/openocd/mailman/message/32637202/) is the same as Jon's (http://sourceforge.net/p/openocd/mailman/message/32637202/) ? just want to know what the problem is...
+[23:29] <PaulFertser> chenwj: have you tried my last manual
+[08:51] <chenwj> PaulFertser: what manual?
+[09:05] <chenwj> PaulFertser: the same cmdline 'openocd.exe -f cmsis-dap.cfg -f lpc4350.cfg' fails in openocd 0.8.0, but works in openocd 0.9.0, just want to know if the openocd 0.9.0 somehow fix the problem. :-)
+[09:07] <chenwj> PaulFertser: my boss want to know if it's worth to upgrade from 0.8.0 to 0.9.0. ;-)
+[09:26] <Juv1228> chenwj, http://sourceforge.net/p/openocd/mailman/message/34134667/
+[09:26] <Juv1228> I just looked at this again, and I think i know the problem with 0.8.0
+[09:27] <Juv1228> crap, nevermind
+[09:28] <chenwj> :)
+[09:28] <Juv1228> in any case, I would say 0.9.0 is worth the upgrade
+[09:29] <chenwj> just need to convince my boss, lol
+[09:29] <chenwj> so I need to know why 0.9.0 fix the problem
+[09:36] <Juv1228> well, 0.9.0 changes a lot to do with the tap creation in the target files
+[09:36] <Juv1228> Im assuming you started with the lpc4350.cfg from 0.9.0, and then made similar edits?
+[09:38] <chenwj> no. I start with 0.8.0, then 0.9.0. both are without modification
+[09:38] <Juv1228> oh, this is a different issue than before
+[09:39] <chenwj> ?
+[09:40] <Juv1228> you are talking about something different than the link I pasted above, where you were trying to make your own target config
+[09:42] <chenwj> oh, the target config is copied from lpc4350.cfg, and only change the name
+[09:42] <chenwj> so I think they are basically the same :D
+[09:42] <Juv1228> 'openocd.exe -f cmsis-dap.cfg -f lpc4350.cfg'
+[09:42] <Juv1228> I don't know why that wouldn't work in 0.8.0
+[09:42] <Juv1228> and does in 0.9.0
+[09:43] <Juv1228> but the fact that it does should be enough to convince your boss to upgrade
+[12:02] <ttmrichter> PaulFertser: Well, they're saying it will be delivered end of day today.  If it's true and actually happens, they'll have matched the average performance of air mail.
+[12:02] <ttmrichter> At five times the price.
+[13:31] <ttmrichter> PaulFertser: Now they're saying it's "out for delivery".  CAMP OUT ON YOUR DOORSTEP!  UPS is infamous for its drivers just leaving a notice without bothering to bring the package to your door, not to mention ringing a doorbell or such.
+[14:10] <PaulFertser> ttmrichter: they told me yesterday they'll deliver at random time between 9:00--18:00, so I had to change the delivery address to my workplace, and I'm there now, and it's 09:10.
+[14:11] <Juv1228> PaulFertser, too late, they tried at 9:01
+[14:11] <PaulFertser> Juv1228: she told me he would call if I'm not available. And they'll have to call anyway because it's impossible to pass through the entrance for an outsider.
+[14:12] <PaulFertser> Juv1228: hey, good morning :)
+[14:17] <Juv1228> mornign
+[14:19] <ttmrichter> PaulFertser: Can you let me know as soon as you've signed for it?
+[14:19] <ttmrichter> I have to take a snapshot of the tracking system at that point so I can show my students how BAD logistics works.
+[14:20] <PaulFertser> ttmrichter: sure
+[14:20] <ttmrichter> (I actually teach logistics at the moment, not merely English, so this is an educational opportunity.)
+[14:20] <Juv1228> plot twist: the tracking system actually gets updated before you screenshot it :P
+[14:20] <ttmrichter> I would not put anything past UPS at this point.
+[14:21] <ttmrichter> I've already taken today's snapshot, just in case.
+[14:21] <ttmrichter> But I want the whole thing end-to-end for a complete lesson.
+[14:24] <PaulFertser> Doesn't the failure of another company to deliver at all look even more stupid?
+[14:27] <ttmrichter> Everybody knows not to trust China Post without a signature (except apparently my colleague...).
+[14:27] <ttmrichter> I need to show them that just because you paid a hundred bucks doesn't mean you get good service.
+[14:28] <ttmrichter> And then there's also the matter of how their support crew handled things.
+[14:29] <ttmrichter> When something was obviously going wrong they were more intent on managing the public discourse than they were on getting to the root of what was CAUSING the public discourse to be so negative.
+[14:29] <ttmrichter> Instead of taking the opportunity to convert a negative report to a positive, they doubled-down on things.
+[14:29] <ttmrichter> There's loads of lesson opportunities in this one shipment.
+[14:29] <PaulFertser> And btw I had to fill all the papers standing, they do not provide a sane desk for that, and I had to carry my helmet and heavy jacket around, they refused to provide a temporary storage for that.
+[14:30] <ttmrichter> That's UPS or the Russian government?
+[14:31] <ttmrichter> At any rate, the nightmare appears to be almost over.  (Plot twist: The nightmare is only just beginning!)
+[14:31] <PaulFertser> UPS. Russian government just doesn't care. I've spent time in a UPS room talking to a woman handling my case, then spend time outside the room filling the papers etc. And she refused to let me leave the helmet inside the room.
+[14:35] <ttmrichter> OK, that will go into the narrative for sure.
+[14:36] <ttmrichter> I will also be taking bits of the UPS web site's glowing wording to compare to the reality.
+[14:36] <ttmrichter> You ... don't happen to have photos of the UPS office do you?
+[14:37] <chenwj> PaulFertser: the same cmdline 'openocd.exe -f cmsis-dap.cfg -f lpc4350.cfg' fails in openocd 0.8, but works in openocd 0.9. The error message I got from openocd 0.8 is "jtag newtap requires more arguments".
+[14:37] <PaulFertser> ttmrichter: nope, I do not have a camera even.
+[14:38] <chenwj> PaulFertser: it seems openocd 0.8 autoselect cmsis-dap, and try to run 'jtag newtap' is the culprit?
+[14:38] <ttmrichter> chenwj: Two questions: 1. Why not use 0.9?  2. Where did you get a CMSIS-DAP adapter from?
+[14:38] <PaulFertser> chenwj: well, obviously, the config syntax was changed a bit, but why would you be willing to use 0.8.0 at all when 0.9.0 got a cmsis-dap driver that's several times faster?
+[14:39] <PaulFertser> chenwj: yeah, jtag newtap shouldn't be used at all with cmsis-dap. See the current config please.
+[14:50] <chenwj> we develop our hw with 0.8.0 at first, so we want to stick with 0.8.0 as much as possible... and upgrade to 0.9.0 is O.K., but I have to give reason to convince my boss
+[14:51] <ttmrichter> "0.9.0 works without lots of adjustment and is faster.  0.8.0 is requiring lots of adjustment and is slower."
+[14:51] <ttmrichter> I think I just spotted the business case.
+[14:51] <PaulFertser> chenwj: much faster would be one.
+[14:52] <PaulFertser> (provided you use a cmsis-dap adapter)
+[14:52] <chenwj> "0.9.0 works without lots of adjustment" < means it's smarter than 0.8.0?
+[14:53] <PaulFertser> Nope, just that you can use upstream config right out of the box.
+[14:54] <chenwj> I see
+[14:57] <ttmrichter> PaulFertser: I'm a bit hazy on one thing: what would be the motivating factor in choosing SWD over JTAG transport (or the other way around) if your hardware supports both?
+[14:58] <Juv1228> SWD uses fewer pins
+[14:58] <ttmrichter> Since the pins are already allocated to JTAG on the hardware, though, that's not really going to do much.
+[14:58] <PaulFertser> Plus SWD lets you use SWO on stm32 (the same pin would be used for one of jtag signals instead).
+[14:59] <Juv1228> not really true, depending on the package the pins can be shared
+[14:59] <ttmrichter> OK, so if I get around to learning SWO that will definitely be a selling point.
+[15:01] <PaulFertser> Juv1228: yes, I guess I'm talking about <=64 packages here.
+[15:01] <Juv1228> PaulFertser, I was replying to ttmrichter
+[15:02] <ttmrichter> Juv1228: The hardware I have allocates those JTAG pins only to JTAG.  It doesn't break them out for other purposes.
+[15:02] <ttmrichter> (It doesn't need to.  This is a 144-pin package.  I have an embarrassment of GPIO pins available...:D)
+[15:03] <Juv1228> sure, just keep in mind thats not always the case
+[15:03] <Juv1228> in some smaller packages you can use some jtag pins for GPIO
+[15:04] <ttmrichter> Yes.  I have a few of those.
+[15:04] <ttmrichter> But they also don't expose the full JTAG experience mostly.  They give me SWD-only connectors.
+[15:04] <Juv1228> also, fewer wires means less board space required for headers
+[15:04] <ttmrichter> If I wanted full JTAG I'd be hand-jumping from I/O pins to the adapter.
+[15:05] <ttmrichter> But this is the hardware I'm working with right now: http://i.imgur.com/rHlk2Ni.jpg
+[15:05] <ttmrichter> Board space isn't an issue.
+[15:06] <ttmrichter> On this one, however, it obviously is: http://i.imgur.com/D9FKXnt.jpg  :D
+[15:09] <Juv1228> ttmrichter, that mouse manufacturer made a poor choice for their name
+[15:11] <ttmrichter> Why?  It's made from dried and polymerized ejaculate.
+[15:12] <ttmrichter> Specifically bull semen.
+[15:12] <Juv1228> well, in that case, good choice
+[15:12] <ttmrichter> :D
+[15:12] <ttmrichter> My home mouse is weirder.  Not by name, but by shape.
+[15:13] <ttmrichter> http://i.imgur.com/3njWxCx.jpg
+[15:13] <ttmrichter> That one.
+[15:14] <ttmrichter> The "travel" mouse will be replaced with a portable wireless trackball next time I get spare cash.
+[15:15] <Juv1228> http://www.amazon.com/Microsoft-Wireless-Mobile-Mouse-3500/dp/B0035ERKYW
+[15:15] <Juv1228> my favorite mouse by far
+[15:17] <Juv1228> decent reception, good build quality, but cheap enough that you can justify replacing it when it inevitably gets gross
+[15:34] <PaulFertser> ttmrichter: got the wares
+[15:35] <PaulFertser> ttmrichter: he called me, I went downstairs, he had a special portable device with a barcode scanner and a touchscreen where I put my signature.
+[15:35] <PaulFertser> ttmrichter: awesome! BIG THANKS!
+[15:35] <ttmrichter> No troubles, mate.  Well, OK, lots of troubles, but none of them were your fault.  :D
+[15:36] <ttmrichter> Pity you don't have a camera.  I'd like to see them again.  It's been so long since I last saw them I forgot what they looked like.  :D
+[15:36] <chenwj> ttmrichter: what are they?
+[15:37] <ttmrichter> Juv1228: I'm beginning to get those fire-nerve twinges in my wrist, so I'm looking for mice that don't make me twist my hand to an unnatural angle any longer.
+[15:37] <PaulFertser> I can use my wife's tablet when I get home to make a "photo".
+[15:37] <ttmrichter> I used to use clones of that mouse.  (Not the real thing, of course.  I'm in China.)
+[15:37] <ttmrichter> chenwj: http://i.imgur.com/rUpsVMV.jpg
+[15:37] <ttmrichter> Those.
+[15:38] <ttmrichter> I'm jealous of two of those.
+[15:38] <ttmrichter> Like to the point that I'll probably buy them for myself at some point.
+[15:39] <chenwj> probes?
+[15:42] <ttmrichter> In that mess there are three JTAG adapters (one J-Link/SWD-only, one J-Link, one USB Blaster, all clones), one logic analyzer/oscilloscope, and five serial adapters, if memory serves.
+[15:43] <ttmrichter> These are all to help PaulFertser feel loved for all the work he's done for me.  :D
+[15:43] <chenwj> all clones < 山寨版?
+[15:43] <PaulFertser> ttmrichter: yes, but your mail listed 4 serial adapters and you photo had 5 of them. That made an additional point to confuse the customs officer but he decided not to push it as they're dirt cheap.
+[15:43] <ttmrichter> PaulFertser: Oh, wait.  Did I type 4 in that message?  :-o
+[15:43] <ttmrichter> Oops.
+[15:44] <ttmrichter> chenwj: Yes.
+[15:44] <chenwj> :D
+[15:44] <ttmrichter> Even the one that has the "Segger" box is a cottage-made clone.
+[15:44] <ttmrichter> PaulFertser: Next time I'll send you an iTool.  By airmail.  :D
+[15:45] <PaulFertser> ttmrichter: I guess I'm all packed now, so no real need for an iTool. Not sure if I'll have time to test all the equipment this evening, I have to prepare a bit to tomorrow's classes. And I have to work now.
+[15:46] <ttmrichter> Yeah, but the iTool is REALLY COOL.  :D
+[15:46] <PaulFertser> ttmrichter: I've really pleased to finally receive this, a nice gift indeed :)
+[15:47] <ttmrichter> I'm pleased you got it, not pleased it took so long.  :(
+[15:47] <ttmrichter> Several elements of bad timing and ignorance got involved in that delay.
+[15:47] <ttmrichter> I had it for you in January, JUST in time for Spring Festival to shut down the country.
+[15:47] <ttmrichter> Then my colleague sent off the first parcel in non-tracked form which obviously got swallowed up either by China Post or your post office.
+[15:48] <ttmrichter> Then the second one was sent by EMS which came back almost a month later (although that may have been because my colleague was out of his office for three weeks) with a "sorry, we don't have an export license for Russia".
+[15:48] <ttmrichter> Then the UPS fiasco.
+[15:48] <ttmrichter> An educational experience...

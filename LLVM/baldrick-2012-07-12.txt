@@ -1,0 +1,86 @@
+22:03 < chenwj> baldrick: I think the only way to understand how to convert GIMPLE to LLVM IR like dragonegg is reading the code?
+22:03 <@baldrick> chenwj: most gimple statements are easy to convert
+22:06 <@baldrick> chenwj: what kind of gimple are you trying to convert?
+22:08 < chenwj> well, someone ask about openmp on ml. I am also interested in that.
+22:09 <@baldrick> chenwj: by the time it hits dragonegg, openmp has already been lowered to a bunch of library calls
+22:10 < chenwj> so it turns out a bunch of LLVM call IR?
+22:14 <baldrick> For example, consider this openmp program:
+22:14 <baldrick> void foo()
+22:14 <baldrick> {
+22:14 <baldrick>   int i;
+22:14 <baldrick>   #pragma omp parallel
+22:14 <baldrick>     {
+22:14 <baldrick>     #pragma omp parallel
+22:14 <baldrick>       {
+22:14 <baldrick>       #pragma omp parallel
+22:14 <baldrick>         {
+22:14 <baldrick>           i++;
+22:14 <baldrick>         }
+22:14 <baldrick>       }
+22:14 <baldrick>     }
+22:14 <baldrick> }
+22:15 <baldrick> this becomes
+22:15 <baldrick> define void @foo(...) nounwind uwtable {
+22:15 <baldrick> entry:
+22:15 <baldrick>   %.omp_data_o.5 = alloca %struct..omp_data_s.0, align 8
+22:15 <baldrick>   %0 = bitcast %struct..omp_data_s.0* %.omp_data_o.5 to i8*
+22:15 <baldrick>   call void @GOMP_parallel_start(void (i8*)* @foo._omp_fn.0, i8* %0, i32 0) nounwind
+22:15 <baldrick>   call void @foo._omp_fn.0(i8* %0) nounwind uwtable
+22:15 <baldrick>   call void @GOMP_parallel_end() nounwind
+22:15 <baldrick>   ret void
+22:15 <baldrick> }
+22:15 <baldrick> where
+22:15 <baldrick> define internal void @foo._omp_fn.0(i8* %.omp_data_i) nounwind uwtable {
+22:15 <baldrick> entry:
+22:15 <baldrick>   %.omp_data_o.4 = alloca %struct..omp_data_s.1, align 8
+22:15 <baldrick>   %0 = bitcast i8* %.omp_data_i to i32*
+22:15 <baldrick>   %1 = getelementptr inbounds %struct..omp_data_s.1* %.omp_data_o.4, i64 0, i32 0
+22:15 <baldrick>   store i32* %0, i32** %1, align 8
+22:15 <baldrick>   %2 = bitcast %struct..omp_data_s.1* %.omp_data_o.4 to i8*
+22:15 <baldrick>   call void @GOMP_parallel_start(void (i8*)* @foo._omp_fn.1, i8* %2, i32 0) nounwind
+22:15 <baldrick>   call void @foo._omp_fn.1(i8* %2) nounwind uwtable
+22:15 <baldrick>   call void @GOMP_parallel_end() nounwind
+22:15 <baldrick>   ret void
+22:15 <baldrick> }
+22:15 <baldrick> and so on
+22:19 < chenwj> baldrick: openmp -> library calls -> LLVM IR you show me, right?
+22:19 < Jia> chenwj: you wanna make clang support OMP?
+22:19 <@baldrick> chenwj: correct.  GCC also generates some extra internal functions, but that too happens before dragonegg is reached
+22:19 < chenwj> Jia: we arr talking about dragonegg
+22:20 < chenwj> I see
+22:20  * Jia see
+22:20  * chenwj blink
+22:35 < Jia> chenwj: what you want? replace gcc using dragonegg?
+22:36 < Jia> clang is default in my SDK, it is OK to replace gcc in most cases.
+22:36 < chenwj> Jia: dragonegg is a gcc plugin which uses LLVM as backend
+22:37 < Jia> I knew that
+22:37 < chenwj> just saw someone want to know how dragonegg work on ml
+22:37 < Jia> but I love clang static analyzer
+22:38 < chenwj> that's why I ask baldrick about that
+22:38 < Jia> get
+22:38 <@baldrick> Jia: clang is fine if you only have to compile the C family of languages
+22:38 < Jia> ada fortran and so on...
+22:39 <@baldrick> exactly
+22:39 < Jia> I don't support them at all! hah :)
+22:42 < chenwj> baldrick: do you think what kind of research topic that dragonegg could be involved?
+22:42 <@baldrick> chenwj: I never thought about it
+22:42 < chenwj> :)
+22:43 < Jia> is this one?  http://code.google.com/p/gofrontend/
+22:43 < Jia> The goal is to support using this frontend with other compilers.
+22:44 < chenwj> doesn't it alreadly be merged into gcc?
+22:45 <@baldrick> yes, gcc mainline has Go
+22:45 <@baldrick> you can even compile it with dragonegg :)
+22:46 < Jia> I was told go is better C, but I think objc is better C
+22:46 < Jia> go looks like simply C++
+22:51 < Jia> chenwj: http://ellcc.org/
+22:51 < smooshlab> build #579 of libcxx_clang-x86_64-darwin11-RA is complete: Success [build successful]  Build details are at
+                   http://smooshlab.apple.com:8013/builders/libcxx_clang-x86_64-darwin11-RA/builds/579
+22:51 <@baldrick> Jia: I suspect that nowadays if you want your new language to be a big hit then it has to look a lot like C/C++, to make it easier for
+                  C/C++ programmers to use
+22:53 < Jia> baldrick: yes, you can say that again
+22:54 <@baldrick> Jia: so the fact that Go looks like C++ to you means that the designers of Go were successful at making it seem familiar to C++ programmers
+22:54 < affine> hello #llvm
+22:54 < Jia> baldrick: I'm not sure about that
+22:55 <@baldrick> Jia: so it doesn't "look like simply C++" after all?
+22:55 < Jia> Aha, it just I feel it like :)
+23:25 < chenwj> Jia: I knew that

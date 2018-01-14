@@ -1,0 +1,214 @@
+15:16 < chenwj> any clang guys here?
+15:16 < chenwj> or c++ guys
+15:16 < chandlerc> yes, many
+15:16 < chenwj> cool
+15:16 < chandlerc> perhaps not many awake, but some are awake
+15:17 < chenwj> I know, you are one of them
+15:17 < chenwj> in cfe.src/test/CXX/conv/conv.prom/p2.cpp,
+15:17 < chenwj> extern int promoted_wchar;                                                                                                                   15:17 < chenwj> extern decltype(+L'a') promoted_wchar;                                                                                                       15:17 < chenwj> ^ what does it try to do?
+15:19 < chandlerc> test the type of a wchar after integer promotions are performed
+15:19 < chandlerc> + is a unary operator
+15:20 < chandlerc> L'a' is a wchar
+15:20 < chandlerc> decltype(...) computes the type
+15:20 < chandlerc> if the types don't match, the compiler errors
+15:20 < scoopr> clever trick =)
+15:20 < chenwj> so it promote int to wchar?
+15:20 < chandlerc> no
+15:21 < JamesM_> promotes a wchar_t to int
+15:21 < chandlerc> we hope, hence the test
+15:21 < JamesM_> interestingly I haven't seen decltype before. Is that C++11?
+15:21 < chandlerc> yes
+15:22 < chenwj> ok, on arm I get error below
+15:22 < chenwj> error: 'error' diagnostics seen but not expected:
+15:22 < chenwj>   Line 10: redefinition of 'promoted_wchar' with a different type
+15:22 < chenwj> error: 'note' diagnostics seen but not expected:
+15:22 < chenwj>   Line 9: previous definition is here
+15:22 < chenwj> 2 errors generated.
+15:22 < chandlerc> that means the test failed
+15:22 < chandlerc> the type was not what was expected
+15:22 < chenwj> is it expected?
+15:22 < chandlerc> ....
+15:23 < chenwj> I mean on arm
+15:23 < chandlerc> no? this is a C++ language test, it shouldn't have platform deps
+15:23 < chenwj> ok, then perhaps a bug?
+15:23 < scoopr> perhaps it's unsigned? I remember that being a difference of regular char's default in some arm platforms
+15:24 < chandlerc> definitely a bug
+15:24 < chandlerc> question is whether it is a bug in the test or in clang
+15:24 < chandlerc> i'm deeply suspicious of this test
+15:24 < chandlerc> i'm deeply suspicious of this test
+15:24 < chandlerc> the standard doesn't seem to provide the guarantee it is asserting
+15:25 < chenwj> the remaining statements in p2.cpp is ok
+15:26 < chandlerc> that test is simply incorrect
+15:26 < chandlerc> i don't know what the correct test should exactly be, but it is not that test
+15:27 < chandlerc> chenwj: send a mail to cfe-dev or file a bug about the fact that this test is bogus, the standard does not require this to result in an
+                   'int'.
+15:27 < chenwj> chandlerc: add "-fshort-wchar" makes the erroe gone
+15:28 < chandlerc> that's not the correct solution
+15:28 < chenwj> ok, will do
+15:28 < chandlerc> clang is correct here
+15:28 < chandlerc> the test is bogus
+15:28 < chandlerc> so carry on with your testing, and report this somewhere
+15:29 < chandlerc> i'm not the expert on this part of the standard, but i know enough to debunk that test. ;]
+15:29 < chenwj> :)
+15:35 < chandlerc> JamesM_: FYI, i'm working through patch in the evenings
+15:35 < chandlerc> it's not lost
+15:35 < chandlerc> just been going its fits and starts, should have first pass done tomorrow though
+15:35 < chenwj> for test/CXX/special/class.copy/p15-inclass.cpp, clang on arm produces
+15:35 < chandlerc> i tihnk its mostly me being slow to wrap my head around it because i've been exhausted this week, nothing bad
+15:35 < JamesM_> chandlerc: awesome, thanks
+15:36 < JamesM_> chandlerc: Eric gave it a tentative LGTM last night, but your eyes would be extremely useful
+15:36 < chenwj> define void @_ZN7PR1141810check_copy, but Filecheck expect it's "define linkonce_odr void ..."
+15:36 < JamesM_> its one of those patches where options can easily get lost in the wash - especially when I fast forwarded the patch to ToT - options that
+                 have been added since then are included, but have a higher likelihood of being forgotten.
+15:37 < JamesM_> This is where I just hope that if people have added options, they added testcases
+15:37 < chandlerc> JamesM_: if they haven't, they get to fix
+15:37 < JamesM_> chandlerc: my thoughts exactly
+15:38 < chenwj> hmmm, or I should ask this way
+15:38 < JamesM_> chenwj: interesting that it doesn't add the linkonce_odr attribute
+15:38 < JamesM_> chenwj: you tried adding an Intel triple to the commandline?
+15:38 < chenwj> what test in http://people.cs.nctu.edu.tw/~chenwj/tmp/phase3-regression-test.txt should be platform *independent*
+15:38 < chenwj> JamesM_: no triple
+15:38 < JamesM_> chenwj: stick a triple in there to see if it's platform ABI dependent
+15:39  * JamesM_ smacks kerberos
+15:39 < JamesM_> I have to ssh as root into my pandaboard every morning to kill off my bash session and rerun kinit :(
+15:39 < chenwj> JamesM_: -triple arm-none-linux-gnueabi <- ?
+15:40 < JamesM_> chenwj: I'd add an intel triple, in case that's what the test is expecting
+15:40 < JamesM_> x86_64-none-linux
+15:40 < JamesM_> x86_64-none-linux-gnu , I mean
+15:41 < chenwj> JamesM_: that makes error gone
+15:42 < JamesM_> chenwj: Sounds like it
+15:43 < chandlerc> JamesM_, chenwj: nothing under test/CXX should have triples
+15:43 < chandlerc> the tests are busted if they do
+15:43 < JamesM_> chandlerc: well something's awry with that test
+15:43 < chandlerc> ok, i'm just trying to clarify the roles here
+15:43 < chandlerc> ABI stuff belong sin test/CodeGenCXX
+15:43 < JamesM_> chenwj: someone will need to investigate exactly what that test is checking, and either move it to platform specific or fix it
+15:43 < chandlerc> test/CXX is for standard reqs
+15:44 < chenwj> chandlerc: I see
+15:46 < JamesM_> chenwj: chandlerc: Looking at the test, I think the linkonce_odr is an artefact of something else it's checking
+15:46 < JamesM_> it's not looking *for* linkonce_odr, it's looking for a function definition in IR and that's part of the signature that gets spat out on
+                 intel
+15:46  * chandlerc nods
+15:46 < JamesM_> I think the fix is to make the linkonce_odr optional in filecheck so it's not platform dependent
+15:46 < chandlerc> or just start off with 'CHECK: @foo'
+15:46 < chandlerc> the IR is nice and orthogonal here, checking what comes before is rarely relevant
+15:47 < chandlerc> or CHECK: <something> {{.*}} @foo
+15:48 < JamesM_> yup
+16:18 < JamesM_> chenwj: Phase 2: 25 failures.
+16:18 < JamesM_> chenwj: http://pastebin.com/hymq7LJL
+16:20 < clb> Nikola: ok, I think you'll probably hit this bug https://github.com/juj/vs-tool/issues/1
+16:20 < chenwj> JamesM_: LLVM :: CodeGen/X86/2010-11-18-SelectOfExtload.ll <-
+16:20 < clb> don't yet know how to cleanly fix it
+16:20 < chenwj> JamesM_: I phase 3 has no ^^^
+16:21 < JamesM_> chenwj: I'm starting phase 3 now
+16:21 < chenwj> JamesM_: I think most CodeGenCXX failures can be avoided by adding triple
+16:21 < JamesM_> I'm not surprised
+16:21 < Nikola> clb: this is why i invoke clang from visual studio command line tools :)
+16:21 < JamesM_> if we get the pandaboard working properly in the buildfarm it'll stop people writing bogus tests in the future
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+16:22 < chenwj> JamesM_: ya
+16:22 < chenwj> JamesM_: how many arm buildbot operational?
+16:23 < JamesM_> just the one I think
+16:25 < JamesM_> http://lab.llvm.org:8011/builders/clang-native-arm-cortex-a9
+16:25 < JamesM_> there's another one: http://lab.llvm.org:8011/buildslaves/ranby1
+16:26 < JamesM_> we want to get them green though, otherwise noone cares
+16:26 < chenwj> JamesM_: CodeGenCXX :: cxx0x-initializer-stdinitializerlist.cpp still fail
+16:26 < JamesM_> whats teh failure?
+16:26  * JamesM_ has maxed out his panda with teh current build so can't really do much more on it
+16:26 < chenwj> JamesM_: same as http://people.cs.nctu.edu.tw/~chenwj/tmp/phase3-regression-test.txt
+16:28 < JamesM_> chenwj: can you run the compiler on that file and pastebin the raw output?
+16:31 < chenwj> JamesM_: http://pastebin.com/vuNZTv1P
+16:43 < JamesM_> chenwj: no, sorry, I mean without piping to Filecheck. So I can see the actaul output of the compiler
+16:43 < JamesM_> rainbow-: did you give it the -g option?
+16:44 < bb-chapuni> build #2703 of cmake-clang-i686-msvc10 is complete: Failure [failed all_build_again]  Build details are at
+                    http://bb.pgr.jp/builders/cmake-clang-i686-msvc10/builds/2703  blamelist: Simon Atanasyan <satanasyan@mips.com>, Manuel Klimek
+                    <klimek@google.com>
+16:44 < rainbow-> JamesM_: oh, oops. thanks!
+16:45 < brubelsabs> How do I disable warnings during compilation from third party libs? Currently I use "-isystem" to ommit warnings related to certain
+                    libs, so I can stay focused on our code, but what do I do when the lib is not available for that system? Is there a way to disable
+                    warnings for certain include paths?
+16:50 < chenwj> JamesM_: can I upload file to pastbin, the log is very loonng..
+16:52 < chenwj> JamesM_: http://pastebin.com/3jxXGrYP
+16:52 < JamesM_> brubelsabs: -w
+16:52 < JamesM_> chenwj: ok
+16:55 < JamesM_> chenwj: looks like the destroyme1 destructor is being defined as returning a value, instead of void
+16:56 < chenwj> no right for me
+16:56 < JamesM_> hm?
+16:56 < chenwj> I mean dtor shouldn't return a value :)
+16:56 < JamesM_> sorry, its the ctor
+16:57 < JamesM_> the ctor is taking the "this" ptr as the first arg, and returning this
+16:57 < JamesM_> which seems fine - maybe it's an ABI difference issue?
+16:57  * JamesM_ looks it up
+16:57 < chenwj> x86_64 triple make no difference
+16:59 < JamesM_> this intrigues me
+17:01 < JamesM_> chenwj: thsi is a deliberate difference between ARM and Intel
+17:01 < JamesM_> The ARM C++ ABI supplement states: "This ABI requires C1 and C2 constructors to return this (instead of being void functions) so that a C3
+                 constructor
+17:01 < JamesM_> can tail call the C1 constructor and the C1 constructor can tail call C2.
+17:01 < JamesM_> Similarly, we require D2 and D1 to return this so that D0 need not save and restore this and D1 can tail call D2 (if
+17:01 < JamesM_> there are no virtual bases). D0 is still a void function.
+17:01 < JamesM_> "
+17:02 < JamesM_> So I'm surprised that changing the triple doesn't modify the behaviou
+17:02 < JamesM_> r
+17:03  * JamesM_ -> meeting
+17:15 < chenwj> JamesM_: Preprocessor/mmx.c <- this is for x86 mmx. `clang -msse -march=i386 -m32 -E -dM mmx.c` shows no "#define __MMX__"
+17:15 < chenwj> JamesM_: should it?
+17:18 < chenwj> JamesM_: and how about Preprocessor/predefined-arch-macros.c? seems it's for x86
+18:07 < JamesM_> chenwj: sorry was in a meeting
+18:09 < JamesM_> chenwj: -march=i386 won't enable MMX, you need i686 for that IIRD
+18:09 < JamesM_> IIRC*
+18:09 < TobiasFar> http://nopaste2.doomsong.co.uk/1335434955.php is this one already reported?
+18:17 < bb-chapuni> build #870 of clang-3stage-x86_64-linux is complete: Success [build successful]  Build details are at
+                    http://bb.pgr.jp/builders/clang-3stage-x86_64-linux/builds/870
+18:49 < chenwj> JamesM_: o.0?
+18:50 < chenwj> JamesM_: the command is written in mmx.c
+18:53 < chenwj> JamesM_: no luck with -march=i686
+18:55 < JamesM_> chenwj: not sure, I'm not an intel guy ;)
+18:55 < JamesM_> but the i386 didn't have MMX
+18:55  * chenwj shrug
+18:56 < chenwj> clang guys might know it
+18:59 < nbjoerg> you have to enable mmx explicitly for 32bit mode
+18:59 < nbjoerg> i686 is not enough, since that's ~pentium pro, which didn't have mmx
+19:01 < chenwj> nbjoerg: `clang -msse -march=i386 -m32 -E -dM mmx.c`
+19:02 < chenwj> JamesM_: have time?
+19:02 < nbjoerg> does sse imply mmx? I never remember...
+19:03 < clb> nbjoerg: I think it does
+19:03 < clb> I dug through the source code a few days ago, and I think -msse added the -mmmx cpu feature as well
+19:03 < chenwj> nbjoerg: this is embedded in the mmx.c, which is used during `make check-all`
+20:05 < chenwj> JamesM_: don't you reply to llvmdev?
+20:07 < JamesM_> chenwj: my inbox on llvmdev has a shitload of unread emails
+20:07 < chenwj> JamesM_: cxx0x-initializer-stdinitializerlist.cpp still fail even give it triple
+20:07 < JamesM_> i'm doing my best just to keep up to date on cfe-commits :/
+20:08 < chenwj> ok
+20:08 < JamesM_> chenwj: not sure why
+20:08 < JamesM_> chenwj: you'd need to check the code I think
+20:08 < chenwj> .cpp or ir?
+20:10 < JamesM_> .cpp
+20:10 < JamesM_> hang on I'll have a looksie
+20:14 < JamesM_> chenwj: I'm a little stumped there
+20:14 < JamesM_> chenwj: the code is guarded by ARMCXXABI, which is only defined in ARMTargetInfo
+20:14 < JamesM_> so it should be affected by triple
+20:16 < chenwj> the code is guarded by ARMCXXABI <- what code? I see no ARMCXXABI in cxx0x-initializer-stdinitializerlist.cpp
+20:16 < JamesM_> in Clang itself
+20:16 < chenwj> oh
+20:17 < JamesM_> chenwj: changing the triple seems to work for me
+20:18 < chenwj> change it to?
+20:18 < JamesM_> chenwj: add "-triple x86_64-none-linux-gnu" to the RUN line before the |
+20:18 < JamesM_> PASS: Clang :: CodeGenCXX/cxx0x-initializer-stdinitializerlist.cpp (1 of 1)
+20:22 < chenwj> how to run that test case only?
+20:27 < jey> chenwj: afaik just run lit, with the path to that .cpp file
+20:28 < chenwj> jey: thanks
+20:33 < chenwj> JamesM_: ok, I run it manually with "-triple x86_64-none-linux-gnu" but fail. Use llvm-lit, it pass
+20:36 < JamesM_> chenwj: it worked fine when i ran it manually ;)
+20:37  * chenwj shurug
+20:41 < chenwj> JamesM_: I am looking at Sema/arm-neon-types.c
+20:41 < chenwj> likes wrong triple again?
+20:41 < chenwj> Q: do we need hardcode the triple in the test case?
+20:42 -!- arsdmthe_ is now known as arsdmthe
+20:46  * JamesM_ looks
+20:48 < JamesM_> doesn't look like a triple issue
+20:51 < chenwj> "the incompatible pointer types" means vld1q_s16 expect pointer which is not "int *" ?
+20:55 < JamesM_> chenwj: hmm, i'm not sure
+21:26 < JamesM_> chenwj: I'm stumped on taht one for the moment. You'll have to raise a PR
+21:26 < JamesM_> the CompilerInvocation is identical to the one that passes, on X86
+21:27 < JamesM_> the difference must be elsewhere than the driver/frontend stuff that I expected it to be

@@ -1,0 +1,28 @@
+16:39 < chenwj_> http://pastebin.com/yR8PPMtb
+16:40 < chenwj_> why clang convert "int i" into i64 not i32?
+16:49 <@baldrick> chenwj_: in the unoptimized code it looks like it promotes i to sizetype before accessing the array
+16:50 <@baldrick> chenwj_: it looks like the optimizers then decide it would be a good idea to simply use a sizetype size (i64) variable for i always
+16:52 < chenwj_> baldrick: "in the unoptimized code ..." <- the promotion happened when opt is on or off?
+16:53 <@baldrick> chenwj_: when optimization is off "i" is an i32, but it's value is promoted to i64 (sizetype doubtless) before being used to access the
+                  array
+16:53 <@baldrick> chenwj_: I suspect the optimizers, seeing this, think: might as well use i64 for "i" always
+16:53 < chenwj_> hmmmm...
+16:55 <@baldrick> chenwj_: gcc does exactly the same (promote to sizetype), so this is probably some C language rule
+16:57 < chenwj_> when I turn the opt level to none, it seems no more promotion (http://llvm.org/demo)
+16:58 <@baldrick> chenwj_: is the demo a 32 or 64 bit system?
+16:59 < chenwj_> target triple = "x86_64-unknown-linux-gnu"
+16:59 < chenwj_> baldrick: I use the online demo
+17:00 <@baldrick> chenwj_: $ clang -S -emit-llvm -o - chenwj.c | grep i64
+17:00 <@baldrick> target datalayout =
+"e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-f32:32:32-f64:64:64-v64:64:64-v128:128:128-a0:0:64-s0:64:64-f80:128:128-n8:16:32:64"
+17:00 <@baldrick>   %idxprom = sext i32 %tmp2 to i64
+17:00 <@baldrick>   %arrayidx = getelementptr inbounds i32* %tmp3, i64 %idxprom
+17:00 <@baldrick>   %idxprom6 = sext i32 %tmp5 to i64
+17:00 <@baldrick>   %arrayidx8 = getelementptr inbounds i32* %tmp7, i64 %idxprom6
+17:01 < chenwj_> so still do the promotion?
+17:04 <@baldrick> chenwj_: so, yes, it promotes to i64 before accessing the array, even at -O0
+17:05 < chenwj_> http://llvm.org/docs/GetElementPtr.html#int <- I guess this is because getelementptr is used
+17:09 <@baldrick> chenwj_: gep doesn't require i64.  Also, GCC does the same and GCC doesn't have GEP :)
+17:10 <@baldrick>   D.2720_6 = (long unsigned int) i_1;
+17:10 <@baldrick> here is GCC promoting it in it's gimple representation
+17:11 < chenwj_> interesting

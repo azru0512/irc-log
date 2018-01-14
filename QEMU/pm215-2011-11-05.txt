@@ -1,0 +1,72 @@
+07:58 < funman> hi
+08:19 < funman> i'd like to open a bug i didn't see in launchpad
+08:19 < chenwj> go ahead :)
+08:19 < funman> without kvm, windows 7 64bits installation fails on error 0x5d (unsupported_processor)
+08:19 < pm215> go ahead, that's what the bug tracker is there for :-)
+08:19 < funman> yeah, i just wanted to make sure it wasn't heard about
+08:20 < funman> since google showed me a bunch of reports of this bug (not in qemu bug tracker though)
+08:20 < pm215> NB that x86 TCG (ie not-kvm) qemu is kind of orphaned, so you might not get a fix quickly
+08:21 < funman> oh
+08:21 < funman> that's what happens when developers get to play with newer hardware :/
+08:23 < chenwj> is there a x86 patch queue?
+08:24 < pm215> for emulation? no. device models are shared with the kvm execution mode so are rather better maintained.
+08:24 < pm215> send patches to qemu-devel as usual (cc'ing people as listed in the MAINTAINERS file)
+08:26 < chenwj> pm215: I mean those patch pending for review
+08:27 < chenwj> I'd like to take a look
+08:27 < pm215> "patch queue" as I understand the term is not "patching waiting for review" but "patches which have been reviewed and are going to go into
+               the tree next time the subsystem maintainer submits a pull request"
+08:27 < pm215> *patches waiting
+08:27 < chenwj> ah, sorry about the misleading
+08:27 < pm215> for unmaintained areas the unreviewed patches are simply on the mailing list
+08:28 < chenwj> ok
+08:28 < pm215> if you're interested in improving this area I'd suggest you start by fixing the problems which affect you personally
+08:29 < pm215> or you could look to see if there are any unfixed bugs in launchpad
+08:30 < funman> https://bugs.launchpad.net/qemu/+bug/886408
+08:31 < funman> anything i forgot?
+08:31 < funman> (apart the version of windows i used..)
+08:32 < pm215> git doesn't seem to have heard of the git revision you quote
+08:33 < funman> Date:   Wed Nov 2 20:52:23 2011 +0000
+08:33 < funman> Merge branch 'xtensa' of git://jcmvbkbc.spb.ru/dumb/qemu-xtensa
+08:34 < funman> hmm i cloned repo.or.cz, i was having issues with qemu.org
+08:34 < pm215> I may just be out of date; let me pull master
+08:35 < chenwj> funman: qemu.org sometimes just fall asleep ;)
+08:35 < pm215> update> yes, have it now
+08:36 < funman> cool :)
+08:36 < pm215> anyway, yes, that looks like exactly the sort of bug that won't get fixed unless somebody interested wants to dig in and find out exactly
+               what's going on
+08:36 < funman> yep
+08:36 < pm215> (you'll note that Jan reported that to the list in February with no response)
+08:36 < funman> i wasn't sure if he was a developer
+08:37 < pm215> he is, yes (although that doesn't mean much in this case beyond that it makes me less likely to guess it might be user error :-))
+08:38 < funman> how would debugging this go?
+08:38 < funman> can qemu somehow insert breakpoints into guest code?
+08:39 < pm215> you can connect gdb to the qemu-guest and then set breakpoints, single step, etc
+08:39 < funman> i had a quick look at cpuid code to see if qemu added its own extra bit which would confuse windows
+08:30 < funman> https://bugs.launchpad.net/qemu/+bug/886408
+08:31 < funman> anything i forgot?
+08:31 < funman> (apart the version of windows i used..)
+08:32 < pm215> git doesn't seem to have heard of the git revision you quote
+08:33 < funman> Date:   Wed Nov 2 20:52:23 2011 +0000
+08:33 < funman> Merge branch 'xtensa' of git://jcmvbkbc.spb.ru/dumb/qemu-xtensa
+08:34 < funman> hmm i cloned repo.or.cz, i was having issues with qemu.org
+08:34 < pm215> I may just be out of date; let me pull master
+08:35 < chenwj> funman: qemu.org sometimes just fall asleep ;)
+08:35 < pm215> update> yes, have it now
+08:36 < funman> cool :)
+08:36 < pm215> anyway, yes, that looks like exactly the sort of bug that won't get fixed unless somebody interested wants to dig in and find out exactly
+               what's going on
+08:36 < funman> yep
+08:36 < pm215> (you'll note that Jan reported that to the list in February with no response)
+08:36 < funman> i wasn't sure if he was a developer
+08:37 < pm215> he is, yes (although that doesn't mean much in this case beyond that it makes me less likely to guess it might be user error :-))
+08:38 < funman> how would debugging this go?
+08:38 < funman> can qemu somehow insert breakpoints into guest code?
+08:39 < pm215> you can connect gdb to the qemu-guest and then set breakpoints, single step, etc
+08:39 < funman> i had a quick look at cpuid code to see if qemu added its own extra bit which would confuse windows
+08:39 < funman> anyway, i'm going to try a native install to solve my problems :P
+08:39 < funman> thanks
+08:40 < chenwj> just to make sure. I think libqemu is not avaliable anymore, right?
+08:42 < pm215> yes, I think we stopped building like that a long time back
+08:43 < chenwj> I am trying update qemu-tech.texi
+08:46 < pm215> good luck, I suspect it's pretty out of date
+08:46 < chenwj> :)

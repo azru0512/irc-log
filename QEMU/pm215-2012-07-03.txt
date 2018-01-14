@@ -1,0 +1,51 @@
+16:01 < chenwj> pm215: -d in_asm doesn't show instructions being executed, iirc?
+16:02 < kwolf> It shows the instructions being translated
+16:05 < chenwj> do we have option to dump instructions being executed? no?
+16:13 < ldesnogu> chenwj: no
+16:26 < ncopa> hi
+16:26 < chenwj> hi
+16:26 < ncopa> my windows 7 on lvm seems to have got broken
+16:27 < ncopa> it says missing operating system
+16:27 < ncopa> any ideas?
+16:29 < ncopa> I use:        -drive file=/dev/vg0/lv_ncvmw7,cache=none \
+16:33 < ncopa> interesting thing is that i can mount it
+16:34 < ncopa> but i cannot boot it
+16:40 < ncopa> i wonder what happened
+16:40 < ncopa> did udisks2 do anything with it?
+17:44 < harshpb> stefanha, around ?
+18:43 < pm215> I wonder if the arm semihosting sys_exit should do a qemu_system_shutdown_request() in system mode rather than abruptly calling exit()
+18:45 < agraf> uh, probably .)
+18:45 < pm215> at least I assume exit() will not make things like the block layer very happy
+18:49 < agraf> I doubt it :)
+18:52 < pm215> one slight difficulty is that I don't know if shutdown_request() can guarantee to not execute any more guest innss
+18:52 < pm215> *insns
+18:54 < chenwj> I think not
+18:54 < chenwj> I guess it have to wait execution come back from the code cache
+18:54 < chenwj> just *guess*
+18:56 < pm215> mm, but the SVC is probably an end-of-TB already
+18:56 < pm215> so it might be ok
+18:57 < chenwj> svc?
+18:58 < agraf> pm215: if not, you can always make it end the tb
+18:58 < agraf> pm215: but i don't think it's necessary
+18:58 < pm215> svc is the syscall instruction (strictly, 'swi' in new instruction syntax)
+18:59 < agraf> pm215: the common way to do reset/shutdown on x86 is through pio
+18:59 < agraf> pm215: and that certainly doesn't end the tb
+18:59 < pm215> agraf: yeah, but does the hardware guarantee to shutdown before the I/O insn finishes? I doubt it...
+19:00 < agraf> pm215: does it matter?
+19:00 < agraf> pm215: iirc shutdown_request just sets a bit
+19:00 < agraf> pm215: that gets interpreted from the main loop
+19:00 < agraf> pm215: so yes, it will finish other instructions in the tb
+19:01 < agraf> pm215: does the hypercall guarantee that no instructions will be executed after it?
+19:01 < pm215> agraf: yes
+19:02 < agraf> pm215: then you have to end the tb at that point
+19:04 < pm215> we do always terminate the TB on the SWI, so that bit's ok. so as long as the main loop will stop us immediately on end of the TB we're ok
+19:08 < agraf> the shutdown request should break tb chaining
+19:08 < agraf> so i'd assume so
+19:11 < pm215> (annoyingly versatilepb has no "power off" hardware support, otherwise I wouldn't be messing with semihosting exits)
+19:11 < chenwj> it just unplug the power?
+19:13 < pm215> in the real hardware, yeah, you have to flip a physical switch
+19:13 < agraf> yeah, same as mpc8544ds
+19:13 < pm215> versatile express has software-controlled powredown
+19:13 < agraf> it's pretty annoying
+19:13 < agraf> makes autotest choke too
+19:13 < agraf> since it never knows when the vm actually quit successfully

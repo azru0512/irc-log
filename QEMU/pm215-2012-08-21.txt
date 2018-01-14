@@ -1,0 +1,161 @@
+15:20 < Jia> hi all, if I git send email failed at the last patch, what should I do?
+15:21 < Jia> it stop at [11/13]
+15:21 < Jia> it stop at [12/13]
+15:26 < Jia> anyone online? it really make me nervous
+15:34 < Jia> error: git-send-email died of signal 13
+15:34 < chenwj> Jia: just wait for someone wakeup
+15:35 < Jia> peter is in England?
+15:45 < Jia> Max Blue Richi... are you here?
+17:03 < Jia> pm215: ping
+17:13 < agraf> pm215: i got good and bad news for you
+17:13 < agraf> pm215: good news is: the bug from yesterday is not a tcg bug
+17:13 < agraf> pm215: bad news: statfs64 is broken
+17:14 < Jia> agraf: I get a `error: git-send-email died of signal 13` at [12/13] when I send patches, what should I do? I'm a little nervous.
+17:15 < agraf> Jia: what is signal 13?
+17:15 < Jia> git send-email failed.
+17:15 < agraf> SIGPIPE?
+17:15 < agraf>        SIGPIPEI    13I     Term    Broken pipe: write to pipe with no readers
+17:15 < agraf> so I'd assume some internal program inside of git-send-email crashed and left a broken pipe behind
+17:16 < chenwj> agraf: I guess Jia just want to ask if he need to resend the whole patchset
+17:16 < agraf> oh
+17:16 < agraf> check the mailing list if it got there
+17:16 < Jia> yes, it got there.
+17:16 < agraf> if yes, take the reference id from there and send the remaining patches with that
+17:17 < chenwj>  reference id ?
+17:17 < agraf> which emails are we talking about?
+17:17 < agraf> the mips ones?
+17:17 < chenwj> target-mips-ase-dsp
+17:17 < Jia> thanks, I'll make a resend
+17:17 < chenwj> yup
+17:17 < Jia> yes, mips ones.
+17:17 < chenwj> Jia: hold on
+17:17 < agraf> In-Reply-To: I<1345531999-17872-1-git-send-email-proljc@gmail.com>
+17:18 < agraf> that's what patch 2/13 has in its headers
+17:18 < agraf> just do the same for your patches 12 and 13
+17:18 < agraf> there's a parameter for git-send-email to manually specify the reply-to field
+17:18 < agraf> --with-reply-to or so
+17:18 < chenwj> oh, cool
+17:18 < Jia> thanks, I'll look into it.
+17:18 < agraf> that way it stays as a single thread
+17:19 < agraf> check out which threading mode you're using
+17:19 < agraf> git-send-email supports 2 different ones
+17:19 < agraf> * every email is a reply to the first email
+17:19 < agraf> * every email is a reply to the email before itself
+17:19 < chenwj> I remember qemu only use the first one
+17:19 < Jia> I send them like
+17:19 < Jia> git send-email --to qemu-devel@nongnu.org --cc aurelien@aurel32.net --no-chain-reply-to 00*
+17:20 < agraf> ah, the --no-chain-reply-to means that every email is a reply to the first one
+17:20 < agraf> so every email references the same email in its reply-to field
+17:20 < agraf> so yes, just send the ones that didn't make it on the list with --in-reply-to ''1345531999-17872-1-git-send-email-proljc@gmail.com'
+17:20 < agraf> eh
+17:21 < agraf> and proper escapes of course :)
+17:22  * Jia is trying
+17:25 < Jia> agraf:   git send-email --to qemu-devel@nongnu.org --cc aurelien@aurel32.net In-Reply-To: <1345531999-17872-1-git-send-email-proljc@gmail.com>
+             0012.patch
+17:25 < Jia> is this OK?
+17:25 < agraf> no
+17:26 < chenwj> Jia: --in-reply-to ''1345531999-17872-1-git-send-email-proljc@gmail.com'
+17:26 < chenwj> Jia: use git send-mail's option
+17:26 < Jia> git send-email --to qemu-devel@nongnu.org --cc aurelien@aurel32.net --in-reply-to ''1345531999-17872-1-git-send-email-proljc@gmail.com'
+17:26 < Jia> this one is OK?
+17:26 < agraf> also not, i messed up the escapes
+17:26 < agraf> use either " or '
+17:28 < chenwj> --in-reply-to "1345531999-17872-1-git-send-email-proljc@gmail.com" or --in-reply-to '1345531999-17872-1-git-send-email-proljc@gmail.com'
+17:28 < chenwj> Jia: ^^
+17:30 < stefanha> bonzini: I pinged jejb about Sen Wang's virtio_scsi.ko sglist highmem fix, no response yet.  Do you know if it has been merged yet?
+17:31 < bonzini> stefanha: no, it hasn't, and i have no idea of the process that james uses
+17:31 < Jia> git send-email --to qemu-devel@nongnu.org --cc aurelien@aurel32.net --in-reply-to "1345531999-17872-1-git-send-email-proljc@gmail.com"
+17:31 < Jia> is it OK this time?
+17:31 < pm215> agraf: statfs64: shouldn't be too hard to fix...
+17:31 < agraf> pm215: yeah, already done
+17:31 < bonzini> stefanha: i'll send a for 3.6 and for 3.7 patch queue as soon as i resolve how to deal with multiqueue
+17:31 < agraf> pm215: it's breaking in FIE maps now
+17:31 < stefanha> bonzini: Cool
+17:32 < agraf> Jia: looks good :)
+17:32 < Jia> agraf: thank you very much!
+17:33 < Jia> pm215: May I get the write access to QEMU and to be the openrisc maintainer?
+17:33 < pm215> Jia: not my decision
+17:34 < Jia> pm215: Who should I ask to? I'm not sure about this.
+17:34 < pm215> well, the way to start is by writing patches which get review and get committed in the usual way
+17:35 < agraf> Jia: there's no write access anymore, the usual way would be to become the maintainer and send pull requests
+17:35 < pm215> and review other peoples' mips patches
+17:35 < agraf> Jia: the easy way would be to post a patch that puts yourself into the MAINTAINERS file
+17:36 < agraf> Jia: that one would either get applied (then you can send pull requests) or nack'ed
+17:36 < pm215> I wouldn't suggest that until you've actually been doing a bunch of more-or-less maintainer work for a while
+17:36 < chenwj> Jia: that way makes you MIPS maintainer!
+17:36 < pm215> for example you have currently (as far as I can see) 0 patches in target-mips
+17:37 < agraf> pm215: i thought jia has been doing that for a while now?
+17:37 < chenwj> wait a minute...
+17:37 < chenwj> Jia is asking for openrisc
+17:37 < agraf> pm215: we're talking about openrisc (target-or32)
+17:38 < pm215> whoops, my mistake
+17:38 < pm215> that probably should have a MAINTAINERS entry I guess
+17:39  * Jia is a little confused
+17:39 < chenwj> Jia: send a MAINTER patch to add yourself as openrisc maintaner
+17:40 < chenwj> pm215: right? ^^
+17:40 < Jia> pm215: I'm asking to be OpenRISC maintainer
+17:40 < pm215> Yes, I was confused
+17:41 < agraf> Jia: send a patch that adds you to the MAINTAINERS file for target-or32 (and whatever you might have in hw/)
+17:42 < pm215> NB about maintainer status: (1) it doesn't get you direct write access to git master (2) it doesn't mean you get to skip the 'post patches,
+               wait for review' step :-) (3) it implies that you're going to review other peoples' patches for that area and probably that they will be
+               committed via a patch queue you maintain
+17:42 < Jia> thanks, I get it.
+17:49 < chenwj> so who has the right to commit code into git master?
+17:58 < pm215> chenwj: I think it's about half a dozen people
+17:59 < chenwj> well, actually I want to ask how one can get that right?
+18:00 < pm215> you don't
+18:00 < pm215> if you're a subsystem maintainer, you submit pull requests, and one of the committers will apply them
+18:02 < chenwj> then how one can become a committer?
+18:02 < pm215> you don't
+18:02 < pm215> well, I imagine if enough of the current committers drifted away so we weren't actually getting patches applied, aliguori would do something
+               to add some new ones
+18:02 < _benoit_> vm snapshoting> I am thinking about a patch which allow a vm whose primary disk doesn't support vm snapshot to save it's snapshot into
+                  another attached qcow2 disk
+18:03 < pm215> but the nice thing about git is that you don't need to give people direct access just in order to spread the work load of maintaining the
+               codebase
+18:03 < _benoit_> that would be cheap to do external vm snapshoting
+19:21 < chenwj> what it means "Bad ram offset" when I call qemu_get_ram_ptr?
+19:21 < stefanha> chenwj: Out-of-range guest physical address
+19:22 < chenwj> :/
+19:23 < chenwj> Bad ram offset 23201fff
+19:23 < stefanha> info mtree
+19:23 < stefanha> See where the gpa is supposed to map in the memory tree.
+19:24 < chenwj> I want to dump guest page table. it seems I have trouble with accessing the first page table
+19:24 < chenwj> page directory is fine
+19:27 < chenwj> I see something like,
+19:27 < chenwj> pc.ram
+19:27 < chenwj> 0000000000000000-0000000007ffffff (prio 0, RW): pc.ram
+19:28 < stefanha> 0x23201fff > 0x7ffffff
+19:30 < chenwj> well, is it possible to redirect 'info mtree' to a file?
+19:30 < stefanha> chenwj: -monitor stdio
+19:30 < mjt> by connecting to the monitor using socat for example, yes :)
+19:30 < stefanha> Then you can grab it from your terminal scrollback
+19:31 < mjt> (sdl window isn't cut-n-pasteable, is it?)
+19:33 < chenwj> I cannot stop putty from rolling back to the bottom line. *sigh
+19:33 < chenwj> anyway, 0x23201fff is falling into pci-hole, I think
+19:35 < chenwj> http://pastebin.com/KKUdnLe1
+19:35 < stefanha> chenwj: hmm...it's above 4 GB and the PCI hole is below 4 GB
+19:36 < pm215> I think you mean 2GB...
+19:36 < pm215> or maybe 1. but not 4
+19:36 < stefanha> pm215: you're right, I miscounted the number of hex digits in 0x23201fff
+19:37 < stefanha> chenwj: Check the Intel manual, not sure if any of us knows the memory management structures by heart.
+19:38 < chenwj> 08000000 - ffffffff (prio, 0, rw): alias pci-hole @ pci 08000000 - ffffffff
+19:51 < WanpengLi> chenwj,  the memory you assign to qemu is 128MB, right?
+19:52 < chenwj> qemu-system-i386 -kernel bzImage-x86 -hda disk-x86.raw -append "root=/dev/sda"
+19:52 < chenwj> but the addr comes from guest pde...
+19:52 < WanpengLi> so, default memory assign to qemu is 128MB ?
+19:53 < chenwj> I guess so, but as I said the addr comes from guest pde...
+19:55 < chenwj> when I add "-m 1024M", it give me "(qemu) Bad ram offset c142bfff"
+19:55 < chenwj> Aborted (core dumped)
+20:02 < chenwj> http://people.cs.nctu.edu.tw/~chenwj/tmp/qemu.patch
+20:02 < chenwj> patch is here if you want to try
+20:07 < pm215> I note that your code to get the pde seems to be much simpler (missing things?) than the code in cpu_get_phys_page_debug
+20:08 < chenwj> let me check...
+20:09 < chenwj> target_phys_addr_t cpu_get_phys_page_debug(CPUX86State *env, target_ulong addr)
+20:09 < chenwj> the input of cpu_get_phys_page_debug is gva?
+20:10 < chenwj> true...
+20:10 < chenwj> I'll take a deep look on cpu_get_phys_page_debug
+20:11 < pm215> well, you should also be looking at the intel specs. but if your code for looking at page tables isn't a similar level of complexity then
+               you've almost certainly missed something out
+20:11 < sgilis>  When running with -curses, what is the way to switch TTYs (equivalent of Alt-fN) ?
+20:25 < pm215> chenwj: checking for the PG_PRESENT_BIT might be a good start

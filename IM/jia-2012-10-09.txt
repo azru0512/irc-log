@@ -1,0 +1,23 @@
+10:48 < jia> chenwj, micromips的dsp有单独的手册
+10:48 < zwu_> teawater: 你怎么认识他的咯？同事，校友？
+10:49 < jia> 但是只有dsp32的
+10:49 <@teawater> zwu_: 网友+同行
+10:49 < jia> 还有umicromips，MIMD
+10:49 <@teawater> 还有点开源的合作关系 :-)
+10:56 < zwu_> teawater: sorry, just back.
+10:57 < zwu_> teawater: 你也是搞filesystem?
+10:58 <@teawater> 不是
+11:00 < jia> chenwj,                                                                                                                                         操作都一样，就是解码不一样，你直接用我的dsp_helper.c，再translate.c里面加一组microMIPS-DSP的解码就可以，当然，你还需要写一堆test，有一群小弟的好处就是，test 不用自己写
+11:06 < chenwj> jia: http://www.mips.com/auth/MD00690-2B-microMIPS-APP-01.00.pdf << 這一份?
+11:08 < jia> https://www.mips.com/secure-download/index.dot?product_name=/auth/MD00764-2B-microMIPS32DSP-AFP-02.34.pdf
+11:08 < jia> 这个
+11:09 < jia> 我觉得你要是改，一年半载就进去了，microMIPS是为了减小codesize，以至于，在编码上不兼容MIPS32/64
+11:09 < jia> 你也许需要先做了microMIPS
+11:10 < jia> 但是操作都一样，你只需要再translate里面加解码
+11:16 < jia> chenwj, 我问MIPS的人了，microMIPS也算比较重要的一个战略吧，你弄吧
+11:23  * yao_ 一个早上刚刚把ds 160 表格填完，真麻烦
+11:24 < chenwj> 美國簽證?
+11:25 < yao_> 恩
+11:25 < yao_> 羡慕你们
+11:25 < chenwj> 我們還是要上網填表格
+11:26 < jia> chenwj, 你们免签了啊

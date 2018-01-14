@@ -1,0 +1,32 @@
+23:46 < chenwj_> any idea how much time it'll take to upgrade ubuntu 11.04 to 11.10 on pandaboard?
+23:46 < nimesh_accenture> hmmm ... so for now...is there a way to increase the userdata partition , without recompiling?
+23:46 < av500> http://www.accenture.com/us-en/Pages/insight-making-most-android.aspx
+23:46 < av500> ask them: ^^^^
+23:46 < LetoThe2nd> chenwj_: certainly way longer than backing up and re-flashing.
+23:48 < chenwj_> ?? hours?
+23:48 < LetoThe2nd> chenwj_: most probably several hours. what did you think?
+23:48 < av500> slow sdcard is slow
+23:48 < LetoThe2nd> sd slowcard is sd.
+23:49 < ogra_> card slowsd is card
+23:49 < chenwj_> because I have no idea how much time needed to back up and re-flash
+23:50 < av500> what is even worth saving of your 11.04 install?
+23:50 < LetoThe2nd> chenwj_: backup:_10minutes. reflash: 5minutes. restore: 10minutes. add some minutes for downloading, then it is like (25min + f(your
+                    download speed)min)
+23:50 < av500> copy your .vimrc to the cloud and install 11.10
+23:50 < ogra_> or 12.04 :)
+23:51 < av500> is it released?
+23:51 < LetoThe2nd> and the 20min for backup/restore are more like time to think "oh what is it anyway i shall backup."
+23:51 < ogra_> two days ...
+23:51 < ogra_> its in final testing stage
+23:51 < av500> so come back in 2 days
+23:52 < ogra_> pfft
+23:52 < chenwj_> av500: what is even worth saving of your 11.04 install? <- don't follow you
+23:52 < av500> just flash 11.10 and be done
+23:52 < ogra_> do you have any valuable data on your SD ?
+23:52  * av500 has all valuable data on Megaupload...
+23:52 < LetoThe2nd> av500: thats *real* value indeed.
+23:52 < chenwj_> actually, I have trouble with installing ubuntu 11.10
+23:53 < av500> LetoThe2nd: valuable to Hollywood at least....
+23:53 < av500> chenwj_: nice pivot
+23:53 < LetoThe2nd> chenwj_: well then come bak in 5 minutes when you are willing to talk about your real problem instead of wanting us to reassure you in
+                    what you think is a solution

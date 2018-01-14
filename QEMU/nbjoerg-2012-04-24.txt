@@ -1,0 +1,42 @@
+21:32 < chenwj> does llvm support -Os ?
+21:32 < nbjoerg> yes
+21:32 < nbjoerg> and -Oz, which behaves somewhat more like GCC's -Os
+21:33 < chenwj> is it a new option?
+21:34 < nbjoerg> it's been around for a while
+21:50 < clb> I see there are -Os, -Oz and -O<level>
+21:51 < clb> -Os and -Oz are mutually exclusive, right? Can I find somewhere information about the possible <level> values?
+21:51 < clb> are -O<level> and -Os and/or -O<level> and -Oz mutually exclusive?
+21:52 < AaronBallman> clb: they're all mutually exclusive; you pick one of them and go with it.
+21:52 < myeisha> clb: it's -O[01234sz]
+21:52 < clb> ah, thanks
+21:52 < jey> clang doesnt seem to complain if you hand severl -Ox though
+21:52 < clb> this page doesn't list what these flags actually do http://clang.llvm.org/docs/UsersManual.html
+21:52 < chenwj> -Os and -Oz?
+21:52 < jey> so I;m guessing it uses the last option?
+21:53 < clb> clang --cc1 --help gives info so that I understand -Os and -Oz
+21:53 < clb> is there a detailed info on which optimizations are enabled with which -O<level>?
+21:54 < chenwj> source code, I guess
+21:56 < chenwj> myeisha: llc --help shows only -O[0..3]
+21:57 < jey> chenwj: for clang, not LLVM
+21:57 < clb> this page lists -O4 http://llvm.org/cmds/llc.html
+21:58 < chenwj> ok, either doc or help msg wrong
+21:58 < mitch0> or both ;)
+21:59 < chenwj> jey: clang --help show nothing about -O
+22:00 < clb> clang --cc1 --help lists -Os, -Oz and -O<level>
+22:00 < jey> chenwj: maybe not, but afaik he's talking about using clang, not the llvm tools
+22:00 < clb> GCC documents the different -O<level> like this: http://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html
+22:00 < dirty_d> RecordDecl::getInnerLocStart() gets where i.e "class" starts, can you get where the opening brace starts?
+22:00 < clb> does llvm-clang follow the same "guidelines" with the -O<numbers>?
+22:02 < chenwj> clb: I don't see what you see :/
+22:03 < bb-chapuni> build #470 of clang-3stage-cygwin is complete: Success [build successful]  Build details are at
+                    http://bb.pgr.jp/builders/clang-3stage-cygwin/builds/470
+22:03 < clb> oops
+22:03 < clb> it's clang -cc1 -help
+22:03 < clb> no double --
+22:03 < clb> (off-note: someone mentioned yesterday that that list shows internal clang params and should not be relied to be stable)
+22:04 < clb> which isn't really stopping me from enumerating them into vs-clang :>
+22:05 < chenwj> clb: amazing
+22:08 < chenwj> clb: those are hidden options!
+22:09 < clb> secret level features
+22:10 < chenwj> remind me the momo level of disblo
+22:12 < d0k> most of them are hidden for a reason ;)

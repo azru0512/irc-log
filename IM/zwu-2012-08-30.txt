@@ -1,0 +1,78 @@
+22:50 <zwu> do you understand what "physical id" mean?
+22:53 <chenwj> if "physical id" is 0 and 1, it means you have two sockets in your cpu
+22:54 <chenwj> https://www.ibm.com/developerworks/mydeveloperworks/blogs/brian/entry/linux_show_the_number_of_cpu_cores_on_your_system17?lang=zh
+22:55 <chenwj> socket -> core -> hyper-threading
+22:55 <chenwj> $ lscpu
+22:55 <chenwj> Architecture:          x86_64
+22:55 <chenwj> CPU(s):                16
+22:55 <chenwj> Thread(s) per core:    2
+22:55 <chenwj> Core(s) per socket:    4
+22:55 <chenwj> CPU socket(s):         2
+22:55 <chenwj> NUMA node(s):          2
+22:55 <chenwj> $  cat /proc/cpuinfo | grep "physical id" | sort | uniq | wc -l
+22:55 <chenwj> 2
+22:56 <zwu> nice
+22:57 <chenwj> cpuinfo is suck
+22:57 <chenwj> really confusing
+22:57 <zwu> What does "CPU socket(s):         2" mean?
+23:00 <chenwj> your cpu might have N sockets, each socket might have M cores, each core might have P hyper-threading
+23:00 <chenwj> CPU socket(s) in lscpu == physical id in cpuinfo
+23:04 <zwu> 16 cpu only have 2 sockets?
+23:05 <chenwj> 2 sockets, each socket has 4 cores, each core has 2 hper-threading. 2 x 4 x 2 = 16
+23:08 <zwu> it mean that your system only has 2 sockets? each ht mean one vcpu?
+23:08 <chenwj> y
+23:08 <chenwj> http://www.open-mpi.org/software/hwloc/v1.5/
+23:09 <chenwj> http://superuser.com/questions/331308/find-which-ht-cores-are-sharing-a-physical-core-from-proc-cpuinfo
+23:09 <zwu> how many physical cpu on your system?
+23:10 <chenwj> you means cores?
+23:11 <zwu> no physical cpu, not core
+23:11 <zwu> no, physical cpu, not core
+23:11 <chenwj> 1, I think
+23:12 <chenwj> you mean processor?
+23:12 <zwu> how to know this
+23:12 <zwu> yeah
+23:12 <zwu> processor != cpu?
+23:13 <chenwj> I mean the one you can see on your mother board
+23:13 <chenwj> processor
+23:13 <chenwj> cpu is kind of abuse
+23:14 <zwu> i think that cpu core means physical cpu. processors include physical cpu and logical cpu
+23:15 <chenwj> *sigh
+23:15 <zwu> don't agree?
+23:17 <chenwj> hard to say. I am not sure what those terms mean right now. I don't know our understanding are the same or not
+Day changed to 30  8 2012
+10:25 <chenwj> there?
+10:25 <zwu> yeah
+10:25 <chenwj> I think you're right -> 23:14 <zwu> i think that cpu core means physical cpu. processors include physical cpu and logical cpu
+10:25 <zwu> no.:)
+10:25 <chenwj> no?
+10:26 <zwu> If one socket is not empty, it  means there's one physical cpu plugged in this socket
+10:27 <chenwj> yes
+10:27 <zwu> That is, one non-empty socket means one physical cpu
+10:27 <chenwj> ok
+10:28 <chenwj> but it really depends pov, which means the terms is not unified
+10:29 <zwu> machine-->socket(>=physical cpu)-->cpu core-->HT(==processor, or logical cpu)
+10:29 <zwu> pov?
+10:29 <zwu> what is pov?
+10:29 <chenwj> point of view (the vendor)
+10:30 <chenwj> but I agree with you -> machine-->socket(>=physical cpu)-->cpu core-->HT(==processor, or logical cpu)
+10:30 <zwu> but the info we can see is from linux OS, it is common for all vendors
+10:31 <chenwj> ok
+10:31 <zwu> great, but i think that logical cpu is not vcpu, do you think?
+10:31 <chenwj> ?
+10:32 <zwu> vcpu is one term from qemu or KVM, it is one thread
+10:32 <zwu> not HT
+10:32 <chenwj> ok, I understand what you mean
+10:32 <zwu> but logical cpu is one HT
+10:32 <chenwj> or core if hy is diabled
+10:32 <zwu> right
+10:32 <chenwj> anyway, logical cpu is the execution unit
+10:34 <zwu> why do you say so?
+10:35 <zwu> some processes can be assigned to it via taskset?
+10:38 <zwu> by the way, do you know to use objdump to locate the code?
+10:39 <chenwj> I mean logical cpu can execute your code, so os can consider it as a schdeuling unit
+10:39 <chenwj> what you want to try to locate?
+10:42 <zwu> if kernel crash, i can get some info hot_map_add_hot_inode_item+0xb2/0xc0
+10:42 <zwu> how to know which line of code it is
+10:44 <chenwj> no idea, you better ask it on #hellogcc or somewhere else :)
+10:44 <zwu> good point:)
+10:45 <chenwj> good luck

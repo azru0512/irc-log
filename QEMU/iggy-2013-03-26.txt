@@ -1,0 +1,9 @@
+10:00 < chenwj> stefanha: there?
+10:00 < chenwj> stefanha: I read your blog post about lxc -> http://blog.vmsplice.net/2012/09/thoughts-on-linux-containers-lxc.html
+10:01 < chenwj> stefanha: but I still don't know when I should choose lxc or kvm. :(
+10:09 < iggy> for most people it likely comes down to supporting one tool or two... so if you have not need to run anything other than Linux ever, lxc is
+              a good fit
+10:11 < chenwj> what I want is keeping the base (host) system clean, then play around in a container/vm, but at the same time make guest/host share as
+                much as resource.
+10:12 < iggy> probably lxc then
+10:13 < iggy> (if as I said before, you only need Linux guests)

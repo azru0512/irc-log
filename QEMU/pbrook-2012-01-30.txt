@@ -1,0 +1,12 @@
+18:09 < chenwj> what's qom? qemu object model?
+18:11 < crocket> qom?!!!
+18:11 < pm215> qemu object model> yes
+18:17 < chenwj> what's the relationship between qdev and qom? I see they are on the same page -> http://wiki.qemu.org/Features/QOM
+18:18 < pbrook> qop replaces qdev.
+18:18 < pbrook> s/qop/qom/
+18:18 < chenwj> oh
+18:21 < chenwj> pbrook: do you think writing this on the wiki is a good idea? I mean "qop replaces qdev".
+18:22 < pbrook> *shrug*. I'd have thought that was fairly obvious.
+18:23 < pbrook> What would be more useful is an overview of what both are trying to achieve.
+18:24 < pbrook> They're basically two implementations of the same thing.
+18:25 < chenwj> I know they are both for device but don't know qom tends to replace qdev.

@@ -1,0 +1,91 @@
+15:18 <@chenwj> sby: 問你一下，出國參加 meeting 的話
+15:19 <@chenwj> sby: 你都怎麼算要花多少
+15:19 <@chenwj> sby: 我沒出過國 >//<
+15:19 <+sby> chenwj: 喔, 哪個國家? XD
+15:19 <@chenwj> sby: 美國
+15:20 <@chenwj> sby: http://llvm.org/devmtg/2011-11/ <-
+15:20 <+sby> chenwj: 哪一州? 大城市消費比較高
+15:20 <+sby> chenwj: ohoh
+15:20 <+sby> chenwj: 你要去報告? XD
+15:20 <@chenwj> sby: 不知道耶
+15:20 <+sby> chenwj: hmm
+15:20 <@chenwj> sby: 老闆說沒報也可以去
+15:20 <+sby> chenwj: San Jose, CA 消費不低
+15:20 <+sby> chenwj: 你就先算一下機票和住宿
+15:21 <+sby> chenwj: 這兩個最貴
+15:21 <@chenwj> sby: 那有網站可以算嗎?
+15:21 <+sby> chenwj: 機票問旅行社
+15:21 <@chenwj> sby: 恩恩
+15:21 <@chenwj> sby: 隨便一家?
+15:21 <+sby> chenwj: 住宿的話直接去旅館定會比較貴
+15:21 <+sby> chenwj: 嗯, 旅行社隨便問不會差太多
+15:21 <@chenwj> sby: okok
+15:22 <+sby> chenwj: 機票上網找的價錢不太準, 除非是去航空公司的訂票網頁找, 但是每間航空公司價差不小
+15:22 <+sby> chenwj: 所以問旅行社最快
+15:22 <+sby> chenwj: 不然有些特價機票網站看起來很便宜其實都沒有票
+15:23 <@chenwj> sby: 旅行社比較專業
+15:23 <@chenwj> sby: 那住宿要怎麼找比較便宜?
+15:23 <+sby> chenwj: 如果你確定時間的話就先跟旅行社說要訂, 旅行社會告訴你大概出國一兩週前要開票 (付錢)
+15:23 <+sby> chenwj: 沒開票之前要取消都可以
+15:24 <@chenwj> sby: ok
+15:24 <+sby> chenwj: 但是早點訂通常會比較便宜, 也不用怕沒有位置
+15:24 <+sby> chenwj: 住宿的話去美國用 priceline 最便宜
+15:24 <+sby> chenwj: 但是這個要有時間, priceline 是用競標的
+15:25 <+sby> chenwj: 我曾經在加州用 50 美金競標到一晚 130 美金的旅館, 省了快 2/3 XD
+15:26 <+sby> chenwj: http://www.google.com.tw/search?sourceid=chrome&ie=UTF-8&q=priceline 直接 search priceline 有競標的教學
+15:26 <+sby> chenwj: 要有信用卡
+15:26 <@chenwj> sby: 唔...
+15:26 <+sby> chenwj: http://www.hotwire.com/ <- Hotwire 是另一種模式, 比 priceline 稍貴, 但是也比直接去旅館訂票便宜很多
+15:27 <@chenwj> sby: 都要信用卡?
+15:27 <+sby> chenwj: Hotwire 不用競標, 直接告訴你價錢和旅館的星級/設備/地理位置 (但是不告訴你是哪一間旅館)
+15:27 <+sby> chenwj: 訂了後才告訴你
+15:27 <+sby> chenwj: 通常這種至少都能省 1/3 的價錢 (不過也要看當時是不是旅遊旺季)
+15:27 <+sby> chenwj: 嗯, 去美國最好去辦信用卡
+15:28 <@chenwj> sby: 這樣一趟至少要花多少 NT?
+15:28 <+sby> chenwj: 機票大概三萬多
+15:28 <@chenwj> sby: 聽你這樣講我怕 $$ 不夠
+15:28 <+sby> chenwj: 旅館看你住幾天
+15:28 <@chenwj> sby: 來回?
+15:28 <+sby> chenwj: yup, 來回
+15:29 <@chenwj> sby: 應該是一天
+15:29 <+sby> chenwj: 這麼少 :S
+15:29 <@chenwj> sby: llvmdev 只有辦一天
+15:29 <@chenwj> sby: 那兩天好了
+15:29 <+sby> chenwj: 那你就算一天 2000 好了
+15:29 <@chenwj> sby: NT?
+15:29 <+sby> chenwj: yup
+15:30 <@chenwj> sby: 除了機票跟住宿之外 剩下大概會花多少
+15:31 <+sby> chenwj: 旅館有提供早餐的話那可以省一頓 (不過不一定有 XD)
+15:31 <+sby> chenwj: 不過你只住一兩天的話其實不會差很多
+15:31 <@chenwj> sby: 恩恩
+15:32 <@chenwj> sby: 那我大概抓 5 或 6 萬 NT
+15:32 <+sby> chenwj: 一餐 10 USD 左右可以打發 (速食店)
+15:32 <@chenwj> sby: 想辦法跟老闆要補助 +_+
+15:33 <+sby> chenwj: 通常路邊的熱狗就要 2-3 USD, 一杯礦泉水也要 2 USD XD
+15:33 <@chenwj> sby: |||
+15:33 <+sby> chenwj: 速食店最划算 (而且不用給小費)
+15:33 <+sby> chenwj: 一般餐廳還要給小費
+15:33 <@chenwj> sby: 恩恩
+15:33 <+sby> chenwj: 小費午餐 15%, 晚餐 20%
+15:34 <+sby> chenwj: 如果要克難一點我會去附近超市買水果吐司果醬之類的, 這樣當早餐可以吃好幾天
+15:34 <+sby> chenwj: 不過你只待一兩天應該不用這樣 XD
+15:34 <@chenwj> sby: xd
+15:35 <@chenwj> sby: San Jose 離 Minnesota 遠嗎?
+15:35 <+sby> chenwj: 你可能還要查一下下了飛機怎麼去那邊
+15:35 <+sby> chenwj: 很遠
+15:36 <+sby> chenwj: 這是兩個不同的州吧? @@
+15:36 <@chenwj> sby: 你說到旅館?
+15:36 <@chenwj> sby: 沒錯
+15:36 <+sby> chenwj: 嗯, 旅館和你 meeting 的地方
+15:36 <+sby> chenwj: 你還要去 Minnesota?
+15:36 <+sby> chenwj: 看你有沒有要租車
+15:36 <@chenwj> sby: 所長退休跑回 Minnesota 教書了
+15:37 <+sby> chenwj: 如果不是只有你去的話
+15:37 <+sby> chenwj: 兩三個人可以考慮租車
+15:37 <@chenwj> sby: 想說距離近的話 去他那邊白吃白喝一陣子
+15:38 <+sby> chenwj: 不近, 但是坐飛機其實也不遠
+15:38 <+sby> chenwj: 你都從台灣飛到美國了 XD
+15:38 <+sby> chenwj: 美國國內很多便宜機票
+15:38 <@chenwj> sby: 科科
+15:38 <@chenwj> sby: 恩恩
+15:38 <+sby> chenwj: 我之前從美東飛到美西買國內線的便宜機票才 99USD

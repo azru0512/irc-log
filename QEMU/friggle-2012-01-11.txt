@@ -1,0 +1,33 @@
+22:57 < friggle> pm215: is flush_icache_range in tcg/arm/tcg-target.h a reasonable way to implement that functionality? Someone was asking me about this
+                 issue, I checked how qemu does it but wanted to double-check this is an example of reasonable correct qemu code
+23:00 < pm215> if you can rely on a new enough gcc that __builtin___clear_cache exists then it's probably the way to go
+23:01 < pm215> inline asm is kinda ugly, also that swi is arm-mode specific and won't compile if gcc is building for thumb
+23:02 < friggle> pm215: yeah, I guess gcc 4.1 is hardly an onerous requirement by now
+23:03 < pm215> also has a better chance it might work on non-linux arm I guess
+23:09 < chenwj> dumb question, why x86's flush_icache_range is empty?
+23:09 < pm215> chenwj: because you don't need to explicitly flush the cache on x86, it's unified
+23:10 < pm215> friggle: nb android appears to have a busted clear_cache, http://code.google.com/p/android/issues/detail?id=1803
+23:11 < chenwj> pm215: means if we change something in the memory, x86 will bring it into cache automatically?
+23:12 < pm215> the purpose of flush_icache_range() is not strictly speaking to flush the icache. what it actually does is flush the dcache and invalidate
+               the icache to the point of coherency
+23:13 < friggle> pm215: how can that bug still be open? AIUI unlike x86, you need to invalidate the cache if you have self-modifying code
+23:13 < pm215> ie make sure any writes still sat in dcache go out, and that any cached info in the icache is dropped, so when we fetch an instruction we get
+               the data we wrote, not something stale
+23:14 < pm215> x86 has a unified cache architecture so (effectively) the icache and dcache are the same thing and you don't need to explicitly do anything
+               to ensure the insn fetch sees what the data side wrote
+23:14 < pm215> friggle: presumably nobody on android is relying on it, they've all implemented workarounds doing a by-hand swi
+23:14 < pm215> eg chromium commit mentioning they'd need to do this:                                                                                                        http://git.chromium.org/gitweb/?p=native_client/src/native_client.git;a=commitdiff;h=0d3169b667e5ed308732c85ac1dd5b6ca1f5382f                 23:14 < friggle> yeah, I guess there aren't many JITs and it's easy to work around
+23:14 < pm215> but it is possible the bug is stale
+23:15 < friggle> pm215: many thanks for the links
+23:15 < pm215> chenwj: one reason the x86 has a unified cache architecture is that it's maintaining binary compatibility with old self-modifying code that
+               was written to run on x86 CPUs that never had a cache at all
+23:17 < pm215> chenwj> point of coherency> this means that if you have a split L1 cache but a shared L2, all flush_icache_range has to do is ensure that
+               writes in L1D go out as far as L2, and that L1I is invalidated. there's no need to force the writes to main memory
+23:18 < pm215> aliguori: is there a wiki page documenting the "run these commands before posting patches/pullreqs/etc" stuff?
+23:21 < chenwj> pm215: arm seems more complicated on such things. is possible to copy __builtin___clear_cache implementation if gcc verison is older than
+                4.1?
+23:22 < friggle> chenwj: I think that's exactly what qemu is doing
+23:22 < chenwj> i see
+23:22 < friggle> except as pm215 says, that code won't work on thumb
+23:26 < pm215> chenwj: it's really x86 that's the outlier here, most sane architectures have or permit split I&D cache
+23:27 < pm215> Note that the inline asm in qemu is simply making a linux kernel syscall to request the cache manipulation

@@ -1,0 +1,63 @@
+17:55 < chenwj> anyone knows the default passwd of http://cdimage.ubuntu.com/releases/11.10/release/ubuntu-11.10-preinstalled-server-armel+omap4.img.gz?
+17:55 < nimesh_accenture> LetoThe2nd: we'r trying to have DVB-T running thru Totem ., so we need GNome and GStreamer
+17:55 < LetoThe2nd> is there one anyway?
+17:56 < chenwj> LetoThe2nd: are you talking to me?
+17:56 < LetoThe2nd> chenwj: was meant for you, yes.
+17:58 < LetoThe2nd> nimesh_accenture: well, everybody needs a hobby.
+17:59 < chenwj> LetoThe2nd: or I should ask what's the default logging account
+17:59 < LetoThe2nd> chenwj: i don't know from top of my head, i just know it was super trivial and i always found in seconds.
+18:00 < LetoThe2nd> chenwj: like username "ubuntu" or such.
+18:00 < chenwj> ok...
+18:00 < LetoThe2nd> chenwj: didn't you run through the install wizard anyway?
+18:01 < chenwj> nope, I burn the pre-built image into the sd card
+18:02 < LetoThe2nd> chenwj: on first boot it should *theoretically* run the installer.
+18:04 < chenwj> well, apparently not :/
+18:42 < ogra_> LetoThe2nd, well, server (as all preinstalleed images) resizes the partitions on first boot, installer runs on second
+18:42 < LetoThe2nd> ogra_: ah.
+18:42 < LetoThe2nd> chenwj: still following us?
+18:42 < ogra_> but server does it exclusively on serial
+18:42 < LetoThe2nd> ogra_: sure
+18:42 < ogra_> it only enables tty logins after the installer went through
+18:43 < av500> I have a doubt, how can we add compiz server to serial gles2, please explain me the steps
+18:43 < ogra_> (can be changed by dropping the debian-installer option from the kernel cmdline btw ... in case anyone wants to do a tty install of server
+18:43 < ogra_> LOL
+18:43  * LetoThe2nd sends av500 some spice-enhanced chicken marsala.
+18:44 < ogra_> compiz server on serial gleas needs the gnome module compiled into the kernel
+18:44 < ogra_> cant work without that
+18:44 < LetoThe2nd> ogra_: the s3cr3t aalib-gnome incantations...
+18:45 < ogra_> hey, but aalib drops shadows if compiz is running ;)
+18:45 < LetoThe2nd> for those out there in need of some fun: switch on your office printer, run bb | lpr.
+18:46 < LetoThe2nd> ogra_: but the cube thing is so laggy! why doesn't aalib use my super cool 5 card array of radeonforce 0815HDs?
+18:47 < ogra_> a cube has 6 sides, you need one more card !
+18:47 < LetoThe2nd> *DANG*
+18:59 < wbs> av500: right, will test
+18:59 < av500> wbs: killing and restarting that should reload ducati
+19:07 < wbs> av500: nice, that seems to work just fine
+19:07 < wbs> and saves me a shitload of time when debugging stuff :-)
+19:10 < av500> wbs: :)
+19:10 < av500> you know, in the past it saved me a shitload of time when debugging stuff
+19:12 < wbs> :-)
+19:12 < LetoThe2nd> av500: why u debugging stuff?
+19:14 < av500> LetoThe2nd: most of the time I am bugging stuff
+19:14 < LetoThe2nd> sounds waaaaaaay more fun!
+19:14 < av500> yes
+19:21 < chenwj> LetoThe2nd: just back
+19:22 < LetoThe2nd> chenwj: read up what ogra_ said, and if in doub, poke him.
+19:22 < chenwj> LetoThe2nd: ok
+22:41 < chenwj> ogra_: the resizing happened on the first boot, you said
+22:42 < ogra_> right, it should print the progress on your serial console
+22:42 < chenwj> what should I expect after "Resizing, pass: 1 [100/100]"
+22:43 < ogra_> it should tell you it reboots into the configuration session
+22:43 < ogra_> (might take a while, depending on the size of your SD it needs to write the buffer ... the LED next to the SD card should tell you if it
+               still works on that)
+22:43 < chenwj> ok
+22:44 < chenwj> there are two led next to the sd card
+22:44 < chenwj> the size of sd card is 32G
+22:44 < chenwj> what's the eta
+22:45 < av500> should be done by tea time
+22:45 < chenwj> XD
+22:45 < LetoThe2nd> av500: nov 05, 2013?
+22:46  * ogra_ doesnt think we ever tested with more than 8G cards ...
+22:46 < chenwj> ooops
+22:46  * chenwj pray
+

@@ -1,0 +1,62 @@
+23:27 < chenwj_> anyone here familiar with llvm exception handling?
+23:30 < david_chisnall> Yes
+23:32 < chenwj_> cool
+23:32 < chenwj_> http://llvm.org/devmtg/2011-09-16/EuroLLVM2011-ExceptionHandling.pdf
+23:32 < chenwj_> in page 31
+23:33 < chenwj_> duncan took cleanup attribute as an example
+23:33 < llvmbb> build #494 of llvm-ppc-darwin is complete: Success [build successful]  Build details are at
+                http://lab.llvm.org:8011/builders/llvm-ppc-darwin/builds/494
+23:34 < chenwj_> I don't see there is an exception might happen
+23:34 < david_chisnall> These slides don't have page numbers.
+23:35 < david_chisnall> Where are you looking?
+23:35 < chenwj_> Destructors <-
+23:35 < david_chisnall> Okay.
+23:35 < david_chisnall> And what is your question?
+23:36 < chenwj_> why we need use "invoke" to call foo here?
+23:36 < d0k> what is air speed velocity of an unladen swallow?
+23:37 < david_chisnall> d0k: African or European?
+23:37 < d0k> aaaaaaaaaaaaaaa
+23:37 < chenwj_> in http://gcc.gnu.org/onlinedocs/gcc/Variable-Attributes.html
+23:37 < chenwj_> it says: The cleanup attribute runs a function when the variable goes out of scope
+23:37 < david_chisnall> Yes...
+23:37 < chenwj_> anything related to exception?
+23:38 < david_chisnall> chenwj_: You need to actually ask a question...
+23:38 < david_chisnall> Not just speak sentence fragments...
+23:38 < chenwj_> ok, let me try :)
+23:39 < chenwj_> should we compile the example with "-fexceptions" and assume the foo might throw exception?
+23:39 < david_chisnall> No.
+23:39 < david_chisnall> It is a cleanup
+23:39 < chenwj_> so it's a normal execution flow?
+23:39 < david_chisnall> What is?
+23:40 < david_chisnall> Do you understand what __attribute__((cleanup)) does?
+23:40 < chenwj_> I am not sure I understand it correctly
+23:41 < david_chisnall> It causes the function foo() to be called when the variable goes out of scope.
+23:41 < david_chisnall> What can cause a variable to go out of scope?
+23:41 < chenwj_> wait
+23:41 < david_chisnall> (hint: two things)
+23:42 < chenwj_> you mean oof to be called when the variable goes out of scope, right?
+23:42 < chenwj_> __attribute__((cleanup(oof))); <-
+23:42 < david_chisnall> Yes.
+23:42 < chenwj_> ok
+23:43 < chenwj_> one is the foo return normally
+23:43 < chenwj_> should be bar
+23:43 < david_chisnall> Yes, and the other?
+23:43 < chenwj_> foo throw exception?
+23:43 < david_chisnall> Exactly.
+23:44 < david_chisnall> (Or do any other form of forced stack unwinding)
+23:44 < chenwj_> either way, oof will be called?
+23:44 < david_chisnall> Yes.
+23:44 < chenwj_> i see
+23:44 < david_chisnall> Although this example omits the first case.
+23:45 < chenwj_> so even foo does NOT throw, execution will go to lpad?
+23:45 < david_chisnall> No
+23:45 < david_chisnall> It will go to cont if it does not throw, to lpad if it does.
+23:45 < chenwj_> ok
+23:46 < chenwj_> then it'll call cleanup (oof) in cont block?
+23:46 < david_chisnall> Yes, or in a block that follows it..
+23:46 < chenwj_> i see
+23:51 < chenwj_> david_chisnall: thanks for your explination :)
+00:06 < chenwj_> I have one more question about cleanups
+00:06 < chenwj_> in http://llvm.org/releases/3.0/docs/ExceptionHandling.html#cleanups
+00:07 < chenwj_> it says "Otherwise, the unwinder will not stop at the landing pad if there are no catches or filters that require it to"
+00:07 < chenwj_> take the slide as an example, what would happen if landingpad has NO cleanup clause?

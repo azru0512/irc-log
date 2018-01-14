@@ -1,0 +1,15 @@
+17:39 < chandlerc> guess what is a BAD FREAKING IDEA
+17:39 < chandlerc> allocating memory in your signal handler
+17:42 < chenwj> why it's bad?
+17:42 < chandlerc> uh
+17:42 < chandlerc> signal handler
+17:42 < chandlerc> it has to be async signal safe
+17:42 < chandlerc> calling 'malloc' or 'new' isn't
+17:42 < chandlerc> for example, your malloc implementation might receive a signal while holding a lock
+17:42 < chandlerc> kinda bad to re-enter it
+17:43 < jMCg> *sigh*
+17:43 < chandlerc> yea
+17:43 < jMCg> chandlerc: who does that?
+17:43  * chandlerc is trying to fix
+17:43 < chandlerc> oh, you know, *all of LLVM and every tool using it*
+17:43 < jMCg> Oh.

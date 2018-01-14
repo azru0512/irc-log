@@ -1,0 +1,17 @@
+17:30 < chenwj_> what is the difference between PageDesc and PhysPageDesc
+17:30 < chenwj_> I am confused by their name
+17:37 < pm215> just looking at the code, but I think the comments above the definitions of l1_map and l1_phys_map in exec.c are relevant here
+17:41 < chenwj_> the comment of l1_phys_map says "This is a multi-level map on the physical address space"
+17:42 < chenwj_> does it mean guest physical addr space?
+17:42 < chenwj_> anything relative to host virtual addr here?
+17:44 < chenwj_> because I see the comment of PhysPageDesc says "offset in host memory of the page ..."
+17:44 < pm215> as a rule of thumb physical always means 'guest physical', qemu can't see host physical addresses
+17:46 < chenwj_> ok, I see
+17:46 < pm215> comment> that is describing what the phys_offset field means
+17:47 < chenwj_> so, l1_phys_map maintains GPA -> HVA mapping?
+17:54 < pm215> in a complicated way. look at ldl_phys_internal(), for instance. We start with a target_phys_addr_t, and use phys_page_find() to get the
+               PhysPageDescriptor*. Then if that tells us we're looking at RAM and not memory mapped IO we call qemu_get_ram_ptr() to get a host virtual
+               address which we can do a load on.
+17:57 < pm215> also this is the slow path. I believe (but haven't looked too closely into it) that there is a tlb data structure in front of this for the
+               fast path code
+17:58 < chenwj_> so simply put, l1_phys_map does GPA -> HVA mapping (although it does this in a complicated way)

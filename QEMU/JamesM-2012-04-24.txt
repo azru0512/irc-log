@@ -1,0 +1,113 @@
+19:58 < JamesM_> chenwj: if you're running native you shouldn't need to give any triple
+19:59 < chenwj> JamesM_: I just do `make check-all` on the arm machine
+20:03 < JamesM_> ah yeah there are a couple of clang tests that fail
+20:03 < JamesM_> those tests expect intel output but don't supply a triple
+20:03 < JamesM_> they need to be fed -target x86_64-- or something
+20:05 < JamesM_> aKor: ping
+20:07 < ioni> JamesM_, sadly i cannot compile mesa 8.0.2 with llvm head
+20:07 < ioni> it fails at linking
+20:10 < chenwj> JamesM_: you mean some of them are specific to x86?
+20:24 < JamesM_> chenwj: yes, IIRC
+20:25 < JamesM_> I ran check-all on my pandaboard a few weeks ago
+20:25 < JamesM_> found a similar problem. IIRC around 13 tests failed
+20:25 < JamesM_> ioni: that's bad. Is that a regression? Could 3.0 compile mesa?
+20:26 < chenwj> only 13 tests failed, totally?
+20:26 < ioni> JamesM_, yes
+20:26 < JamesM_> chenwj: yeah. Excluding JIT tests I think
+20:26 < chenwj> JamesM_: do you also run clang test?
+20:26 < JamesM_> check-all, so yes
+20:26 < ioni> JamesM_, http://paste.xinu.at/4WN1J/
+20:27 < ioni> i wonder if my llvm head is broken
+20:27 < JamesM_> ioni: that's not an llvm error
+20:27 < ioni> yes
+20:27 < JamesM_> ioni: that's GCC complaining that it couldn't find the LLVM libraries
+20:27 < ioni> mesa
+20:27 < ioni> i never said that is a llvm bug :)
+20:28 < chenwj> JamesM_: mine has much more failures. :/
+20:28 < JamesM_> chenwj: :/
+20:29 < JamesM_> chenwj: I'm running it again now
+20:30 < chenwj> JamesM_: what's your toolchain? I use ubuntu 11.04's: gcc 4.5.2 + ld 2.21 for native build
+20:45 < JamesM_> chenwj: sorry, was away. Native, on a pandaboard
+20:45 < AaronBallman> clb: you might want to try looking at the advanced build settings in XCode 4.2 as that will give you a pretty good idea of what clang
+                      options exist and their values.  At least as a starting place.
+20:45 < JamesM_> chenwj: using ubuntu 11.10
+20:45 < AaronBallman> clb: but that's a neat project and I look forward to seeing it!
+20:46 < chenwj> JamesM_: my native build has much less failures than the cross one
+20:46 < clb> AaronBallman: yea, I'm kind of trying to populate all build options into the vs project dialog, and as I'm very new to clang, got all these
+             questions
+20:46 < JamesM_> chenwj: yup, I'm looking at native only atm.
+20:46 < clb> thanks, I'll probably have a git repository up in a week or so
+20:46 < JamesM_> chenwj: the regression tests aren't really set up to run cross
+20:46 < chenwj> really?!
+20:47 < clb> I can already build with clang, but something's off with the link stage (I can link from command line ok, but not from the IDE)
+20:47 < clb> oh yeah, looking through xcode is a good idea
+20:47 < JamesM_> chenwj: yeah they're really for running native, right?
+20:47 < chenwj> donno that before :)
+20:49 < chenwj> JamesM_: do you add other compile options when do native build?
+20:49 < Donno> :)
+20:49 < chenwj> Donno: here you are!
+20:50 < chenwj> :p
+20:52 < JamesM_> chenwj: nope, cmake ..; make -j2; make check-all
+20:52 < JamesM_> chenwj: if you wait 10 mins i'll give you a more accurate number
+20:52 < JamesM_> lit is running
+20:52 < chenwj> thanks :)
+20:52 < JamesM_> ... which is actually awkward because I have a meeting in 7 mins :(
+20:52 < JamesM_> so give it an hour :P
+20:55 < chenwj> JamesM_: ok, c u
+22:15 < chenwj> JamesM_: np
+22:15 < JamesM_> 21 failures
+22:15 < chenwj> JamesM_: do you think it's toolchain problem?
+22:15 < JamesM_> possibly - what hardware are oyu running on?
+22:15 < chenwj> pandaboard
+22:15 < chenwj> pandaboard + ubuntu 11.04
+22:16 < JamesM_> interesting that you got it booting, mine failed to boot with 11.04
+22:16 < JamesM_> required 11.10
+22:17 < chenwj> I can give 11.10 a shot
+22:17 < JamesM_> and you say you're cross-compiling?
+22:17 < JamesM_> how are you running the regtests with a cross build?
+22:18 < JamesM_> hang on hang on, are you talking about cross compiling llvm for panda, then building llvm with itself on the panda?
+22:18 < chenwj> JamesM_: ok, I do cross and native build
+22:18 < chenwj> both
+22:20 < chenwj> which means I have a cross build, run the result binary (regression test) on arm
+22:20 < chenwj> and I have another native build
+22:20 < chenwj> run the regression test again
+22:21 < rurufufuss> question: with clang (in particular what comes with iOS sdk), do unused functions get stripped off by default?
+22:21 < chenwj> JamesM_: mind I post your result on the ML?
+22:22 < chenwj> JamesM_: http://people.cs.nctu.edu.tw/~chenwj/tmp/regression-test.txt - cross build
+22:22 < chenwj> JamesM_: http://people.cs.nctu.edu.tw/~chenwj/tmp/llvm.check-Phase1-Release.txt - native build
+22:27 < tstellar> The git mirror doesn't seem to have the full history in the 3.1 branch.
+22:30 < JamesM_> chenwj: wait a sec before posting my result please!
+22:30 < chenwj> ok!
+22:33 < JamesM_> chenwj: wow, your results look bad :(
+22:33 < JamesM_> chenwj: my results I posted were from an earlier revision. Do you have the revision number of the fork? I'll update to that and rerun
+22:33 < d0k> could be a miscompilation
+22:34 < clb> clang --help gives
+22:34 < clb>   -time                   Time individual commands
+22:34 < JamesM_> d0k: yeah, lots of segfaults in his trace
+22:34 < clb> but if I do clang -time -c hello_world.cpp, I get 'clang: warning: argument unused during compilation: '-time''
+22:34 < chenwj> JamesM_: what rc1 rev number?
+22:35 < d0k> chenwj: what compiler did you use to build llvm?
+22:35 < chenwj> d0k: gcc version 4.5.2 (Ubuntu/Linaro 4.5.2-8ubuntu4) <- for native build
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+22:36 < clb> did I misuse the option?
+22:37 < chenwj> JamesM_: http://lists.cs.uiuc.edu/pipermail/llvmdev/2012-April/049014.html -> r154899
+22:38 < JamesM_> chenwj: I'm rebuilding. This may be slow.
+22:38 < JamesM_> Oh also - debug or release build?
+22:38 < chenwj> JamesM_: release
+22:39 < JamesM_> same
+22:39 < chenwj> JamesM_: I use test-release.sh
+22:49 < JamesM_> chenwj: another difference is that I'm using CMake, although I'd *hope* that wouldn't have any effect...
+22:49 < Zor> how does llvm handle the 'half' type on e.g. x86 where there's no 16-bit fp?
+22:49 < chenwj> JamesM_: *pray
+23:39 < JamesM_> chenwj: the panda build/test will take a while, so I'll report on it tomorrow morning
+23:40 < chenwj> JamesM_: ok, if possible, can you post the result on ML?
+23:40 < erikjv> JamesM_: so are you guys going to opensource mchammer?
+23:41 < JamesM_> chenwj: can do. This'll be a standard CMake run with check-all. Not using test-release.sh
+23:44 < chenwj> JamesM_: thanks :)
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+23:44 < JamesM_> chenwj: no
+23:44 < JamesM_> np*
+00:33 < chenwj> JamesM_home: the test-release.sh use system compiler to compile clang/llvm, then use that clang/llvm to compile clang/llvm
+00:33 < chenwj> JamesM_home: do you do the same?
+00:34 < chenwj> JamesM_home: or just first step?
+00:35 < JamesM_home> just the first step

@@ -1,0 +1,58 @@
+17:14 <morecache> ping
+18:12 <chenwj> ?
+18:12 <morecache> I've been reading your kvm article on http://people.cs.nctu.edu.tw/~chenwj/dokuwiki, It's very helpful.
+18:13 <morecache> I think there is a minor mistake in the paragraph which comes from "Mechanism of KVM implementation ".
+18:13 <chenwj> do you speak english or chinese?
+18:13 <morecache> either
+18:14 <morecache> of course, chinese is better
+18:14 <chenwj> 中文
+18:14 <chenwj> :)
+18:14 <morecache> 哈哈
+18:14 <chenwj> 哪個部分有問題?
+18:14 <morecache> 引用自"KVM实现机制" 这部分中:
+18:15 <morecache> "D 位僅在最後一級頁表項中存在，代表所指向的頁已被寫過，且 TLB 項也有該位。當第一次寫該頁時，若 TLB 項不存在，或是該頁表項 D 位為
+                  0，此時將該頁表項 D 位置 1，這是由軟體達成"
+18:15 <morecache> 我认为,将D位置1，应该是硬件做的，what do u think?
+18:16 <chenwj> 你手邊有材料嘛?
+18:17 <morecache> 您可以参考 "Intel® 64 and IA-32 Architectures Software Developer’s Manual", Chapter 4.8
+18:17 <chenwj> == 我下載一下
+18:19 <morecache> 4.8 ACCESSED AND DIRTY FLAGS
+18:19 <morecache> ......
+18:19 <morecache> Whenever there is a write to a linear address, the processor sets the dirty flag (if it is not already set) in the paging-structure entry
+                  that identifies the final physical address for the linear address (either a PTE or a paging-structure entry in which the PS flag is 1).
+18:19 <morecache> Memory-management software may clear these flags when a page or a paging structure is initially loaded into physical memory. These flags
+                  are “sticky,” meaning that, once set, the processor does not clear them; only software can clear them.
+18:19 <morecache> ......
+18:20 <chenwj> 沒錯
+18:20 <chenwj> 這樣看起來置 1 是 hw 做的
+18:20 <morecache> 同意...
+18:22 <chenwj> 我改一下
+18:22 <morecache> 好的 :-)
+18:23 <chenwj> 前後語句有錯嗎?
+18:23 <morecache> 还未发现，呵呵
+18:23 <chenwj> ok
+18:24 <chenwj> 你刷新一下頁面
+18:24 <morecache> 若再有新"发现"，会联系你的
+18:24 <morecache> 我现在刷一下
+18:24 <chenwj> 你在 #qemu 還是 #kvm 找到我的?
+18:24 <morecache> kvm
+18:24 <chenwj> oh :)
+18:24 <chenwj> nice to meet you
+18:25 <chenwj> 怎麼找到我的 wiki?
+18:25 <morecache> me too!
+18:25 <morecache> 以前就常看你的qemu wiki,那个时候就是天天在网上搜资料看
+18:25 <chenwj> http://people.cs.nctu.edu.tw/~chenwj/slide/ 也有些東西
+18:25 <morecache> 谢谢，我去看看
+18:26 <morecache> 后来，你刚建立kvm wiki那天，我就看到了，以后就每天都刷新，看看有没有加入新内容:-)
+18:26 <chenwj> haha
+18:26 <chenwj> 多拉點人進來看
+18:26 <chenwj> 給我多一些 feedback
+18:27 <morecache> 哈哈，好啊
+18:27 <chenwj> 我在 http://www.hellogcc.org 常出沒
+18:27 <morecache> cool!
+18:27 <chenwj> 他那邊也有個聊天室
+18:28 <morecache> 嗯，我只是偶尔浏览下hellogcc，还未仔细看过，以后也会去看看
+18:28 <chenwj> #hellogcc @ freenode
+18:29 <morecache> 记住了
+18:29 <chenwj> 我在 wiki 上致謝你一下
+18:29 <morecache> 那我在这感谢你了！

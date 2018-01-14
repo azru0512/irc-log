@@ -1,0 +1,137 @@
+11:47 <+zakk> chenwj: 就是要load一個不能encode到instruction的value該怎麼load
+11:47 <+zakk> chenwj: 柏村講到loadhi啥的
+11:47 <@chenwj> zakk: 喔
+11:47 <@chenwj> zakk: 看是要分兩段讀 load hi load low
+11:48 <@chenwj> zakk: 或是讀 memory 吧?
+11:48 <@chenwj> zakk: 你是說比如說 imm 太大沒辦法 encode 到 instruction?
+11:48 <+zakk> chenwj: 用literal pool
+11:48 <+zakk> chenwj: yy
+11:49 <@chenwj> zakk: literal pool 應該也是用 memory?
+11:49 <@chenwj> zakk: 要不然放哪?
+11:49 <+zakk> chenwj: 是阿
+11:49 <+zakk> chenwj: 放在i cache
+11:49 <+zakk> chenwj: 會產生其他問題
+11:49 <+zakk> chenwj: 這題就是training的問題XD
+11:49 <@chenwj> zakk: 等一下
+11:50 <@chenwj> zakk: 你是說放在i cache 會產生其他問題
+11:50 <@chenwj> zakk: data 怎麼會放到 i cache?
+11:50 <+zakk> chenwj: 用literal pool 會產生其他問題
+11:50 <@chenwj> zakk: 喔喔
+11:50 <+zakk> chenwj: literal pool 是把imm放在text執行步道的地方
+11:51 <+zakk> chenwj: ex.  ret後面
+11:51 <@chenwj> zakk: 哪你說 "放在i cache" 是指?
+11:51 <@chenwj> zakk: imm 放在 ret 後面 被 load 到 i cache?
+11:52 <+zakk> chenwj: ret是instruction
+11:52 <+zakk> chenwj: 假設你的cache有 i d cache
+11:52 <+zakk> chenwj: text section會在 i cache
+11:52 <@chenwj> zakk: 我知道
+11:52 <+zakk> chenwj: 恩恩
+11:52 <@chenwj> zakk: 我是問你是這個意思嗎?
+11:53 <@chenwj> zakk: 因為 imm .. 所以他才會被 load 到 i cache
+11:53 <@chenwj> zakk: 浪費空間是一個 會把其他指令擠出去是一個 該不會還跟 alignment 有關吧?
+11:54 <+zakk> chenwj: 你知道literal pool 是啥嗎
+11:54 <@chenwj> zakk: 請講
+11:54 <@chenwj> zakk: http://en.wikipedia.org/wiki/Literal_pool <-?
+11:55 <+zakk> chenwj: 我找wiki比較快= =
+11:56 <+zakk> chenwj:          load $a [pc+X]
+11:56 <+zakk> chenwj:          ....
+11:56 <+zakk> chenwj:          br
+11:56 <+zakk> chenwj: pc+X:    0x11111111...
+11:56 <@chenwj> zakk: pc+X:    0x11111111... <- pool?
+11:56 <+zakk> chenwj: Y
+11:56 <@chenwj> zakk: 哪的 wiki?
+11:56 <@chenwj> zakk: 公司內部?
+11:56 <+zakk> chenwj: training寫的
+11:56 <+zakk> chenwj: 恩恩
+11:57 <+zakk> chenwj: 我先去吃飯了 我們有定位
+11:57 <@chenwj> zakk: ok
+11:57 <+zakk> chenwj: 另一種用法==>iteral pool 利用一個不會執行到的空間存放global variable address, 來支援global variable access
+11:57 <+zakk> chenwj:  如果global address和branch/load/sotre的encode剛好相同會有所影響像是brach prediction,
+              也有可能是一個branch到未知位置的instruction,充滿各種奇怪的不定因素可能(所以compiler需要塞滿nop instruction到pipeline,以免影響程式正確性or more)
+14:55 <@chenwj> zakk: 也有可能是一個branch到未知位置的instruction,充滿各種奇怪的不定因素可能(所以compiler需要塞滿nop
+                instruction到pipeline,以免影響程式正確性or more) <-?
+14:55 <@chenwj> zakk: 這三小
+14:56 <@chenwj> zakk: 還要塞 nop?
+14:57 <+zakk> chenwj: 使用iteral pool 會產生的問題
+14:57 <@chenwj> zakk: 這邊我不懂
+14:57 <@chenwj> zakk: 你先等等
+14:57 <@chenwj> zakk: 我回去看一下 msn
+14:58 <@chenwj> zakk: iteral pool 利用一個不會執行到的空間存放global variable address, 來支援global variable access <- 是這種用法才會出現的問題?
+15:00 <+zakk> chenwj: 恩 literal pool= 那種用法=產生的問題
+15:01 <@chenwj> zakk: 如果global address和branch/load/sotre的encode剛好相同會有所影響像是brach prediction <- ??
+15:03 <+zakk> chenwj: 恩 對阿
+15:03 <@chenwj> zakk: = = 啊我就不懂才打問號
+15:03 <+zakk> chenwj: 因為你雖然不會執行到 但是你在pipeline裡還是會fetch到阿
+15:04 <@chenwj> zakk: 等一下
+15:04 <+zakk> chenwj: 因為他是放在text
+15:04 <@chenwj> zakk: 他算是放在 text 裡的 data?
+15:05 <@chenwj> zakk: 還是 instruction?
+15:05 <@chenwj> zakk: 如果是 data 應該不會被解碼
+15:06 <zakk> 都會fetch
+15:06 <chenwj> 對
+15:06 <zakk> 他把data當做指令放在text裡
+15:07 <chenwj> 當做指令? 你確定?
+15:07 <zakk> 然後你才能用pc releative去到它然後load
+15:07 <chenwj> 可是他是一個 addr
+15:07 <zakk> 你覺得我的答案有疑惑的話可以去google
+15:07 <chenwj> keyword
+15:08 <zakk>  literal pool nop
+15:09 <zakk> 你先想想 你要access到global var的話你要怎麼做
+15:09 <zakk> 他的address不能直接塞到instruction內
+15:09 <zakk> 除了可以用load hi/low以外還能怎麼解
+15:09 <chenwj> 先把 addr load 到 register
+15:10 <chenwj> 再 jmp register
+15:10 <chenwj> http://benno.id.au/blog/2009/01/02/literal-pools
+15:10 <zakk> addr放哪
+15:10 <chenwj> 放 literal pool
+15:10 <chenwj> 那篇是講到點上嗎?
+15:12 <zakk> 沒講到欸
+15:12 <zakk> 你就想 pipeline去處理
+15:12 <zakk>   0:I4b01      IldrIr3, [pc, #4]I(8 <get_value+0x8>)
+15:12 <zakk>    2:I6818      IldrIr0, [r3, #0]
+15:12 <zakk>    4:I4770      IbxIlr
+15:12 <zakk>    6:I46c0      InopIII(mov r8, r8)
+15:12 <zakk>    8:I00000000 I.wordI0x00000000
+15:12 <chenwj> = =
+15:12 <chenwj> 亂碼拉
+15:13 <zakk> 如果那個 word剛好op code的field =  jmp呢
+15:13 <zakk> 你的architecture會受影響
+15:13 <zakk> 如果你有做brach prediction
+15:13 <zakk> 你的architecture會受影響(如果你有做brach prediction)
+15:14 <chenwj> 你貼的是  http://benno.id.au/blog/2009/01/02/literal-pools 上面的 example?
+15:14 <zakk> co 8
+15:14 <zakk> 黑阿
+15:14 <chenwj> i see
+15:15 <zakk> 你nop塞的次數會跟architecture有關
+15:15 <chenwj> 那篇怎麼會沒講到點上?
+15:15 <zakk> 我阿災
+15:15 <chenwj> 你都用他的 example 了
+15:15 <zakk> 他沒看到pipeline層吧
+15:15 <chenwj> 要不然你挑一篇
+15:15 <zakk> 沒空 我要先忙了= =
+15:16 <chenwj> = =
+15:16 <zakk> 你自己想一想就知道了
+15:38 <@chenwj> zakk: = =
+15:38 <@chenwj> zakk: 該不會是 arm 一次抓 32-bit 吧
+15:39 <@chenwj> zakk: 你是指這個意思嗎?
+15:45 <+zakk> chenwj: pipeline裡有五個stage的話,  當在EXE stage是ret的時候 , fetch stage是 你literal pool塞的 隨意值 當那個值 剛好op code的field和jump一樣,
+              硬體的brach prediction就會受到影響, 影響你predicate的準確度
+15:46 <+zakk> chenwj: 或者" 隨意值"剛好等於 load某個硬體沒攔住的address, 沒人回你就整個hang住or 爛掉
+15:46 <+zakk> chenwj: 所以要塞nop
+15:49 <@chenwj> zakk: 你剛剛舉網頁上的例子 我看起來怪怪的
+15:49 <@chenwj> zakk: 他 load 完 global variable 之後就 bxlr
+15:50 <@chenwj> zakk: 所以我那時候才覺得看起來沒問題
+15:50 <@chenwj> zakk: 會影響 branch prediction 我也知道
+15:50 <@chenwj> zakk: load某個硬體沒攔住的address <- 這個太靠北了吧
+15:51 <@chenwj> zakk: 所以才要塞 nop 讓他不要進 pipepline 執行?
+15:51 <+zakk> chenwj: 那是活生生血淋淋的慘案
+15:51 <+zakk> chenwj: 恩
+15:51 <+zakk> chenwj: 之前某公司就多花幾百萬請ARM改ARMCC 加nop
+15:52 <+zakk> chenwj: 因為pipeline從3 stage變成5stage
+15:52 <@chenwj> zakk: 不過這跟硬體有關吧
+15:52 <@chenwj> zakk: 我是說每次都需要改
+15:52 <+zakk> chenwj: 恩 除非你是從5 stage 變到3 stage
+15:53 <@chenwj> zakk: 應該不會發生
+15:53 <+zakk> chenwj: 從13 stage變到 9 stage
+15:53 <@chenwj> zakk: arm 上面的?
+

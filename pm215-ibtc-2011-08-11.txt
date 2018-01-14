@@ -1,0 +1,34 @@
+18:13 < chenwj_> I want to add IBTC (indirect branch translation cache) in QEMU
+18:13 < chenwj_> process mode works fine, but not system mode
+18:14 < chenwj_> I am still trying to figure out what goes wrong
+18:15 < chenwj_> for whom might be interested, http://permalink.gmane.org/gmane.comp.emulators.qemu/113011
+18:18 < chenwj_> need to eat dinner, bye
+18:20 < pm215> chenwj_: may not be your only problem, but you almost certainly need to flush yoru branch cache in tb_flush()
+18:22 < chenwj_> pm215: I flush ibtc when I see "tb_invalidated_flag = 1"
+18:24 < chenwj_> one place is tb_gen_code:exec.c, I call flush_ibtc after tb_flush, not in tb_flush
+18:25 < chenwj_> and I also do the same check as tb_find_fast in the ibtc lookup
+18:26 < chenwj_> but linux image provided by the website failed when I enable "ret" ibtc lookup
+18:27 < pm215> but in general some places call tb_flush() to mean "things have changed, forget the world", eg target-arm/helper.c
+18:28 < chenwj_> sounds flush ibtc in tb_flush more reasonable
+18:30 < pm215> in user mode do you see a useful speedup from implementing the ibtc?
+18:30 < chenwj_> pm215: yes
+18:31 < chenwj_> pm215: since lookup is done in the code cache
+18:31 < chenwj_> no need to jump back to qemy
+18:31 < chenwj_> s/y/u
+18:35 < pm215> ...how much speedup? (what benchmarking have you done?)
+18:35 < pm215> you also want to make sure that you haven't broken cpu_exit()
+18:37 < chenwj_> spec2006. depends on application, speedup is about 20% in averge
+18:38 < chenwj_> broken cpu_exit?
+18:38 < pm215> cpu_exit works by breaking links between TBs, so it's important that even a branch-cache type jump between TBs is still 'broken' by that.
+18:38 < pm215> that might work ok, I haven't looked very hard at the code you're using to implement it
+18:38 < pm215> 20% is quite impressive
+18:40 < chenwj_> from the name of cpu_exit, I guess it is called when the guest progrem terminated?
+18:41 < pm215> no, it's called when some other thread wants to make a cpu thread come out of executing translated code and up to the top level loop.
+               typically it gets used in system mode for interrupt delivery
+18:42 < pm215> I think if your branch-cache code still means the TB ends at the jump it should be ok, though
+18:42 < pm215> incidentally you'll need to clean this up so it's not x86-specific at some point
+18:44 < chenwj_> you want this to be committed into the trunk?
+18:45 < pm215> well, if it can give a 20% speedup and it doesn't have any disadvantages you haven't mentioned then why not?
+18:46 < chenwj_> pm215: I'll consider that, never submit patch before. :)
+18:47 < pm215> there's a fair distance between "this works for x86" and "this is production-quality code which will work with any target if it chooses to
+               support it", mind you. but a proof of concept is a good start

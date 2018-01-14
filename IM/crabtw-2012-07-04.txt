@@ -1,0 +1,62 @@
+22:29 <@chenwj> crabtw: 摸過 ruby 嗎?
+22:31 <+crabtw> chenwj: 有
+22:32 <@chenwj> crabtw: 那 atom/feed 摸過嗎?
+22:32 <+crabtw> chenwj: 沒
+22:32 <@chenwj> crabtw: hmmmm
+22:35 <@chenwj> crabtw: http://stackoverflow.com/questions/11330985/poorly-formatted-feed-simplersserror
+22:35 <@chenwj> crabtw: well, .... I have to try :p
+22:35 <@chenwj> crabtw: Poorly
+22:36 <@chenwj> crabtw: formatted feed (SimpleRSSError)
+22:36 <@chenwj> crabtw: 它噴這個錯誤
+22:40 <@chenwj> crabtw: http://www.google.com/reader/view/feed/http://www.hellogcc.org/feed?n=50 <- 你能看到這個 link 嗎?
+22:41 <@chenwj> zakk: !
+22:41 <+zakk> chenwj: ?
+22:41 <@chenwj> zakk: http://www.google.com/reader/view/feed/http://www.hellogcc.org/feed?n=50 <- 你能看到這個 link 嗎?
+22:41 <+crabtw> chenwj: 看起來 src 有 channel 或 feed tag 就判定為 poorly formated
+22:41 <+crabtw> chenwj: https://github.com/cardmagic/simple-rss/blob/ef0d5db568faa75073a43f45d5f544d4414a8ea3/lib/simple-rss.rb#L75
+22:42 <@chenwj> crabtw: 不懂
+22:42 <@chenwj> crabtw: 有比較白話的講法嗎 >/<
+22:42 <+zakk> chenwj: 點進去就跑到我的google reader了呀
+22:43 <@chenwj> zakk: http://www.google.com/reader/atom/user/11420598154031612632/state/com.google/starred?n=40 <-
+22:43 <+zakk> chenwj: permission denied
+22:48 <+crabtw> chenwj: 你剛剛給的 link 我沒辦法拿到 atom feed
+22:49 <@chenwj> crabtw:  http://www.google.com/reader/atom/user/11420598154031612632/state/com.google/starred?n=40
+22:51 <@chenwj> crabtw: ^^^ 這個可以嗎?
+22:52 <+zakk> chenwj: 怎
+22:53 <@chenwj> zakk: 要回復 http://www.hellogcc.org/
+22:58 <+zakk> chenwj: 喔
+22:58 <+zakk> chenwj: ?
+22:58 <+zakk> chenwj: 聽吳
+22:58 <+zakk> chenwj: ㄎ
+22:58 <@chenwj> zakk: nevermind
+22:59 <+zakk> chenwj: 喔
+23:13 <+crabtw> chenwj: 嗯，看到了。simple-rss 看到 atom feed 有 <feed> 字串就判定為 poorly formated
+23:14 <+crabtw> chenwj: 可能要改 simple-rss code 要不然就是用其他的 library
+23:15 <@chenwj> crabtw: @source =~ %r{<(channel|feed).*?>.*?</(channel|feed)>}mi <- 這一串在檢查?
+23:16 <+crabtw> chenwj: yap
+23:18 <@chenwj> crabtw: 太悲劇了
+23:22 <+crabtw> chenwj: 轉換的程式看起來不難，可以自己寫一個
+23:23 <@chenwj> crabtw: 什麼轉到什麼?
+23:24 <+crabtw> chenwj: atom 轉 rss
+23:25 <@chenwj> crabtw: 所以我先抓 http://www.google.com/reader/atom/user/11420598154031612632/state/com.google/starred?n=40 下來 (atom 格式)
+23:25 <@chenwj> crabtw: 在把它轉成 rss
+23:25 <@chenwj> crabtw: 再餵給 simple-rss?
+23:26 <+crabtw> chenwj: no，自己 parse atom 然後轉 rss，不透過 simple-rss
+23:26 <@chenwj> crabtw: 那 simple-rss 做什麼?
+23:27 <+crabtw> chenwj: 原本的文章只是用來 parse atom 而已
+23:27 <@chenwj> crabtw: 原本的文章?
+23:27 <@chenwj> crabtw: 你是說 script?
+23:28 <+crabtw> chenwj: ya
+23:29 <@chenwj> crabtw: ?? 我 link 抓下來的不就是 atom 嗎?
+23:29 <@chenwj> crabtw: atom/user/xxx
+23:32 <+crabtw> chenwj: script 是把 atom 透過 simple-rss parse 成 ruby 的 structure，然後在把 structure 輸出成 rss。這個過程很簡單所以才說可以自己寫
+23:35 <@chenwj> crabtw: :/ 那他為什麼遇到 <feed> 就噴掉
+23:37 <+crabtw> chenwj: 我也不知道他為什麽要這樣寫
+23:37 <@chenwj> crabtw: 噗
+23:38 <@chenwj> crabtw: ok 我再看看
+23:38 <+crabtw> chenwj: 剛剛找了一下，parse atom，ratom 可以用
+23:39 <@chenwj> crabtw: ratom?
+23:39 <@chenwj> crabtw: ruby 套件?
+23:40 <+crabtw> chenwj: 嗯
+23:41 <@chenwj> crabtw: 它不會像 simple-rss 檔 <feed> ?
+23:43 <+crabtw> chenwj: 不會

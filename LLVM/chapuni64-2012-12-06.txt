@@ -1,0 +1,63 @@
+15:54 < chapuni64> good evening!
+16:01 < silvas> chapuni64: do you know a good world clock application on linux?
+16:01 < chapuni64> no!
+16:02 < silvas> hmm... maybe there's a web app
+16:02 < chapuni64> I am using ubuntu in my netbook and it is not used at home
+16:02 < chapuni64> ah, I am using it on my floor bed
+16:03 < chapuni64> silvas: at home, I am using windows 7 desktop. it has +2 world clock. besides, I am using the clock on
+                   android phone.
+16:04  * chapuni64 TZ=PST date
+16:04 < silvas> lol
+16:04 < silvas> that's actually awesome
+16:04 < chapuni64> oh, it was wrong
+16:07 < chenwj> any way to make clang list what target it support?
+16:08 < chapuni64> chenwj: like llc -version ?
+16:09 < silvas> chapuni64: is it ~5:00PM there in Japan right now?
+16:09 < chenwj> yes
+16:09 < chenwj> silvas: 4 pm
+16:09 < chapuni64> silvas: yes, 17:09. FYI, we don't use daylight savings
+16:10 < chenwj> chapuni64: 4 pm in taiwan
+16:10 < chenwj> one hr delay
+16:10 < chenwj> hrm..
+16:13 < chenwj> chapuni64: so any idea on that?
+16:14 < chapuni64> chenwj: afaik clang itself doesn't have the list
+16:14 < chenwj> *sigh
+16:14 < silvas> man date
+16:15  * chapuni64 imagined "mandatory"
+16:17 < chapuni64> chenwj: what is your goal?
+16:18 < chenwj> chapuni64: don't want to guess the triple name is a good reason?
+16:19 < chapuni64> it might be "good question". ask _cfe-users_
+16:20 < chapuni64> clang-cc1 would work for targets_to_build. (not sure it actually works)
+16:23 < chenwj> I see no clang-cc1 there.. :/
+16:24 < chenwj> I grab the pre-release rc2 tarball
+16:24 < chapuni64> "clang -cc1"
+16:25 < jia> chenwj: I know how to add new target to clang, do you need it right now?
+16:27 < chenwj> jia: no, I need to know if there is a clang option to print what triple it support
+16:28 < jia> Triple.td Triple.cpp
+16:28 <+chandlerc> so, there is a problem with this idea
+16:28 <+chandlerc> clang supports a *crazy* number of triples
+16:28 <+chandlerc> because different OSes define triples in silly, arbitrarily different ways
+16:29 < chapuni64> do we want "blacklist"?
+16:29 < echristo> unlikely.
+16:30 < chapuni64> for example, x86_64-cygwin doesn't exist. but it might work :D
+16:30  * chapuni64 knows it is suppressed in llvm x86 codegen...
+16:30 < chapuni64> hello echristo!
+16:31 < echristo> hi chapuni64!
+16:33  * chapuni64 wants the os-lib-abi-hogehoge matrix...
+16:34 < chapuni64> even on win32, there are many combinations
+16:35 < chapuni64> beh, g2g, nursery
+16:35 < jia> mips has a psp triple, I remember
+16:36 < echristo> it does.
+16:36 < chenwj> psp?
+16:36 < jia> yeah, mips-psp
+16:37 < Grievre> "triple"?
+16:37 < chenwj> mips-unknown-linux-eabi
+16:37 < Grievre> what's a triple
+16:37 < chenwj> something like that? eat by clang -target
+16:38 < chapuni64> Grievre: like quadruplets.
+16:38 < chenwj> chapuni64: huh?
+16:38 < chapuni64> Grievre: see llvm/ADT/Triple.h
+16:38  * chapuni64 g2g, really!
+16:39 < Grievre> oh clang is written in C++? gross :(
+16:39 < Grievre> and disappointing
+16:39 <+chandlerc> ?

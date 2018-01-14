@@ -1,0 +1,21 @@
+16:57 < chenwj> is this page up-do-date? -> http://www.linux-kvm.org/page/TODO
+16:59 < agraf> chenwj: pretty much, yeah
+17:00 < agraf> chenwj: some of the device assignment stuff has been done
+17:01 < chenwj> how about this -> Emulate the VT and SVM instruction sets on qemu ?
+17:01 < agraf> chenwj: i implemented the basics for SVM a few years go
+17:01 < agraf> ago*
+17:01 < agraf> chenwj: but it's not 100% accurate
+17:02 < agraf> chenwj: for vmx, I'm not aware of any patches
+17:02 < chenwj> so the goal is running kvm inside qemu?
+17:02 < agraf> chenwj: yeah
+17:02 < chenwj> and qemu does debugging?
+17:02 < agraf> chenwj: that was a lot more useful when we had kqemu though :)
+17:02 < agraf> chenwj: because that would just run CPL3 code natively
+17:02 < agraf> chenwj: even when in a nested vm
+17:04 < chenwj> isn't kqemu and kvm quite the same thing?
+17:04 < agraf> not quite
+17:05 < agraf> kqemu had some more nifty modes
+17:05 < agraf> with kvm, the way it's implemented in QEMU today, you either do the full CPU in kvm or nothing at all
+17:05 < agraf> kqemu could do CPL0 in dyngen and CPL3 in kqemu
+17:07 < chenwj> ring 0 in dyngen (emulated) and ring 3 in kqemu (directly ran on the host)?
+17:08 < agraf> chenwj: yes

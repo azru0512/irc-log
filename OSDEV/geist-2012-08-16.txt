@@ -1,0 +1,50 @@
+15:50 < chenwj> shikhin: http://stackoverflow.com/questions/11966676/does-pte-modifying-go-through-the-same-page-table-as-usual-memory-access-do
+15:51 < ouyes> anybody gets a retina mac book?
+15:52 < chenwj> shikhin: the answer I got from stackoverflow is a little bit differenet from I learned yesterday. seems if OS want to modify current running
+                process' pde/pte, it doesn't have to map the process' pd into kernel space, just use the process' page table.
+16:16 < shikhin> chenwj: Of course. The kernel is mapped _in_ the current running process' virtual space too - so it has access to the page tables.
+16:25 < shikhin> What'd be the best documented Intel integrated graphics controller?
+16:29 < chenwj> shikhin: so only when the OS modify a not-running process' pde/pte, it has to map that process's pd in kernel space and modify it through
+                OS' page table?
+16:30 < geist> chenwj: there is not any one way to do it
+16:31 < geist> generally speaking any processes PD/PTs are available at any time
+16:31 < geist> or mapped in on demand to the kernel
+16:31 < shikhin> What geist said.
+16:31 < geist> unless you use the recursive PD trick, in which case there's a special case for the currently active PD
+16:32 < geist> but then it's still basicalyl the same, you just have a 'fast path' for the current PD
+16:35 < chenwj> ^^^ 'fast path'? like shikhin just said? "The kernel is mapped _in_ the current running process' virtual space too - so it has access to the
+                page tables."
+16:35 < geist> yeah, unsuprisingly this is mostly over your head, but basically it's somewhat simpler than you probably think
+16:35 < geist> given that the kernel is mapped in every addres space, it is free to manage its virtual memory however it wants to
+16:36 < geist> and thus can use its space to provide virtual addresses to map PD/PTs
+16:36 < geist> for any process, not just the one that's active
+16:36 < geist> but really, there's no one way to do it, different oses deal with this differently
+16:39 < chenwj> what shikhin said yesterday, "When the OS
+16:39 < chenwj>                  wants to modify the process' page directory, it maps the process' page directory somewhere in it's own address space, and
+                the modifying
+16:39 < chenwj>                  operation goes through the OS' page directory.
+16:39 < chenwj> "
+16:40 < geist> syre.
+16:41 < chenwj> that makes me think there are two page table, one for the process, the other is os (sorry for the copy/paste error)
+16:41 < geist> depends. most oses keep the kernel mapped in the top of the address space
+16:41 < Griwes> shikhin, have you seen this? http://forum.osdev.org/viewtopic.php?p=213661#p213661
+16:41 < geist> which means the page tables that 'cover' the kernel portion of the address space are shared between all of the seperate PDs for every process
+16:42 < shikhin> Griwes: He's correct! WHY WOULD YOU WANT THE KERNEL ABOVE 4GiB?! WOW?!
+16:42 < geist> since the kernel is identically mapped in every address space, it means the entries in all of the PDs (one per process) have to be identical
+               and point to the same set of kernel page tables
+16:43 < Griwes> shikhin, :D
+16:44 < shikhin> Hmm. Isn't RDOS on some commerical systems *actually* getting used?
+16:45 < geist> not sure what the hubbub us
+16:45 < geist> is
+16:45 < geist> but anyway, sleep time
+16:45 < geist> ttyl
+16:45 < shikhin> chenwj, geist: I meant more of when the particular process is not currently running.
+16:45 < shikhin> You'd need to map it's related structures in the current virtual address space then.
+16:46 < shikhin> Or switch to it - whatever you prefer.
+16:46 < Griwes> hmm, is "proofness" a meaningful word?
+16:47 < Griwes> as in future-proof(ness)
+16:47 < shikhin> Proofness itself doesn't seem to be meaningful - but looks like people do use future-proofness.
+16:49 < chenwj> shikhin: so you agree what Alexey said on stackoverflow, right? :)
+                http://stackoverflow.com/questions/11966676/does-pte-modifying-go-through-the-same-page-table-as-usual-memory-access-do
+16:49 < shikhin> How does RDOS do things like page swapping with segmentation?
+16:49 < shikhin> chenwj: Yes, o'course.

@@ -1,0 +1,12 @@
+<chenwj_>	hi, does hdaps support thinkpad x230?
+<Zhenech>	hdapsd does, the kernel driver does not
+<Zhenech>	and the tp-smapi most probably neither
+<chenwj_>	so I need wait until kernel and tp-smapi support to make hdaps work?
+<Zhenech>	and this is probably best on the ml (https://lists.sourceforge.net/lists/listinfo/hdaps-devel) this chan is pretty dead
+<Zhenech>	no, either kernel or smapi, but dont have too high hopes
+<Zhenech>	as there is noone working on it afaik
+<chenwj_>	too bad
+<Zhenech>	doesnt everyone have a ssd anyways?
+<Zhenech>	anyways, gotta go now, drop a mail to the ml to isee if anyone ever gtten around it
+<Zhenech>	tiit=it, stupid 3g lag
+<chenwj_>	ok, thanks

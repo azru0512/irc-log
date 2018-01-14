@@ -1,0 +1,25 @@
+20:37 < david_chisnall> Where does the mapping from LLVM types to MVTs happen?
+20:37 < JamesM_> doesn't it go to EVTs first?
+20:37  * JamesM_ forgets that particular layer
+20:38 < david_chisnall> Well, the high-level problem is that I have pointers in one address space that must only go in a special kind of register.
+20:40 < david_chisnall> I am not sure how best to encode the 'these pointers are special and magic' information in that layer.
+20:41 < david_chisnall> Do we have any back ends already that have something like this (e.g. segmented addressing?)
+20:42 < chenwj> segmented addressing, like x86?
+20:43 < david_chisnall> Yes, only not.
+20:43 < chenwj> except x86?
+20:43 < david_chisnall> We don't really do anything with x86 segments.
+20:44 < chenwj> ohoh
+20:44 < david_chisnall> Other than allowing GS-relative addressing.
+20:44 < JamesM_> david_chisnall: the ptx is probably the best shout
+20:44 < david_chisnall> We don't, for example, allow setting LDT entries from the IR.
+20:44 < JamesM_> ptx deals with disparate address spaces
+20:44 < david_chisnall> That sounds promising.
+20:45 < david_chisnall> But does PTX use the register allocator stuff?  I thought PTX was another URM?
+20:45 < chenwj> URM?
+20:45 < david_chisnall> Unlimited Register Machine.
+20:47 < JamesM_> that is true
+20:47 < JamesM_> but its handling of pointer address spaces should point you in the right direction I'd have thought
+20:47 < david_chisnall> I shall look.
+20:47 < JamesM_> I'd be able to tell you more if I spent some time looking at the code for MVT genreation, but I assume you're already doing that so it'd be
+                 a waste of time
+20:48 < david_chisnall> I'm looking at random bits of code, but I have no idea if they are helpful random bits of code.

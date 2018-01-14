@@ -1,0 +1,37 @@
+[16:50] <chenwj_> cygwin seems to be lack of libhidapi library?
+[16:51] <PaulFertser> indy: that's for some runtime type safety.
+[16:51] <PaulFertser> chenwj_: msys2? No, it has hidapi, does it not work?
+[16:52] <chenwj_> no, I mean cygwin. btw, I have trouble on MSYS2
+[16:52] <PaulFertser> chenwj_: no idea about cygwin. Just use msys2 ;) What's wrong with it?
+[16:52] <chenwj_> hang on
+[16:52] <PaulFertser> Their IRC channel is quite active and helpful btw.
+[16:53] <chenwj_> In file included from C:/msys64/mingw64/x86_64-w64-mingw32/include/oleidl.h:7:0,                  from C:/msys64/mingw64/x86_64-w64-mingw32/include/ole2.h:38,                  from C:/msys64/mingw64/x86_64-w64-mingw32/include/wtypes.h:12,                  from C:/msys64/mingw64/x86_64-w64-mingw32/include/winscard.h:10,                  from C:/msys64/mingw64/x86_64-w64-mingw32/include/windows.h:97,                  from C:/msys64/mingw64/x86_64-w64-mingw32/include/w
+[16:53] <chenwj_> oops..
+[16:53] <PaulFertser> chenwj_: when do you get it, compiling what?
+[16:53] <indy> PaulFertser, still not catching :)
+[16:54] <chenwj_> after `pacman -S mingw-w64-x86_64-openocd-git`, I did `configure; make`
+[16:54] <indy> PaulFertser, safety for what?
+[16:55] <PaulFertser> indy: to guarantee functions for one target architecture won't be used with another, unsuitable one.
+[16:55] <PaulFertser> chenwj_: can you please pastebin the full log?
+[16:55] <PaulFertser> chenwj_: I got more info from the msys2 devs btw, they tell me to be able to properly build software with msys2 (-S just installs a binary) you need some extra packages.
+[16:56] <indy> PaulFertser, i see, but still not sure how that number is 'assembled' or 'compiled'
+[16:56] <PaulFertser> chenwj_: basically, the procedure is described at https://sourceforge.net/p/msys2/wiki/Contributing%20to%20MSYS2
+[16:57] <chenwj_> PaulFertser: http://tny.cz/238f9841
+[17:01] <PaulFertser> indy: try this from the top of the sources: git grep define.*MAGIC 8b4e882a1630d63bbc9840fa3f968e36b6ac3702
+[17:01] <PaulFertser> indy: obviously the magic values are just made up numbers based on arm core numbering scheme.
+[17:02] <PaulFertser> chenwj_: if you're self-compiling 0.8.0, then that's expected, I guess.
+[17:02] <PaulFertser> chenwj_: even when not, still expected. Please apply these two patches:
+[17:03] <PaulFertser> chenwj_: http://openocd.zylin.com/#/c/2486/ (in fact just one should be enough)
+[17:03] <PaulFertser> chenwj_: that's a windows-specific odditie.
+[17:04] <PaulFertser> chenwj_: after applying this patch rerun ./bootstrap
+[17:04] <chenwj_> okay, let me try
+[17:05] <PaulFertser> chenwj_: msys2 guys have it in their repo, so they build the source. BTW, why do you need to recompile?
+[17:07] <chenwj_> just try to build openocd by myself! :D
+[17:12] <PaulFertser> chenwj_: cool, and sorry for not warning you about that lean and mean patch.
+[17:13] <chenwj_> that's fine
+[17:16] <PaulFertser> chenwj_: you know what would be really cool? If somebody contributed a PKGBUILD for libftdi to MSYS2. Then we should be able to cover all possible windows usecases with their build.
+[17:16] <PaulFertser> ;)
+[17:43] <PaulFertser> Valgrind is WONDERFUL. And it provides a GDB server too, so if I see it reporting an error, I can ask it to stop right there, attach gdb and inspect the state. Just WOW.
+[17:45] <indy> PaulFertser, i think i can't get krait under rule as qualcomm is one of implementers and partnumbers doesn't correspond to arm numbering scheme
+[17:46] <PaulFertser> indy: duh, just do "git grep define.*MAGIC" (for the current git HEAD) and choose whatever number you want, the only requirement is that it shouldn't clash with the already defined codes.
+[17:50] <chenwj_> PaulFertser: your patch DOES work! thanks

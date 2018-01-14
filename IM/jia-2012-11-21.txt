@@ -1,0 +1,561 @@
+16:29 <jia> 好吧，就讨论0005吧
+16:30 <jia> InstrFormats.td
+16:30 <jia> 说实话，我不知道改怎么写，uc32的InstrFormats是什么样子，都不知道
+16:31 <chenwj> 你拿 openrisc 跟 uc32 比一下
+16:31 <chenwj> 都是 32 bit?
+16:31 <jia> 都是
+16:31 <jia> +def R16 : OpenRISCReg<0, "r16">;
+16:31 <jia> 这个吧，中间的0是什么意思？
+16:32 <chenwj> 我查察
+16:33 <chenwj> 你對上面的 class OpenRISCReg<bits<4> num, string n> 一起看
+16:33 <chenwj> 他這裡應該是 def R16 : OpenRISCReg<16, "r16">;
+16:33 <chenwj> 我猜這裡他賴皮了
+16:33 <jia> 也许后面补，不管了
+16:33 <chenwj> 恩
+16:34 <jia> 0006你看懂了？
+16:34 <jia> SDT_*我不知道什么
+16:34 <jia>  Type Profiles
+16:34 <jia> OpenRISC Specific Node Definitions.
+16:34 <jia> 一直就不是很明白
+16:34 <chenwj> 這裡你要搭配 include/llvm/Target/Target.td 一起看
+16:35 <jia> 看过，没懂
+16:35 <chenwj> TargetSelectionDAG.td
+16:35 <chenwj> 應該是這個
+16:36 <chenwj> 你在 TargetSelectionDAG.td 找 SDCallSeqStart
+16:36 <jia> profile的意思怎么理解啊？
+16:37 <chenwj> 就我所知 就是描述一個 inst 的 in out operand 有幾個
+16:37 <chenwj> 還有其他屬性
+16:38 <chenwj> Type Profiles 那一欄就是用 LLVM 自訂 type 去定義 openrisc 自己的 sd type
+16:38 <chenwj> 有點小錯 是描述 sd node type
+16:38 <jia> 是SD Node的type
+16:38 <jia> 对吧
+16:39 <chenwj> 對
+16:39 <jia> leaf和tree或者什么的
+16:39 <jia> 好像是 立即数
+16:39 <jia> 常量
+16:39 <jia> 什么的
+16:39 <jia> 这些是type
+16:39 <chenwj> 哪個?
+16:40 <jia> SD Tyep这个概念
+16:40 <chenwj> 不太像
+16:40 <jia> 先看看吧，搞清楚，慢一点无所谓
+16:41 <chenwj> 因為 sd node 之間有 sd value 連著 sd node 之間要描述彼此的順序性
+16:42 <jia> class SDTypeConstraint<int opnum> {
+16:42 <jia>   int OperandNum = opnum;
+16:42 <jia> }
+16:42 <jia> 就是说这个node是什么操作
+16:42 <jia> + - * / 常量 立即数
+16:42 <jia> 二操作数运算
+16:42 <jia> 三操作数运算
+16:42 <jia> 对吧
+16:42 <chenwj> 它用來定義某個 sdnode 的 operand 個數
+16:43 <chenwj> 對
+16:43 <jia> 嗯
+16:43 <jia> 嗯
+16:44 <jia> +def SDT_ORCallSeqStart : SDCallSeqStart<[SDTCisVT<0, i32>]>;
+16:44 <jia> 就是新定义一种node的类型
+16:44 <jia> 对吧
+16:44 <jia> 然后，下面，使用这个类型，定义一些node
+16:45 <jia> 我不明白，为什么要定义类型
+16:45 <jia> 什么样的需求要定义类型
+16:45 <chenwj> 方便使用吧
+16:45 <chenwj> 感覺就像是 macro
+16:46 <jia> 就像C的typedef
+16:47 <chenwj> 恩
+16:47 <jia> 好吧，暂且记住他定义了Call序列开始和Call序列结束，两个类型
+16:47 <jia> 然后下面的node定义
+16:47 <jia> +def callseq_start :  SDNode<"ISD::CALLSEQ_START", SDT_ORCallSeqStart,
+16:47 <jia> +                            [SDNPHasChain, SDNPOutGlue]>;
+16:47 <jia> +def callseq_end   :  SDNode<"ISD::CALLSEQ_END",   SDT_ORCallSeqEnd,
+16:47 <jia> +                            [SDNPHasChain, SDNPOptInGlue, SDNPOutGlue]>;
+16:48 <jia>  SDNode<"ISD::CALLSEQ_START", SDT_ORCallSeqStart, [SDNPHasChain, SDNPOutGlue]>;
+16:48 <jia> 使用了刚才定义的SDT_ORCallSeqStart
+16:48 <jia> 但是，这行代码，还得找原型
+16:49 <jia> class SDNode<string opcode, SDTypeProfile typeprof,
+16:49 <jia>              list<SDNodeProperty> props = [], string sdclass = "SDNode">
+16:49 <jia>              : SDPatternOperator {
+16:49 <jia>   string Opcode  = opcode;
+16:49 <jia>   string SDClass = sdclass;
+16:49 <jia>   list<SDNodeProperty> Properties = props;
+16:49 <jia>   SDTypeProfile TypeProfile = typeprof;
+16:49 <jia> }
+16:51 <jia> 不是这里
+16:52 <chenwj> 不是 我是說 SDNodeProperty
+16:52 <jia> 额
+16:52 <chenwj> 我是列一下 SDNodeProperty 有哪些值
+16:52 <jia> 找不到ISD::CALLSEQ_START
+16:53 <jia> SDNPHasChain SDNPOutGlue两个属性是有的
+16:54 <jia> 这些属性都毛意思啊？
+16:54 <jia> 你这下来，能写一本书了
+16:54 <jia> 这俩属性我不理解
+16:54 <chenwj> def SDNPOutGlue     : SDNodeProperty;   // Write a flag result
+16:54 <chenwj> 我猜是有 side effect 吧
+16:54 <jia> 是啊，看到了，但是不理解
+16:55 <chenwj> 邊做邊學吧
+16:55 <chenwj> def SDNPHasChain    : SDNodeProperty;   // R/W chain operand and result
+16:55 <chenwj> 應該是說前後 sd node 有相依性
+16:56 <jia> 估计还要去找ISD
+16:56 <chenwj> include/llvm/CodeGen/ISDOpcodes.h
+16:57 <chenwj> /// ISD namespace - This namespace contains an enum which represents all of the
+16:57 <chenwj> /// SelectionDAG node types and value types.
+16:58 <chenwj> 我 qemu 還要靠你罩
+16:58 <jia> … 吓死我了
+16:58 <chenwj> ?
+16:58 <jia> 你看qemu的人都不鸟我
+16:59 <chenwj> 你混久了就成大牛了
+16:59 <jia> 我不想混了，我想只做llvm，做深入
+16:59 <jia> 所以，那个trace+State，我一直跟你说，你做了，就是global
+17:01 <jia> 那等我拿到llvm的offer之后，我跟你玩儿qemu
+17:02 <chenwj> 先把 uc32 搞定吧
+17:02 <jia> 嗯
+17:03 <chenwj> 0006.diff done?
+17:04 <jia> 没有啊，吃透，吃透
+17:04 <chenwj> ADJCALLSTACKDOWN 我目前想先跳過
+17:04 <chenwj> 還是你想看?
+17:04 <jia> 哪里？
+17:05 <jia> 哦
+17:05 <chenwj> +// ADJCALLSTACKDOWN/UP implicitly use/def SP because they may be expanded into
+17:05 <chenwj> +// a stack adjustment and the codegen must know that they may modify the stack
+17:05 <chenwj> +// pointer before prolog-epilog rewriting occurs.
+17:05 <chenwj> +// Pessimistically assume ADJCALLSTACKDOWN / ADJCALLSTACKUP will become
+17:05 <chenwj> +// sub / add which can clobber SP.
+17:05 <chenwj> +let Defs = [SP], Uses = [SP] in {
+17:05 <chenwj> +def ADJCALLSTACKDOWN : OpenRISCInst<(outs), (ins i32imm:$amt),
+17:05 <chenwj> +                                    "#ADJCALLSTACKDOWN",
+17:05 <chenwj> +                                    [(callseq_start timm:$amt)]>;
+17:05 <chenwj> +def ADJCALLSTACKUP   : OpenRISCInst<(outs), (ins i32imm:$amt1, i32imm:$amt2),
+17:05 <chenwj> +                                    "#ADJCALLSTACKUP",
+17:05 <chenwj> +                                    [(callseq_end timm:$amt1, timm:$amt2)]>;
+17:05 <jia> 不懂
+17:06 <jia> InstrInfo.td和ISel是最关键的部分
+17:07 <jia> 先粗略的理解
+17:07 <chenwj> 06 只有 InstrInfo.td
+17:07 <jia> 为什么要定义两个节点呢？
+17:08 <chenwj> ADJCALLSTACKDOWN ADJCALLSTACKUP ?
+17:08 <jia> 那个不管
+17:08 <jia> 神马JB玩意儿啊
+17:08 <chenwj> 那妳是說哪兩個?
+17:09 <jia> 好，今天完成0007？
+17:10 <chenwj> 陪你吧
+17:11 <chenwj> 007 好像是實現 MC to asm 新版的 layer
+17:11 <jia> 晚上回去看吧，明早讨论
+17:11 <chenwj> 恩
+17:11 <jia> 那晚上，我可以远程陪你讨论代码
+17:12 <chenwj> 你大約幾點在
+17:12 <jia> InstPrinter 是什么？
+17:12 <jia> 8-9点开始吧
+17:12 <jia> 因为我回去的路上比较久
+17:13 <jia> 0007是战争的开始啊
+17:13 <jia> FrameLowering
+17:14 <chenwj> InstPrinter 感覺就是負責從 MC 最後吐出 asm
+17:14 <jia> bc吧
+17:14 <chenwj> asm 吧
+17:14 <chenwj> 他註解不是寫 asm
+17:14 <jia> bc->asm
+17:14 <chenwj> 感覺不太像
+17:14 <jia> 哦
+17:15 <chenwj> bc 應該是他 llvm ir 另一種格式
+17:15 <jia> bc是on disk
+17:15 <jia> .ll是readable
+17:15 <jia> 还有就是 in mem的
+17:15 <chenwj> yes
+17:16 <chenwj> bc 跟 ll 都是 on disk
+17:16 <jia> 对
+17:16 <jia> 蛋llvm readable
+17:16 <jia> human readable
+17:16 <chenwj> 恩
+17:17 <chenwj> OpenRISCMCAsmInfo.cpp 感覺是先給個 stub
+17:17 <chenwj> 目前沒作用
+17:17 <jia> 肯定不做的
+17:17 <jia> 都是stub
+17:18 <jia> or1k的哥们儿说，openrisc这个就是个stub
+17:18 <chenwj> 你跟他這麼熟啊
+17:18 <jia> 随便扯淡啊
+17:19 <chenwj> OpenRISCMCTargetDesc.cpp 有些東西
+17:19 <jia> 应该都不全
+17:19 <jia> 但是对我们学习，是个好开头
+17:20 <chenwj> Subtarget 我不知道要不要加
+17:20 <jia> 要啊
+17:20 <chenwj> 估計在五分鐘 我要先撤了
+17:20 <jia> ISA=uc32
+17:20 <jia> ABI=o32
+17:20 <jia> 我也是
+17:20 <jia> 30走人
+17:20 <chenwj> abi 就 o32?
+17:21 <jia> 太累了
+17:21 <chenwj> 叫?
+17:21 <jia> 那，你说叫啥？
+17:21 <jia> 我无所谓的
+17:21 <chenwj> 那 x86 abi 叫啥?
+17:21 <jia> 不知道，没看过
+17:21 <chenwj> 不能也叫 uc32?
+17:21 <jia> 就看过mips的
+17:22 <jia> 他想定义新的32位abi啊
+17:22 <jia> ucnew32？
+17:22 <jia> 这么长
+17:22 <chenwj> 這可以先跳過 看雪濤想怎麼取吧
+17:22 <chenwj> 這麼長肯定不靠普
+17:22 <jia> 32
+17:22 <jia> n32
+17:22 <jia> 64
+17:22 <jia> 多好啊
+17:22 <jia> 跟mips一样
+17:23 <jia> 问问他吧
+17:23 <chenwj> 我們可以提些意見
+17:23 <jia> 问他现在的abi叫啥名字
+17:23 <jia> n32叫啥
+17:23 <chenwj> 不過他 abi 真改了 那之前 binary 怎麼辦?
+17:23 <chenwj> 沒影響?
+17:23 <jia> 无所谓啊
+17:23 <jia> 重新编译就好
+17:24 <jia> 他们又没啥市场，没有历史包袱
+17:25 <jia> 准备
+17:25 <chenwj> 那晚上見
+17:25 <jia> ok
+Day changed to 22 11 2012
+09:13 <jia> 主要是0007和0015
+09:48 <chenwj> 0009.diff 看了嗎?
+09:49 <jia> 没仔细看
+09:49 <jia> 0007还没明白呢
+09:50 <jia> 粗略过了一下，openrisc那个真心只能算stub，我在整理or1k的，整理好之后给你
+09:50 <chenwj> 恩
+09:51 <jia> or1k的stub部分是jonas弄的，很恶心，后面的都很不错，很清晰
+09:59 <chenwj> 0007 不是主要就 OpenRISCTargetMachine?
+09:59 <chenwj> 阿
+09:59 <chenwj> 我漏看前的的
+09:59 <jia> 你先看吧，给我讲讲 :lol
+10:09 <chenwj> openrisc git 有辦列出那個 commit add 或是 modify 哪個檔案嗎?
+10:10 <jia> 我给你的diff里面有
+10:10 <jia> comment没有
+10:10 <chenwj> 我是說只列 file name
+10:12 <jia> 不能啊
+10:12 <jia> 我给你的diff里面，你搜索+++
+10:12 <jia> 然后自己编辑一下吧
+10:25 <chenwj> http://www.linkedin.com/pub/shuxin-yang/29/391/580
+10:25 <chenwj> 常出沒在 llvm
+10:27 <jia> 我整理出来60个patch了，每个几乎都很大，还有很多
+10:28 <chenwj> 先備著
+10:44 <chenwj> 我 0007 整理出來了
+10:44 <chenwj> 你看一下
+10:45 <jia> 我还在整理，85了
+10:45 <jia> 还有很多
+10:45 <chenwj> 恩
+14:43 <jia> 我现在开始跟你学习0007
+14:48 <chenwj> 有問題開始問吧
+14:48 <jia> 我先看看，昨晚睡的晚，现在反应慢
+14:49 <chenwj> 你昨晚幹啥去了
+14:49 <jia> 整理代码
+14:50 <chenwj> 哪邊的?
+14:50 <jia> 我的
+14:54 <jia>    * OpenRISC.h
+14:54 <jia>      * Entry point to OpenRISC backend
+14:54 <jia>      * createOpenRISCISelDag
+14:54 <jia>        * LLVM -> DAG
+14:54 <jia> 没看出来
+15:00 <chenwj> 這是註解上寫的
+15:00 <jia> 哦
+15:04 <jia> +void OpenRISCMachineFunctionInfo::anchor() { }
+15:04 <jia> 什么意思啊？
+15:05 <jia> OpenRISCMachineFunctionInfo.cpp
+15:07 <chenwj> 不清楚
+15:07 <chenwj> 我問問
+15:07 <jia> anchor
+15:07 <jia> 很费解
+15:07 <chenwj> 你問 yao 或 xmj 吧
+15:08 <chenwj> 他們應該有遇過這個詞
+15:08 <jia> 哦，搞一个概念
+15:08 <jia> ISelDag是啥啊？
+15:08 <jia> 最开始好像就是这个
+15:08 <jia> I什么含义啊？
+15:09 <chenwj> instruction selection dag
+15:09 <jia> 哦，下一级就是Dag2Dag了？
+15:10 <chenwj> IR->DAG->MI
+15:10 <jia> MI是？
+15:10 <chenwj> machineFunction 裡面裝 MI
+15:10 <chenwj> machine instruction
+15:10 <jia> 哦
+15:10 <chenwj> IR->DAG->MI->MC->ASM
+15:11 <jia> 对了machineFunction 还有别的Function
+15:11 <jia> 都是啥啊
+15:11 <chenwj> 你說 machinexxx?
+15:11 <jia> 有machineFunction passFunction moduleFunction 我记得好像是
+15:12 <chenwj> pass module function 那是針對 llvm ir
+15:12 <chenwj> 做處理
+15:12 <chenwj> machinexxx 是針對 MI 處理
+15:12 <jia> machine处理mi的？
+15:12 <chenwj> y
+15:12 <chenwj> dag -> MI
+15:12 <jia> dag的呢？
+15:13 <jia> dag-MI是mcahine处理的？
+15:13 <jia> MI-MC呢？
+15:13 <chenwj> 我覺得應該是說 MachineXXX 是處理 MI
+15:14 <chenwj> DAG -> MI 之後 這裡會有 module function basicblock 之類的
+15:14 <jia> ISelDag处理dag-MI
+15:14 <jia> MC处理MI-MC？
+15:17 <jia> OpenRISCDAGToDAGISel - OpenRISC specific code to select OpenRISC machine
+15:17 <jia> // instructions for SelectionDAG operations.
+15:17 <chenwj> 這邊是 dag -> mi
+15:17 <jia> 看起来 DAGToDAGISel 好像是在做合法化处理
+15:17 <chenwj> lowering 在做的吧
+15:18 <jia> 这个比lowering早吧
+15:18 <chenwj> 我找找
+15:20 <jia> C++不好，很吃亏啊
+15:20 <jia> 用C的时候，根本不用理解全局，直接就硬杀过去了
+15:20 <jia> C++，尤其LLVM的代码，各种概念，各种封装啊
+15:21 <chenwj> 15:19 <@chenwj> zakk: ISelDag 是 dag -> mi? ISelDAGToDAG 是不是比 ISelDag 先跑?
+15:21 <chenwj> 15:19 < zakk> chenwj: selection完變mi
+15:21 <chenwj> 15:20 < zakk> chenwj: ISelDAGToDAG 先跑
+15:21 <chenwj> 15:20 <@chenwj> zakk: selection完變mi 跟 dag -> mi 不一樣意思?
+15:21 <chenwj> 15:20 < zakk> chenwj: 你的ISelDag 是啥
+15:21 <jia> 好像，openrisc的lower代码里，就是lower了函数调用
+15:22 <jia> zakk在哪个irc上啊？
+15:22 <chenwj> msn
+15:23 <jia> 哦，摸死你
+15:23 <chenwj> 要不就你加他 msn
+15:23 <chenwj> 群組對話
+15:23 <jia> 我先看openrisc吧
+15:24 <jia> 现在觉得，好像能看懂，但是，自己做，绝对没戏
+15:24 <chenwj> http://www.opus.ub.uni-erlangen.de/opus/volltexte/2010/1659/pdf/tricore_llvm.pdf
+15:24 <jia> 这个我有
+15:24 <jia> 更粗
+15:24 <chenwj> http://reup.dmcs.pl/wiki/images/7/7a/Tricore-llvm-slides.pdf
+15:24 <chenwj> 粗?
+15:24 <chenwj> 我是要看他的圖
+15:25 <jia> 是的，嗯，现在需要step的
+15:25 <jia> 有step才好充分理解
+15:25 <jia> OpenRISCMachineFuctionInfo.cpp 和 OpenRISCMachineFuctionInfo.h 我很不理解啊
+15:25 <jia> 只有一个 void OpenRISCMachineFunctionInfo::anchor() { }
+15:25 <jia> 还是空的
+15:25 <chenwj> 我也不是很理解
+15:26 <chenwj> 你就當他目前沒太大作用
+15:26 <jia> 我并不怀疑我们的抄袭能力
+15:26 <jia> 按照这20个patch肯定能copy&modfy出来uc的
+15:27 <chenwj> 有些你也要有些經驗才曉得
+15:27 <jia> 但是，next还没有看到
+15:27 <jia> 嗯
+15:27 <jia> openrisc的stub，让我看清了很多
+15:27 <jia> mips的太丰满了，很多骨架看不出来了
+15:29 <jia> 下一步怎么办？
+15:30 <jia> 按照这20个，完成一个uc32的stubs？
+15:31 <chenwj> 恩
+15:31 <chenwj> 還是你有別的想法?
+15:33 <jia> 没有
+15:34 <jia> 只是不知道下一步怎么学习
+15:34 <chenwj> 我覺得我們先配合代碼和 http://reup.dmcs.pl/wiki/images/7/7a/Tricore-llvm-slides.pdf 的圖以綺看
+15:35 <chenwj> 把檔案和接口的意思盡量摸清楚
+15:35 <jia> ok
+15:37 <chenwj> 然後先抓幾個頭
+15:37 <chenwj> 比如說 TargetMachine
+15:37 <chenwj> 訂下了
+15:37 <chenwj> 在看他需要那些檔案
+15:37 <jia> 我当时做openrsic的
+15:37 <chenwj> 比如說 registerinfo calling conv
+15:38 <jia> 除了lower frame instrinfo 别的都做了
+15:38 <jia> 现在还是这几部分不懂
+15:38 <jia> 别的其实也不懂，就是代码简单，好抄
+15:42 <jia> 看图，好像是先lower，在dag2dag
+15:42 <jia> 不过，TaregetLower是什么啊？
+15:43 <jia> DAG Lowering，就是ISelLowering？
+15:44 <chenwj> ISelLowering 是 LLVM IR (list) 轉成 DAG (node)
+15:45 <chenwj> 就是圖上的 dag lowering
+15:46 <jia> 哦，看来，是不是找一个比较简单的BE按照图，先理解一遍流程���较好啊？
+15:46 <chenwj> openrisc 不是算最簡單了嗎?
+15:47 <jia> openrisc不完整
+15:47 <jia> 完整，并且，简单
+15:47 <chenwj> 那你就要問勇勇了
+15:47 <chenwj> 我是覺得先把 openrisc ko 比較實際
+15:47 <jia> or1k？
+15:48 <chenwj> 把哪個檔案對應到哪個流程搞清楚
+15:48 <chenwj> anton 的
+15:48 <jia> 嗯
+15:50 <jia> uc32的abi已经发给我们了
+15:50 <jia> 你找找之前的邮件
+15:50 <jia> 今天不能熬夜了，明天还要接领导
+15:50 <chenwj> 他跑去哪了?
+15:51 <jia> 住的远
+15:51 <chenwj> abi 沒列在雪濤的網頁上?
+15:51 <jia> 他在邮件里面发了
+15:51 <chenwj> 找到了
+15:52 <chenwj> 這為什麼不放在他的網頁上?
+15:52 <jia> 不知道
+15:52 <chenwj> 我問問
+15:53 <jia> MSP430算是简单的
+15:53 <jia> OR1K次之
+15:54 <jia> XCore也很简单
+08:37 <jia> 你加进去的？
+08:37 <jia> 怎么加的？
+09:43 <jia> ？？？
+09:43 <jia> 讨论下InstFormats啊
+09:43 <jia> uc的不知道神马情况啊
+09:45 <chenwj> 跟請 wiki 帳號
+09:45 <chenwj> 寄 ml 申請
+09:45 <jia> … 你好V5啊
+09:45 <jia> uc32的InstFormat，咋能看出来啊？
+10:12 <chenwj> 你有 openrisc manual 嗎?
+10:13 <jia> 有啊
+10:13 <chenwj> 丟給我一份吧
+10:13 <jia> 哦，没了，做完之后就删了
+10:16 <chenwj> class InstOR1K<dag outs, dag ins, string asmstr, list<dag> pattern>  : Instruction {  field bits<32> Inst;  field bits<32> SoftFail = 0;  let
+               Size = 4;  let Namespace = "OR1K";  let DecoderNamespace = "OR1K";  bits<2> optype;  bits<4> opcode;  let Inst{31-30} = optype;  let
+               Inst{29-26} = opcode;  dag OutOperandList = outs;  dag InOperandList = ins;  let AsmString = asmstr;  let Pattern = pattern;}
+10:16 <chenwj> https://github.com/skristiansson/llvm-or1k/blob/master/lib/Target/OR1K/OR1KInstrFormats.td
+10:17 <jia> 现在这不是改成uc的么
+10:17 <chenwj> OpenRISC inst 總長是 32 bit
+10:17 <jia> uc的也是啊
+10:17 <chenwj> 我是拿 openrisc 當例子
+10:17 <chenwj> field bits<32> Inst;
+10:17 <jia> confused
+10:17 <chenwj> ?
+10:17 <chenwj> 你說跟 anton 那一份 confused?
+10:22 <jia> 我下载之后给你
+10:22 <jia> 很慢
+10:23 <chenwj> 我剛抓了
+10:23 <chenwj> 我之前在等他給我寄 new password
+10:24 <jia> new password？
+10:25 <chenwj> 我忘了密碼
+10:25 <jia> 什么的passwd啊？
+10:25 <chenwj> openrisc 的 web 不是要帳號才能下載
+10:26 <jia> 我发给你
+10:27 <chenwj> 我不是說我已經抓了嗎
+10:27 <chenwj> OpenRISC 31..30 是 opcode type?
+10:27 <jia> 你不是还需要passwd么
+10:27 <chenwj> 他寄給我了
+10:27 <chenwj> 比較慢
+10:27 <jia> 哦，那你发给我吧，我要pdf的
+10:28 <chenwj> http://people.cs.nctu.edu.tw/~chenwj/spec/openrisc/openrisc_arch.pdf
+10:29 <chenwj> InstFormat 應該是定怎麼從 DAG 轉成 asm
+10:30 <jia> InstFormat是那个作用么？
+10:30 <jia> 里面有bit的信息啊
+10:31 <chenwj> 他會描述 inst 中各個欄位代表什麼意思
+10:31 <chenwj> 所以我才問你 OpenRISC 31..30 是 opcode type?
+10:32 <jia> 好像是RR
+10:32 <jia> RI
+10:32 <jia> 这样的对指令的分类
+10:32 <chenwj> RR
+10:32 <chenwj> ?
+10:32 <jia> 两个操作数都是寄存器
+10:33 <jia> I是立即数
+10:33 <jia> M是内存
+10:33 <jia> https://www.dropbox.com/s/ij91c75xcwqprv6/openrisc-arch-1.0-draft2.pdf
+10:33 <jia> 这个更新一些
+10:38 <chenwj> InstrFormats 先看這一節吧 http://llvm.org/docs/WritingAnLLVMBackend.html#InstructionSet
+10:38 <jia> 你跟他们说吧，我几乎不做了
+10:38 <chenwj> 你那邊還有當初的 test case 嗎?
+10:38 <jia> 都提交了啊
+10:39 <jia> 最初，就是那些东西
+10:39 <chenwj> http://lists.gnu.org/archive/html/qemu-devel/2012-07/msg02567.html
+10:39 <chenwj> 我指放在 google doc 上的東西
+10:39 <chenwj> 都掉了的樣子
+10:39 <jia> 你是说vmlinux？
+10:40 <chenwj> 恩
+10:40 <jia> 没有了，进去之后我就都删了
+10:41 <jia> 现在mips的还有是因为我还在做
+10:41 <chenwj> 沒關係 這之後再跟你討論
+10:41 <chenwj> 不急
+10:42 <jia> git.openrisc.net 上面的gcc下架了
+10:42 <jia> 不急，做完uc之后，我跟你一起收拾这个烂摊子
+10:43 <jia> 他们下架，我们直接提交到官方
+10:43 <jia> 重新开始做
+10:43 <jia> 锻炼+名利
+10:44 <jia> InstFormat
+10:44 <jia> 还是没明白，www上就一句啊
+10:44 <chenwj> 那裏
+10:46 <jia> 我觉得format是跟MC有关系的
+10:46 <chenwj> 我也是這樣想
+10:58 <jia> 下午我们讨论下每个文件的功能吧
+10:58 <chenwj> 4:30 要開會
+10:58 <chenwj> 之前可以
+10:58 <jia> ok
+10:59 <jia> 我在改0007到uc32
+10:59 <chenwj> 恩
+11:04 <chenwj> InstrFormats 我覺得可以參考 mips
+11:05 <jia> 要从手册总结出uc32的format才行啊
+11:05 <jia> 上午我看了MBlaze和OR1K的代码，觉得OR1K更舒服点儿，MBlaze更干净点儿
+11:06 <chenwj> 有差別嗎?
+11:06 <jia> 差别不大
+11:06 <jia> 都是细节的差别
+11:09 <chenwj> 我查了一下
+11:10 <chenwj> InstrFormat 似乎不是我們想的那一層
+11:10 <chenwj> include/llvm/Target/Target.td
+11:10 <chenwj> class Instruction {
+11:10 <chenwj>   string Namespace = "";
+11:10 <chenwj>   dag OutOperandList;       // An dag containing the MI def operand list.
+11:10 <chenwj>   dag InOperandList;        // An dag containing the MI use operand list.
+11:10 <chenwj>   string AsmString = "";    // The .s format to print the instruction with.
+11:14 <jia> 不懂
+11:14 <jia> 不明白
+11:15 <jia> 不解
+11:16 <chenwj> http://people.cs.nctu.edu.tw/~chenwj/slide/LLVM/LLVM-how-to-add-backend.txt
+11:16 <chenwj> 這是我目前整理的流程
+11:17 <chenwj> 舊的方法是從 MI 直接輸出 asm
+11:18 <jia> 乱码
+11:18 <chenwj> 調成 utf8
+11:19 <jia> UniCoreSelectionDAGInfo.cpp UniCoreSelectionDAGInfo.h这俩是干嘛的啊？
+11:21 <jia> 这俩是DAG builder吧
+11:21 <chenwj> sd
+11:21 <chenwj> This file declares the TargetSelectionDAGInfo class, which targets can
+11:21 <jia>       * SelectionDAGBuilder.h SelectionDAGBuilder.cpp 这俩文件不存在啊
+11:21 <chenwj>   subclass to parameterize the SelectionDAG lowering and instruction
+11:21 <jia> 公共的吧
+11:21 <chenwj>   selection process.
+11:22 <chenwj> 對
+11:22 <chenwj> 你到上層找找
+11:22 <chenwj> UniCoreSelectionDAGInfo g4
+11:22 <jia> 名字不match
+11:22 <jia> 你转的RFC的邮件啥意思啊？
+11:22 <jia> UniCoreSelectionDAGInfo？
+11:22 <chenwj> UniCoreSelectionDAGInfo 是 TargetSelectionDAGInfo 的 subclass，控是 DSG lowering 跟 instr selection
+11:23 <jia> 哪个文件？
+11:23 <chenwj> include/llvm/Target/TargetSelectionDAGInfo.h
+11:23 <jia> 这个需要修改么？
+11:24 <chenwj> 我轉發的那一封就是指 LLVM 要改目錄和文件名了 要注意一下
+11:24 <chenwj> 哪個?
+11:24 <jia> include/llvm/Target/TargetSelectionDAGInfo.h
+11:24 <chenwj> 不需要
+11:24 <chenwj> 你只要訂一個 subclass 繼承他
+11:24 <chenwj> 就是 UniCoreSelectionDAGInfo
+11:25 <chenwj> 由 UniCoreSelectionDAGInfo 自己去定 target 相關的 dag lowering 跟 instrction selection
+11:25 <jia> 哦
+11:27 <chenwj> uc32 的 instruction formats 是不是要一張表比較清楚?
+11:28 <jia> 嗯
+11:28 <chenwj> 那就要問問雪濤了
+11:28 <jia> 他们肯定没有的吧
+11:28 <jia> 所以我要binutils的代码呢
+11:28 <chenwj> 總要先問
+11:31 <jia> 差不多了
+11:36 <jia> openrisc那个，也要configure的测试么？
+11:38 <chenwj> ???
+11:38 <chenwj> configure 的測試?
+11:39 <jia> 我测试一下，按照openrisc的前6个做的
+11:40 <chenwj> ./configure --enable-targets=unicore32; make; make check
+11:40 <jia> 嗯，正在跑
+11:41  * chenwj eat
+11:57 <jia> TargetData.h gone了
+12:35 <chenwj> ?
+12:35 <jia> OR1K
+12:35 <jia> 的代码也过时了
+12:35 <chenwj> include/llvm/Target/TargetData.h
+12:35 <jia> 嗯，没了
+12:35 <chenwj> trunk 裡的沒了?
+12:36 <jia> TargetData没了
+12:36 <jia> 我们clone的时候就没了
+12:37 <chenwj> 有大影響嗎?
+12:37 <jia> TargetData这个type没了
+12:37 <jia> 如果我懂，没���响，可是现在这不是还不懂么
+12:41 <chenwj> DataLayout.h
+12:42 <chenwj> include/llvm/DataLayout.h]
+12:42 <jia> 哦
+12:42 <chenwj> 這個要筆記一下
+12:42 <chenwj> LLVM 常這樣幹
+12:43 <jia> TargetData这个类型还有？
+12:43 <chenwj> 之後 google 的 Chandler rename 完 估計還要大改一次
+12:44 <chenwj> 你就用 DataLayout 吧
+12:45 <chenwj> 應該是把 TargetData -> DataLayout 去了
+12:45 <chenwj> 我去午睡一下
+12:45 <jia> ok
+12:45 <jia> 我试试看
+12:47 <jia> 哈哈，不是那么简单的改动
+13:18 <chenwj> 用了 DataLayout 了?
+13:18 <jia> 不行
+13:18 <jia> 数据结构都变了
+13:19 <jia> 还是领会一下思想好了

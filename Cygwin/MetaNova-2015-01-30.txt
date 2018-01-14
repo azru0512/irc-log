@@ -1,0 +1,111 @@
+[10:12] <chenwj> I am making a package with cygport, but after `cygport <pkg name> all`, I don't see the package being installed.
+[10:13] <chenwj> what should I check first?
+[10:32] <yselkowitz> chenwj, cygport doesn't install packages
+[10:32] <yselkowitz> it builds them
+[10:32] <yselkowitz> look in NAME-VERSION-RELEASE/dist/NAME/ to find them
+[10:34] <chenwj> but from `cygport --help`, I see "install      install into a DESTDIR, and run post-installation steps"
+[10:35] <chenwj> do I misunderstand what it says?
+[10:36] <yselkowitz> yes
+[10:38] <chenwj> then what does it install?
+[10:39] <chenwj> or it's preparing the stuff needed to be installed?
+[12:42] <MetaNova> chenwj: you didn't tell cygport to install
+[14:05] <chenwj> MetaNova: are you sure `cygport install` does install? I don't see anything being installed on the system. :-(
+[14:05] <chenwj> yselkowitz told me that cygport doesn't install packages
+[14:07] <MetaNova> your original command, 'cygport <package name> all' didn't install anything
+[14:08] <MetaNova> but with the proper cygport command, it should install, yes
+[14:16] <chenwj> MetaNova: I doubt `cygport install` just "install" things into NAME-VERSION-RELEASE/dist/
+[14:19] <MetaNova> chenwj: oh, my mistake
+[14:19] <MetaNova> reading the man page on cygport (I have very little experience with it up to now), it appears 'all' _SHOULD_ include the installation step
+[14:20] <MetaNova> which is to say, if it did not install your package with the command string, 'cygport <package name> all' then something went wrong
+[14:20] <MetaNova> chenwj: what package were you attempting to patch/compile/install with cygport?
+[14:20] <chenwj> MetaNova: http://www.signal11.us/oss/hidapi/ <-
+[14:21] <MetaNova> hrm
+[14:21] <MetaNova> allow me to step outside for a cigarette and then I'll see if I can't use cygport to install it on my setup
+[14:21] <MetaNova> one minute
+[14:31] <MetaNova> okay then
+[14:31] <MetaNova> chenwj: is there an actual cygport for HIDAPI?
+[14:32] <chenwj> MetaNova: http://tny.cz/3033c3e3
+[14:33] <chenwj> MetaNova: I downloaded hidapi-master.zip
+[14:33] <chenwj> just trying to make a new port by myself :-)
+[14:34] <MetaNova> I see
+[14:34] <MetaNova> one second while I fetch those files
+[14:35] <MetaNova> the http://tny.cz/3033c3e3 link is the cygport file?
+[14:37] <chenwj> yap
+[14:38] <chenwj> I name the cygport file as libhidapi.cygport, and put hidapi-master.zip in the same directory
+[14:38] <MetaNova> okay so, I downloaded hidapi-master.zip from the github page, and then created a file named 'hidapi-master.cygport' and put in it the contents of the http://tny.cz/3033c3e3 link
+[14:39] <MetaNova> I also extracted hidapi-master.zip to ./hidapi-master
+[14:39] <MetaNova> which means all we should need to do is run 'cygport hidapi-master.cygport all' correct?
+[14:40] <chenwj> in fact, `cygport hidapi-master all` will do the unzip for you :)
+[14:40] <MetaNova> oh
+[14:40] <MetaNova> alright
+[14:40] <MetaNova> do I need anything else?
+[14:41] <chenwj> automake, gettext-devel
+[14:41] <MetaNova> got it, got it
+[14:41] <chenwj> install them first
+[14:41] <MetaNova> already installed
+[14:42] == yselkowitz [~cygwinpor@S0106e4f4c60b83f4.wp.shawcable.net] has joined #cygwin
+[14:42] <MetaNova> well, I tried running 'cygport hidapi-master all' but I'm getting fork errors
+[14:42] <MetaNova>       0 [main] perl 13632 child_info_fork::abort: C:\cygwin\bin\cygssp-0.dll: Loaded to different address: parent(0x360000) != child(0x2F0000)
+[14:42] <chenwj> hrm, what's the error message?
+[14:42] <MetaNova> which I believe is a rebase issue, let me fix that
+[14:47] <MetaNova> okay, after shutting down all cygwin executables and making sure there were no compressed files in the cygwin directory (can cause fork errors), then running 'C:\cygwin\bin\dash.exe -c /bin/rebaseall -t -v' it's now compiling
+[14:47] <MetaNova> well, running the configure script, actually
+[14:47] <MetaNova> but it's moving along as expected now
+[14:47] <MetaNova> should begin compiling soon
+[14:50] <MetaNova> okay, well
+[14:50] <MetaNova> I ran into a few errors
+[14:50] <MetaNova> not sure if it compiled successfully or not
+[14:51] <MetaNova> http://tny.cz/15a5716f
+[14:51] <chenwj> what those errors look like?
+[14:51] <yselkowitz> MetaNova, you need a version *number*
+[14:52] <MetaNova> yselkowitz: I'm following chenwj's actions, let me replace 'master' with '0.7.0' and we can try again
+[14:52] <MetaNova> yselkowitz: thanks for the tip
+[14:52] <MetaNova> chenwj: ^
+[14:53] <chenwj> MetaNova: maybe the last two lines in cygport conf needed to be changed, too?
+[14:53] <MetaNova> most likely
+[14:54] <MetaNova> changing 'master' to '0.7.0' in the files and file names
+[14:54] <MetaNova> one second
+[14:56] <MetaNova> chenwj: wait, to what do the last two lines in the .cygport file need to be changed to?
+[14:56] <MetaNova> if they are currently
+[14:56] <MetaNova> libusb1_0_CONTENTS="usr/bin/cygusb-1.0.dll usr/share/doc/"
+[14:56] <MetaNova> libusb1_0_devel_CONTENTS="usr/include/ usr/lib/libusb-1.0.dll.a usr/lib/pkgconfig/"
+[14:56] <MetaNova> what do they need to be instead?
+[14:57] <chenwj> I copy them from libusb cygport
+[14:58] <chenwj> so maybe change "usb1_0" to "hidapi0_7" ?
+[14:58] <chenwj> cygusb-1.0.dll -> cyghidapi-0.dll  & libusb-1.0.dll.a -> libhidapi.dll.a
+[14:59] <chenwj> not sure I am doing right...
+[15:01] <MetaNova> why would those need to be changed?
+[15:01] <MetaNova> I'll change them if this new build fails
+[15:02] <chenwj> okay
+[15:02] * MetaNova runs 'cygport hidapi-0.7.0.cygport all'
+[15:05] <MetaNova> welp
+[15:05] <MetaNova> looks like it worked
+[15:06] <MetaNova> zero-one@Shmurrr:/tmp/HIDAPI/libhidapi-0.7.0-1.i686/dist/libhidapi$ dx *.tar.xz
+[15:06] <MetaNova> -rw-r--r-- 1 zero-one None 114160 2015.01.30-02.04.36 libhidapi-0.7.0-1-src.tar.xz
+[15:06] <MetaNova> -rw-r--r-- 1 zero-one None     32 2015.01.30-02.04.34 libhidapi-0.7.0-1.tar.xz
+[15:06] <MetaNova> or not
+[15:06] <MetaNova> *** Warning: Packages are missing files:
+[15:07] <MetaNova> taking your suggesting and changing cygusb-1.0.dll to cyghidapi-0.dll
+[15:12] <chenwj> the missing pkg mentioned by cygport does exist in "hidapi-0.7.0.x86_64/inst/usr/"
+[15:12] <MetaNova> is that something else I need to install?
+[15:13] <chenwj> no idea.
+[15:13] <MetaNova> hrm
+[15:18] <Foxhoundz> Has anyone noticed cygwin opens three console windows on Windwows 10?
+[15:18] <MetaNova> Foxhoundz: set the shortcut for the Cygwin Terminal to Windows 8 compatibility mode
+[15:18] <MetaNova> that should fix it
+[15:18] <yselkowitz> Foxhoundz, fixed in snapshots, or install the cygwin 1.7.34-005 test release with setup
+[15:20] <Foxhoundz> oh ok
+[15:20] <Foxhoundz> yselkowitz: curious. What caused the issue? I thought Windows 8.1 and Windows 10 shared the same/similar apis
+[15:21] <yselkowitz> Foxhoundz, they do vary quite a bit in behaviour, and cygwin 1.7.33 predates win10
+[15:23] <MetaNova> chenwj: since the cygport of this is failing, I'm going to see if hidapi can compile at all by hand
+[15:24] <chenwj> okay, I think it's east as I already done before
+[15:24] <chenwj> s/east/easy
+[15:24] <MetaNova> so, I'm going to start with a fresh source directory (I already blew away the previous one), and will attempt a simple './bootstrap ; ./configure ; make'
+[15:25] <MetaNova> running it now
+[15:30] <MetaNova> chenwj: seems to compile fine when done manually
+[15:30] <MetaNova> so it would appear it's just an issue with an improperly configured .cygport file
+[15:40] <MetaNova> chenwj: sorry, not sure what to tell you, using cygports is all new to me
+[15:40] <MetaNova> chenwj: so, I'm giving up for now, but I wish you well on your quest
+[15:40] <chenwj> MetaNova: that's okay :D
+[15:41] <MetaNova> :)
+[15:41] <MetaNova> sorry I couldn't be of more help :(

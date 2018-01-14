@@ -1,0 +1,27 @@
+21:50 < chenwj> baldrick: scalar evolution infrastructure can get name of the variable used in the loop?
+                http://old.nabble.com/Identifying-loop-variables-td33147041.html <-
+21:50 < Bruno> baldrick: I used this to take LineNumber and FileName:
+21:50 < Bruno>  if (MDNode *N = I->getMetadata("dbg")) {  // Here I is an LLVM instruction    DILocation Loc(N);                      // DILocation is in
+               DebugInfo.h    unsigned Line = Loc.getLineNumber();    StringRef File = Loc.getFilename();    StringRef Dir = Loc.getDirectory();  }
+21:51 <@baldrick> chenwj: I assumed he wants to identify the variable, and doesn't really want the original name
+21:52 < chenwj> baldrick: if he want to original name, then using clang is a better approach?
+21:52 <@baldrick> chenwj: it depends what he's really after - hopefully he will explain some more
+21:52 <@baldrick> chenwj: it seems pointless to speculate before getting more information
+21:53 <@baldrick> chenwj: I should have been more verbose in my email but I was busy
+21:53 < chenwj> I know
+21:54 < chenwj> what's the difference between identify the variable and get it's name?
+21:55 <@baldrick> chenwj: for example in %0 = ...
+21:56 <@baldrick> chenwj: if %0 is an induction variable, then identifying %0 as an induction variable is possible and useful
+21:56 <@baldrick> chenwj: however %0 has no name
+21:56 < chenwj> i see
+21:56 <@baldrick> [%0 is just an artificial identifier printed in the human readable IR so it is possible to read the IR back in again]
+21:57 <@baldrick> Bruno: busy, sorry
+21:59 < Bruno> baldrick: no problem...
+21:59 < chenwj> Bruno: me sorry, too
+22:00 < Bruno> baldrick: follwing that example, i want extract the function name
+22:00 < eliben> Bruno: that can be done by examining the scope the debug line is in. That scope's parent, then its parent, etc. Eventually you get to a
+                function
+22:03 < eliben> Bruno: in http://llvm.org/docs/SourceLevelDebugging.html, read the part starting with "Here !7 is metadata providing location information".
+                the third field is "scope" which can be a lexical block or a function. Scopes are nested (just like in C), and every code line eventually
+                leads to a function
+22:04 < Bruno> eliben: i will look

@@ -1,0 +1,29 @@
+10:11 < chenwj> can I change "exit" behavior, say not logout but reboot?
+10:12 < Snader_LB> define a shell alias
+10:13 < Snader_LB> (or a shell function)
+10:14 < Snader_LB> not sure what shell you're in though; it could be your shell has `exit' as a built-in, in which case you'd need to find out which one
+                   gets preference: shell aliases, shell function, or shell built-ins
+10:15 < chenwj> shell built-ins, I think
+10:16 < Snader_LB> "type exit" will tell you, mostly
+10:18 < chenwj> thanks, it's shell built-ins
+10:18 < Snader_LB> see your shell's manpage
+10:20 < chenwj> if it's shell built-ins, can I change it's behavior at first time? I mean not by defining another shell alias or shell function
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+10:33 < Snader_LB> chenwj: first define your shell
+10:34 < chenwj> define my shell?
+10:34 < Snader_LB> yes; tell us what shell you're using
+10:34 < chenwj> ohoh
+10:36 < Snader_LB> if unsure, execute "echo $0"
+10:36 < chenwj> sh
+10:37 < Snader_LB> uhm; and does "ls -l `which sh`" show a symbolic link?
+10:38 < chenwj> no
+10:40 < Snader_LB> well; see your manpage for the order
+10:40 < chenwj> what order?
+10:41 < Snader_LB>      There are three types of commands: shell functions, built-in commands,
+10:41 < Snader_LB>      and normal programs -- and the command is searched for (by name) in that
+10:41 < Snader_LB>      order.
+10:41 < Snader_LB> that sort of thing
+10:41 < Snader_LB> not sure where aliases fit in here, btw
+10:41 < Snader_LB> this is from NetBSD's sh(1) manpag
+10:41 < Snader_LB> e
+10:42  * Snader_LB afk

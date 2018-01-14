@@ -1,0 +1,262 @@
+23:52 <@chenwj> ppc52776: image 上的 tar 有問題，要把整個 dir 弄進去
+23:52 < ppc52776> chenwj: 要放解壓縮後的檔案？
+23:53 <@chenwj> ppc52776: 對
+23:53 < ppc52776> chenwj: @@"
+23:53 <@chenwj> ppc52776: tar 好像認不得 SPEC 的 tar 檔
+23:53 < ppc52776> chenwj: 那個是 tar.gz
+23:53 <@chenwj> ppc52776: 我在 i7 上也可以用 tar 解開
+23:54 < ppc52776> chenwj: tar zxf spec.tar.gz ?
+23:54 <@chenwj> ppc52776: tar xvf *.tar.gz
+23:54 <@chenwj> ppc52776: i71 上下的
+23:54 < ppc52776> chenwj: 恩~他自動判斷了
+23:55 < ppc52776> chenwj: arm 的沒這個功能
+23:55 <@chenwj> ppc52776: ?!
+23:55 < ppc52776> chenwj: tar 沒有指定格式~原本就只能解沒有壓縮的 tar
+23:55 <@chenwj> ppc52776: 還是 gun tar 才有這功能?
+23:56 < ppc52776> chenwj: 應該說 busybox 精簡掉了
+23:56 <@chenwj> ppc52776: 改裝 gzip or bzip?
+23:57 < ppc52776> chenwj: gzip
+23:58 <@chenwj> ppc52776: busybox 的 tar 沒辦法處理 tar.gz 就對了?
+23:58 < ppc52776> chenwj: 你試試看 tar zxf 看他可不可以
+00:38 <@chenwj> ppc52776: tar 沒 z 選項
+00:39 < ppc52776> chenwj: 那只能先 gunzip SPEC.tar.gz 再 tar xf SPEC.tar
+00:39 -!- ServerMode/&bitlbee [+v kkoala] by im.bitlbee.org
+00:41 <@chenwj> ppc52776: gunzip: can't open 'SPEC_CPU2006_v1.1.tar': Input/output error
+00:41 < ppc52776> chenwj: file system error ?
+00:41 < ppc52776> chenwj: .tar.gz ?
+00:41 <@chenwj> ppc52776: gunzip SPEC_CPU2006_v1.1.tgz
+00:42 < ppc52776> chenwj: filesystem full ?
+00:43 <@chenwj> ppc52776: wait...
+00:44 <@chenwj> ppc52776: 我 cp .tgz 到 output/target/root/ 再 make
+00:44 < ppc52776> chenwj: 恩
+00:45 <@chenwj> ppc52776: 這樣 login 之後應該要能解開?
+00:45 <@chenwj> ppc52776: 我在上面試了一下 touch: haha.txt
+00:45 <@chenwj> ppc52776: touch: haha.txt: Read-only file system
+00:45 < ppc52776> chenwj: 他有把 / mount 成 rw ?
+00:46 < ppc52776> chenwj: image size 還有空嘛？
+00:46 <@chenwj> ppc52776: 看起來沒有，我要 resize?
+00:47 <@chenwj> ppc52776: ls -ls / 看 / 有沒有 mount 成 rw ?
+00:47 < ppc52776> chenwj: 要先 resize
+00:47 < ppc52776> chenwj: cat /proc/mounts 看
+00:48 <@chenwj> ppc52776: ok
+00:49 <@chenwj> ppc52776: rootfs / rootfs rw 0 0 <- 看這個?
+00:50 < ppc52776> chenwj: /dev/hda  / ext2
+00:50 <@chenwj> ppc52776: /dev/root / ext2 ro,relatime 0 0
+00:50 < ppc52776> chenwj: 是 ro
+00:51 <@chenwj> ppc52776: 怎麼把它弄成 rw?
+00:51 < ppc52776> chenwj: mount /dev/root / -o remount,rw
+00:52 <@chenwj> ppc52776: good
+00:53 < ppc52776> chenwj: :p
+00:53 <@chenwj> ppc52776: buildroot 怎麼把它弄成 ro?
+00:46 <@chenwj> ppc52776: 看起來沒有，我要 resize?
+00:47 <@chenwj> ppc52776: ls -ls / 看 / 有沒有 mount 成 rw ?
+00:47 < ppc52776> chenwj: 要先 resize
+00:47 < ppc52776> chenwj: cat /proc/mounts 看
+00:48 <@chenwj> ppc52776: ok
+00:49 <@chenwj> ppc52776: rootfs / rootfs rw 0 0 <- 看這個?
+00:50 < ppc52776> chenwj: /dev/hda  / ext2
+00:50 <@chenwj> ppc52776: /dev/root / ext2 ro,relatime 0 0
+00:50 < ppc52776> chenwj: 是 ro
+00:51 <@chenwj> ppc52776: 怎麼把它弄成 rw?
+00:51 < ppc52776> chenwj: mount /dev/root / -o remount,rw
+00:52 <@chenwj> ppc52776: good
+00:53 < ppc52776> chenwj: :p
+00:53 <@chenwj> ppc52776: buildroot 怎麼把它弄成 ro?
+00:54 < ppc52776> chenwj: 他沒有重新 remount 成 rw
+00:56 <@chenwj> ppc52776: 所以 build 的時候沒辦法調 /root 的 rw，只能 login 後手動調?
+00:57 <@chenwj> ppc52776: 它 config 有把 remount root filesystem read-write during boot 設起來耶 o.0
+00:57 < ppc52776> chenwj: 那可能是 fstab 的 / 沒寫對
+00:57 <@chenwj> ppc52776: No space left on device ...
+00:58 < ppc52776> chenwj: resize @@?
+00:58 <@chenwj> ppc52776: /dev/root                 5.0G      2.6G      2.1G  55% /
+00:58 <@chenwj> ppc52776: 看起來夠阿
+00:58 < ppc52776> chenwj: 還有沒有其他 /
+00:58 < ppc52776> chenwj: /dev/hda / ?
+00:58 <@chenwj> ppc52776: 沒
+00:59 <@chenwj> ppc52776: 你是要看 /dev/ 底下還是 /proc/mounts?
+01:00 < ppc52776> chenwj: /proc/mounts
+01:01 <@chenwj> ppc52776: 那沒有，/dev 底下只有 root
+01:01 -!- ServerMode/&bitlbee [+v kkoala] by im.bitlbee.org
+01:02 < ppc52776> chenwj: df -i ?
+01:02 <@chenwj> ppc52776: 不支援的選項
+01:03 <@chenwj> ppc52776: 想看 inode?
+01:03 < ppc52776> chenwj: 恩
+01:09 <@chenwj> ppc52776: 假設是 inode 的問題，有辦法改嗎?
+01:10 < ppc52776> chenwj: buildroot 裏面可以設定 inodes 數量
+01:11 <@chenwj> ppc52776: Filesystem images -> ext2 root filesystem -> inodes?
+01:11 < ppc52776> chenwj: 恩
+01:11 <@chenwj> ppc52776: 要弄成多少比較保險?
+01:12 -!- ServerMode/&bitlbee [+v yeherics] by im.bitlbee.org
+01:12 < ppc52776> chenwj: 剛剛發生不夠~是解壓縮過程嘛?
+01:13 <@chenwj> ppc52776: 對
+01:14 < ppc52776> chenwj: 至少 10萬吧
+01:14 <@chenwj> ppc52776: ok
+01:15 <@chenwj> ppc52776: 我要先撤退了，先讓他 build 完 orz
+01:15 < ppc52776> chenwj: 囧
+01:15 < ppc52776> chenwj: 掰啦 ~~
+01:15 <@chenwj> ppc52776: 有辦法讓它 rootfs 做的速度加快嗎?
+01:16 < ppc52776> chenwj: 可能要看一下他產生 ext2 filesystem tool 有沒有什麼參數可以選了
+01:16 <@chenwj> ppc52776: 比如說我新加一個檔，它就只要加那個檔就好 不要重做
+01:16 < ppc52776> chenwj: 他不會整個重做阿
+01:16 < ppc52776> chenwj: 只會重新打包
+01:17 <@chenwj> ppc52776: 我覺得要蠻久的
+01:17 < ppc52776> chenwj: 要打包1.5G 的檔案的確有點久
+01:18 <@chenwj> ppc52776: Filesystem images 那邊看不出來有什麼選項
+01:18 <@chenwj> ppc52776: shrug
+01:18 <@chenwj> ppc52776: 81
+01:18 < ppc52776> chenwj: 或是
+01:18 < ppc52776> chenwj: 你直接把
+01:18 < ppc52776> chenwj:  spec 解壓縮好
+01:19 < ppc52776> chenwj: 再讓他打包吧
+01:19 <@chenwj> ppc52776: 那也是要很久..
+01:19 < ppc52776> chenwj: 但 inode 會夠~也不用等等還要解壓縮
+01:20 <@chenwj> ppc52776: hmmm
+01:20 <@chenwj> ppc52776: 它 disk 做好了
+01:20 < ppc52776> chenwj: 恩
+01:20 <@chenwj> ppc52776: 看是不是 inode 的問題 orz
+01:21 < ppc52776> chenwj: 應該是
+01:23 <@chenwj> ppc52776: *pray
+01:24 -!- ServerMode/&bitlbee [-v kkoala] by im.bitlbee.org
+01:24 <@chenwj> ppc52776: 我太傷心了
+01:25 <@chenwj> ppc52776: /dev/root 它會自動改回 ro
+01:26 < ppc52776> chenwj: fstab 沒有寫好吧 qq
+01:27 <@chenwj> ppc52776: /dev/root       /              ext2     rw,noauto         0      1
+01:29 < ppc52776> chenwj: 看起來對
+01:29 < ppc52776> chenwj: 再不然~在開完機最後寫 mount 的動作去改吧
+01:29 < ppc52776> chenwj: 可能他沒寫好
+01:30 <@chenwj> ppc52776: anyway 我先看能不能 tar  成功
+14:04 <@chenwj> ppc52776: 那我這邊在編 kernel 需要加什麼選項嗎?
+14:04 <@chenwj> ppc52776: 如果拿 pandaboard 的 rootfs
+14:05 < ppc52776> chenwj: 不用
+14:05 -!- ServerMode/&bitlbee [+v Jin-Hsin] by im.bitlbee.org
+14:06 -!- ServerMode/&bitlbee [-v tychou] by im.bitlbee.org
+14:06 < ppc52776> chenwj: 對了~為什麼會說開機太快阿@@?
+14:06 <@chenwj> ppc52776: 它想要測開機時間
+14:07 < ppc52776> chenwj: 光跑 kernel 應該就需要2-3秒
+14:07 < ppc52776> chenwj: 他預期這邊要多久??
+14:08 <@chenwj> ppc52776: 他是看 transmeta paper 的測試
+14:08 -!- ServerMode/&bitlbee [+v lkkbie] by im.bitlbee.org
+14:08 <@chenwj> ppc52776: 那邊好像是測 windows bootup
+14:08 < ppc52776> chenwj: 那包含啟動 GUI 等等
+14:08 < ppc52776> chenwj: 應該會需要30秒以上
+14:09 -!- ServerMode/&bitlbee [-v lkkbie] by im.bitlbee.org
+14:09 -!- ServerMode/&bitlbee [+v lkkbie] by im.bitlbee.org
+14:09 <@chenwj> ppc52776: qemu 吃 partclone?
+14:09 < ppc52776> chenwj: 不能~需還原成一般 image
+14:10 -!- ServerMode/&bitlbee [+v lovingpluto] by im.bitlbee.org
+14:12 <@chenwj> ppc52776: 你能幫我把 sdcard 丟到網路上去嗎? 我的 vm 用的 ip 10.0.2.15 好像不能傳到 server 上
+14:12 -!- ServerMode/&bitlbee [+v tychou] by im.bitlbee.org
+14:12 -!- ServerMode/&bitlbee [+v kkoala] by im.bitlbee.org
+14:13 < ppc52776> chenwj: 用 scp 丟不上去@@?
+14:13 <@chenwj> ppc52776: rootfs-btrfs.partclone: Permission denied
+14:13 <@chenwj> ppc52776:  scp rootfs-btrfs.partclone 140.109.22.163:~/tmp/
+14:13 <@chenwj> ppc52776: 我這樣丟
+14:13 <@chenwj> ppc52776: ip 10.0.2.15 這樣也可以丟?
+14:14 < ppc52776> chenwj: 不管什麼 ip 都可以丟@@"
+14:15 < ppc52776> chenwj: 是 local vm deny ?
+14:15 <@chenwj> ppc52776: ?
+14:15 <@chenwj> ppc52776: 你是說我的 vm 自己檔掉了?
+14:15 < ppc52776> chenwj: 你可以 file 那個檔案嘛?
+14:16 <@chenwj> ppc52776: rootfs-btrfs.partclone: regular file, no read permission
+14:16 <@chenwj> ppc52776: ...
+14:16 < ppc52776> chenwj: ....
+14:17 <@chenwj> ppc52776: 權限問題
+14:17 < ppc52776> chenwj: 是阿~你本機沒有讀取那個檔案的權限..
+14:17 -!- ServerMode/&bitlbee [-v kkoala] by im.bitlbee.org
+14:18 -!- ServerMode/&bitlbee [+v yeherics] by im.bitlbee.org
+14:18 <@chenwj> ppc52776: partclone to ext2 也是用 partclone tool 轉?
+14:18 < ppc52776> chenwj: 恩
+14:21 <@chenwj> ppc52776: 看起來是要用 btrfs-convert -r 轉回去
+14:22 < ppc52776> chenwj: 他的 kernel 只吃 ext ?
+14:23 -!- ServerMode/&bitlbee [-v superrednew] by im.bitlbee.org
+14:23 -!- ServerMode/&bitlbee [+v lwhsu] by im.bitlbee.org
+14:23 -!- ServerMode/&bitlbee [-v yulongkuo] by im.bitlbee.org
+14:23 -!- ServerMode/&bitlbee [+v yulongkuo] by im.bitlbee.org
+14:23 -!- ServerMode/&bitlbee [-v yulongkuo] by im.bitlbee.org
+14:24 <@chenwj> ppc52776: buildroot 那邊沒看到 btrfs
+14:24 < ppc52776> chenwj: 恩
+14:24 <@chenwj> ppc52776: 但是有其它的
+14:24 < ppc52776> chenwj: 那需要轉回來 ext
+14:26 -!- ServerMode/&bitlbee [-v kkoala] by im.bitlbee.org
+14:27 -!- ServerMode/&bitlbee [-v sugou] by im.bitlbee.org
+14:27 -!- ServerMode/&bitlbee [+v yulongkuo] by im.bitlbee.org
+14:28 -!- ServerMode/&bitlbee [-v lwhsu] by im.bitlbee.org
+14:30 -!- ServerMode/&bitlbee [+v lightbulb01] by im.bitlbee.org
+14:30 -!- ServerMode/&bitlbee [-v lkkbie] by im.bitlbee.org
+14:30 -!- ServerMode/&bitlbee [-v yeherics] by im.bitlbee.org
+14:31 -!- ServerMode/&bitlbee [+v kkoala] by im.bitlbee.org
+14:32 -!- ServerMode/&bitlbee [-v yulongkuo] by im.bitlbee.org
+14:32 -!- ServerMode/&bitlbee [+v yulongkuo] by im.bitlbee.org
+14:32 -!- ServerMode/&bitlbee [-v yulongkuo] by im.bitlbee.org
+14:32 -!- ServerMode/&bitlbee [+v yulongkuo] by im.bitlbee.org
+14:33 -!- ServerMode/&bitlbee [+v lkkbie] by im.bitlbee.org
+14:34 -!- ServerMode/&bitlbee [-v yulongkuo] by im.bitlbee.org
+14:34 -!- ServerMode/&bitlbee [+v yulongkuo] by im.bitlbee.org
+14:34 <@chenwj> ppc52776: ㄜ... 我們原來裝 ubuntu 是 ext4
+14:34 <@chenwj> ppc52776: btrfs-convert -r 只能還原成 ext2
+14:35 -!- ServerMode/&bitlbee [-v yulongkuo] by im.bitlbee.org
+14:35 < ppc52776> chenwj: 如果你是拿官方的 image 他安裝完會是 ext4
+14:35 -!- ServerMode/&bitlbee [+v yulongkuo] by im.bitlbee.org
+14:35 < ppc52776> chenwj: ext2/3 差別是 journal , 再打開就好了
+14:36 <@chenwj> ppc52776: $ sudo btrfs-convert -r /dev/sdb2
+14:36 <@chenwj> ppc52776: btrfs-convert: volumes.c:966: btrfs_map_block: Assertion `!(!ce)' failed.
+14:36 -!- ServerMode/&bitlbee [-v yulongkuo] by im.bitlbee.org
+14:36 -!- ServerMode/&bitlbee [+v yulongkuo] by im.bitlbee.org
+14:37 -!- ServerMode/&bitlbee [-v yulongkuo] by im.bitlbee.org
+14:37 < ppc52776> chenwj: 好像 image 有問題, btrfs 還沒提供 fsck tool orz
+14:37 < ppc52776> chenwj: 改用 cp 的方式把檔案拿出來吧
+14:37 <@chenwj> ppc52776: cp? 你是說先 mount /dev/sdb2 /mnt/tmp 再把 /mnt/tmp cp 出來ˊ?
+14:37 -!- ServerMode/&bitlbee [+v yulongkuo] by im.bitlbee.org
+14:38 < ppc52776> chenwj: 恩
+14:40 -!- ServerMode/&bitlbee [+v albert361] by im.bitlbee.org
+14:43 -!- ServerMode/&bitlbee [-v herotsai] by im.bitlbee.org
+14:43 -!- ServerMode/&bitlbee [+v yeherics] by im.bitlbee.org
+14:44 -!- ServerMode/&bitlbee [+v herotsai] by im.bitlbee.org
+14:52 -!- ServerMode/&bitlbee [-v lightbulb01] by im.bitlbee.org
+14:53 -!- ServerMode/&bitlbee [+v superrednew] by im.bitlbee.org
+14:57 <@chenwj> ppc52776: cp 出來了，要用什麼工具把這些 dir 包成 ext2?
+14:57 < ppc52776> chenwj: genext2fs
+16:31 <@chenwj> ppc52776: casn 是哪一篇 paper?
+16:32 < ppc52776> chenwj: A practical Multi-word compare-and-swap operation
+16:35 -!- ServerMode/&bitlbee [+v lightbulb01] by im.bitlbee.org
+16:35 -!- ServerMode/&bitlbee [+v superrednew] by im.bitlbee.org
+16:37 -!- ServerMode/&bitlbee [-v yulongkuo] by im.bitlbee.org
+16:37 <@chenwj> ppc52776: 我晚點來看看這一篇 paper
+16:37 -!- ServerMode/&bitlbee [+v yulongkuo] by im.bitlbee.org
+16:38 -!- ServerMode/&bitlbee [-v yulongkuo] by im.bitlbee.org
+16:38 <@chenwj> ppc52776: $ sudo genext2fs -D dev_file.txt -d tmp/ ext2fs -> genext2fs: too few blocks.
+16:39 <@chenwj> ppc52776: genext2fs 有一個 -b 的選項，這有關係嗎?
+16:40 -!- ServerMode/&bitlbee [+v yulongkuo] by im.bitlbee.org
+16:40 -!- ServerMode/&bitlbee [-v yulongkuo] by im.bitlbee.org
+16:41 -!- ServerMode/&bitlbee [+v yulongkuo] by im.bitlbee.org
+16:41 -!- ServerMode/&bitlbee [-v yulongkuo] by im.bitlbee.org
+16:41 -!- ServerMode/&bitlbee [+v lovingpluto] by im.bitlbee.org
+16:41 -!- ServerMode/&bitlbee [+v yulongkuo] by im.bitlbee.org
+16:41 < ppc52776> chenwj: 需要
+16:42 < ppc52776> chenwj: 看他的 script 需要 -N 和 -b
+16:42 < ppc52776> chenwj: 或是要不要直接用他的 script ?
+16:42 < ppc52776> chenwj: fs/ext2/genext2fs.sh -d buildroot/output/target  buildroot/output/images/rootfs.ext2
+16:43 <@chenwj> ppc52776: 哪裡的 script? 我這邊裝起來只有看到 command
+16:43 < ppc52776> chenwj: buildroot 裏面的
+16:44 <@chenwj> ppc52776: 我看看
+16:44 <@chenwj> ppc52776: 他也可以打包我 mount 上的 rootfs?
+16:45 < ppc52776> chenwj: 恩~他只是幫忙計算需要的 block 和 nodes 數量
+16:46 <@chenwj> ppc52776: ok~
+16:46 <@chenwj> ppc52776: genext2fs: not enough memory for filesystem
+16:47 <@chenwj> ppc52776: vm mem 不夠?
+16:48 < ppc52776> chenwj: 你給多少 mem ?
+16:49 <@chenwj> ppc52776: 512 maybe
+16:49 < ppc52776> chenwj: 突然想到~你再你的 vm 上~可以直接 mount ext image 好像會比那個工具快
+16:49 <@chenwj> ppc52776: 什麼意思
+16:49 <@chenwj> ppc52776: 我現在 /mnt/tmp 有 rootfs
+16:50 < ppc52776> chenwj: truncate --size 5G rootfs.ext4
+16:50 < ppc52776> chenwj: mkfs.ext4 -F rootfs.ext4
+16:50 < ppc52776> chenwj: mount rootfs.ext4 /mnt/newroot -o loop
+16:51 < ppc52776> chenwj: cp  -a /mnt/tmp/* /mnt/newroot
+16:51 < ppc52776> chenwj: umount /mnt/newroot
+16:51 < ppc52776> chenwj: 就會有 ext4 disk image
+16:51 <@chenwj> ppc52776: qq 我給他儘量多的 mem 還是不行，改試你的
+16:52 <@chenwj> ppc52776: mkfs.ext2 就做成 ext2?
+16:52 < ppc52776> chenwj: 是低
+16:52 <@chenwj> ppc52776: good
+16:52 < ppc52776> chenwj: :p

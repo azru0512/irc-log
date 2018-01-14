@@ -1,0 +1,10 @@
+21:49 < chenwj_> baldrick: is "-O3 -msse2 -mfpmath=sse" enough to generate sse instruction?
+21:50 <@baldrick> chenwj_: I don't think any LLVM frontends pay attention to -mfpmath
+21:50 <@baldrick> so "yes"
+21:51 < chenwj_> I am talking about gcc option, since you're familar with it, so :p
+21:55 < chenwj_> if I add "-fno-strict-aliasing", does it help to generate sse?
+21:59 <@baldrick> chenwj_: no
+22:00 <@baldrick> that only disables optimizations
+22:00 < chenwj_> thanks
+22:04 <@baldrick> chenwj_: I somehow have the feeling that you want SSE instructions but aren't getting them...
+22:04 < chenwj_> baldrick: ya :)

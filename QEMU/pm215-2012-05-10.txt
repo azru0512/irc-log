@@ -1,0 +1,26 @@
+19:40 < chenwj> pm215: __stl_mmu means guest cpu write to memory, but doesn't io_writel mean it's mmio?
+19:43 < pm215> io_writel doesn't exist in current qemu and I'm not about to dig up an ancient qemu to look for it...
+19:43 < kwolf> mjt: So the article the Bugzilla report refers to is talking about some RHEL 6, but it doesn't say the exact version. I suspect that it is <
+               6.2, which backported the Qcow2Cache.
+19:43 < chenwj> pm215: ok, my fault. I'll see git head.
+19:44 < pm215> but you can deduce we can't only be dealing with mmio because we don't generate TBs for mmio regions
+19:44 < pm215> it probably means "we couldn't take the fast path of just writing straight to RAM inline"
+19:44 < mjt> elmarco: ping?
+19:44 < pm215> which applies to mmio but also to some other cases like this one
+19:59 < chenwj> pm215: fwiw, io_writel exist in current qemu. The flow is quit the same.
+20:03 < pm215> chenwj: 'git grep -w io_writel' returns no results for me
+20:03 < chenwj> o.o
+20:03 < pm215> oh, is it one of those where we glue the function name together with the c preprocessor?
+20:03 < chenwj> it's a glue
+20:03 < chenwj> ya
+20:06 < chenwj> it begins from __st_mmu (softmmu_template.h)'s IO access branch, which make me confuse
+20:06 < pm215> yeah, this just means we've taken the slow path, which is usually but not always IO
+20:06 < chenwj> that branch doen't always mean IO?
+20:09 < pm215> no, it just means it's something we can't treat as pure RAM
+20:09 < chenwj> besides mmio, it could be?
+20:10 < pm215> for instance, the case you have, where we need to catch writes to memory with code in it
+20:10 < chenwj> ok, the memory contains code isn't pure RAM?
+20:11 < pm215> no, because otherwise we would not be able to update our tb cache when the guest executable wrote to it
+20:11 < chenwj> hmmm, I don't know that :)
+20:13 < chenwj> so let me rephase it, read-only mem (for example, text section) doesn't count as pure ram?
+20:15 < pm215> I would expect that to take the fast path for reads and slow path for writes, but I haven't looked at the code

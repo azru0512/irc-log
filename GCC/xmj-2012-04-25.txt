@@ -1,0 +1,112 @@
+11:27 <@yao> liuyq, “有一个地方写错了” <-- 哪个地方写错
+11:28 < liuyq> yao, 回信了
+11:32  * yao hasn't seen it in inbox
+11:35 < xmj> yao, 是因为liuyq回复的邮箱，没有订阅邮件列表，所以，不能直接发出。
+11:35 <@yao> 我现在已经受到了
+11:36 < xmj> freelist不接收未订阅的邮箱。是因为系统给我发���封邮件，我手动通过的。:-)
+11:36  * yao 没有看出来 那个 sed 命令 前后有什么区别 :(
+11:36 <@yao> 很像一个游戏 :)
+11:37 < xmj> sed少了一个&
+11:38 <@yao> 哦，看到了
+11:38 <@yao> xmj has a good eyesight
+11:41 < xmj> 这种方法，直接改头文件
+11:41 <@yao> 为啥要改头文件呢？
+11:41 <@yao> 现在gcc 不都是 可以 out-of-box build 吗
+11:42 < xmj> 啥叫out-of-box？
+11:42 <@yao> 在stage 2的时候，每个port的那部分 编译了吗
+11:42 <@yao> out of box 就是 开箱即用
+11:42 <@yao> :)
+11:43 <@yao> 不用做什么修改，调整，就可以使用
+11:43 < xmj> 恩，应该不需要调整
+11:43 <@yao> 在stage 2的时候，每个port的那部分 编译了吗
+11:44 <@yao> 还是说 port的部分，是在stage 3 编译的
+11:45 < liuyq> 你们不能收到我的信件吗？我应该是已经订阅了的啊
+11:45 <@yao> your subscription is your gmail account,
+11:46 < liuyq> 我现在可以接收你们的邮件的，像刚才你发的那个“一个用KGTP分析应用程序性能瓶颈的例子”就可以收到
+11:46 < liuyq> yao, 有什么区别？
+11:46 < xmj> 这个sed的作用是将 “/lib64?32?/ld” 改成 "/tools/lib64?32?/ld"
+11:47 < liuyq> 是的
+11:47 < xmj> 即修改了路径
+11:47 <@yao> 你只能用gmail 接受 mail from hellogcc list
+11:47 <@yao> 但是你刚才的有邮件不是用 你的gmail发出来的
+11:48 < liuyq> 另外，我的错误是后面的文件$file.org是不存在的，实际上应该是$file.orig
+11:49 <@yao> 另外，你是build native toolchain是吧
+11:49 < liuyq> yao,你们只是限制了gmail的邮件地址吗，刚才忘了改了，那个是我公司的邮箱
+11:49 < liuyq> yao, 不太理解build native toolchain
+11:50 <@yao> liuyq, 你只能用
+11:50 < chenwj_> liuyq: 你發信要用你當時註冊的 address
+11:50 < liuyq> 我是按照lfs文档做的
+11:50 <@yao> subscribe 的邮箱
+11:50 <@yao> what is `lfs'
+11:50 < chenwj_> linux fundation sw?
+11:50 < liuyq> 知道了，我下次发信的时候注意改一下邮箱
+11:51 < liuyq> http://www.linuxfromscratch.org/lfs/
+11:51 <@yao> 你是build 了一个在x86上用的，生成x86代码的gcc吗？
+11:52 < liuyq> xmj, 谢谢帮忙修改，我以后注意使用gmail的邮箱：）
+11:52 < liuyq> yao, 是的
+11:55 <@yao> google imap is quite slow
+13:25 < xmj> liuyq: 我有些那个sed命令是否起了作用。你可以cmp一下$file和$file.orig，看看是不是除了最后添加的几个宏以外，没有变化。
+13:25 < xmj> 有些怀疑
+13:26 < liuyq> xmj, 起作用了
+13:26 < xmj> 我在4.6.1里搜了下，没有找到匹配的行
+13:26 < liuyq> 我昨天晚上改成正确的，已经可以编译通过，并能编译简单的helloworld的c文件了
+13:27 < liuyq> 等等，我下载一个看一下啊
+13:27 < xmj> 恩，我的意思是，不执行那个sed也没问题。
+13:27 < xmj> 除非，你这个gcc是修改后的源码包。
+13:35 < liuyq> 应该不是修改过的。如果不执行那个sed语句，怎么让这次编译的gcc使用前面已经编译出来的库，在configure或者make的时候指定吗？
+13:37 < xmj> gcc应该可以自己找到
+13:38 < xmj> #define STANDARD_INCLUDE_DIR 0
+13:38 < xmj> 这个宏把gcc的标准头文件路径去掉了
+13:39 < xmj> 这个脚本看起来是对gcc的路径做了些修改。
+13:40 < liuyq> 下面是为什么做的解释：
+13:40 < liuyq> The following command will change the location of GCC's default dynamic linker to use the one installed in /tools.
+13:40 < liuyq> It also removes /usr/include from GCC's include search path. Doing this now rather than adjusting the specs
+13:40 < liuyq> file after installation ensures that the new dynamic linker is used during the actual build of GCC. That is, all of the
+13:40 < liuyq> binaries created during the build will link against the new Glibc. Issue:
+13:41 < xmj> 恩，是这个意思。
+13:41 < xmj> 改的是gcc的SPEC。
+13:42 < liuyq> 那么，你也同意是需要做那些sed语句了
+13:42 < liuyq> 我不是很清楚这里的修改specs文件是指修改哪些，你知道吗？
+13:43 < xmj> 恩。它是为了使用新的c库和动态链接器
+13:44 < xmj> SPEC就是类似这样的字符串
+13:44 < xmj> #define ASM_SPEC \
+13:44 < xmj>   "--32 %{!mno-sse2avx:%{mavx:-msse2avx}} %{msse2avx:%{!mavx:-msse2avx}}"
+13:45 < xmj> gcc是一个driver，通过解析这些字符串，来调用其它工具，传递参数
+13:45 < liuyq> 刚看到这里还有对那段sed的解释。
+13:45 < liuyq> In case the above seems hard to follow, let's break it down a bit. First we find all the files under the gcc/config
+13:45 < liuyq> directory that are named either linux.h, linux64.h or sysv4.h. For each file found, we copy it to a file of the
+13:45 < liuyq> same name but with an added suffix of �.orig�. Then the first sed expression prepends �/tools� to every instance of
+13:45 < liuyq> �/lib/ld�, �/lib64/ld� or �/lib32/ld�, while the second one replaces hard-coded instances of �/usr�. Then we add our
+13:45 < liuyq> define statements which alter the include search path and the default startfile prefix to the end of the file. Finally, we
+13:45 < liuyq> use touch to update the timestamp on the copied files. When used in conjunction with cp -u, this prevents unexpected
+13:45 < liuyq> changes to the original files in case the commands are inadvertently run twice.
+13:46 < xmj> 以前gcc会把spec文件安装到安装路径下，现在不再安装了，而是在内部存在。
+13:47 < liuyq> 内部存在是指在编译的目录中存在是吗？
+13:47 < xmj> gcc程序里
+13:48 < liuyq> 你是说编译好的gcc二进制文件中？
+13:48 < xmj> 不过，可以dump出来。$ gcc -dumpspecs
+13:48 < xmj> 是的
+13:48 < xmj> 是的
+13:49 < xmj> 还可以指定用外部的spec，
+13:49 < xmj> -specs=<file>            Override built-in specs with the contents of <file>
+13:49 < liuyq> 原来有gcc程序和specs两个（两类）文件会被安装，现在只有一个gcc程序，是这样吗，我的理解对吗
+13:50 < xmj> 恩
+13:51 < liuyq> 那你理解他为什么用修改文件而不是用调整specs文件的做法了吗？
+13:52 < xmj> 就是这句话：
+13:52 < xmj> Doing this now rather than adjusting the specs 01:41:15 PM
+13:52 < xmj> file after installation ensures that the new dynamic linker is used during the actual build of GCC. That is, all of the 01:41:15 PM
+13:52 < xmj> binaries created during the build will link against the new Glibc. Issue:
+13:53 < liuyq> 使用specs不能做到吗，按你上面的解释我理解是也可以做到的啊
+13:54 < xmj> 那样的话，需要编好gcc之后。这个过程中，用到的动态链接器就不是新的了。
+13:55 < xmj> 比如一些库
+13:57 < liuyq> 刚才在4.6.2的文件中搜了一下，下面的文件中包含那些/lib/ld的字符串
+13:57 < liuyq> http://paste.ubuntu.com/945182/
+13:58 < liuyq> 那个sed语句应该起作用的，我昨天改了之后确认了一下，修改后会变成/tools/lib/ld的样子的
+13:59 < xmj> 恩
+13:59  * xmj -> away
+16:55 < chenwj_> xmj: 上面 gcc spec 的討論讓我獲益良多 :)
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+16:55 < xmj> 还有那个sed，to me
+16:59 < chenwj_> gcc -dumpspecs 會列出 compile 會用到參數?
+17:00 < xmj> 是gcc传递给其它命令的参数。
+17:01 < chenwj_> 恩

@@ -1,0 +1,51 @@
+15:54 < zruan0> hello, mmio in kvm is used to emulated devices, right?
+16:24 < zruan0> hello, I have a question.
+16:25 < zruan0> how can kvm use mmio to make an IO operation request to qemu?
+16:26 < zruan0> If mmio is not mapped well for guest, so a page fault should be issued while guest accessing devices, but how kvm will handle this fault and
+                then make a io request to qemu?
+16:27 < zruan0> agraf: Could you help me?
+16:29 < stefanha> zruan0: When an guest MMIO access causes a faul ioctl(fd, KVM_RUN) will return back to userspace.
+16:29 < stefanha> Then QEMU figures out which device needs to handle the MMIO access and emulates it.
+16:31 < zruan0> stefanha: Great! but I am interested in how qemu to detect which device operation should be made? Will it make another ioctl call to
+                cumulate info about this?
+16:31 < stefanha> zruan0: QEMU has a device tree, it knows which memory regions belong to which device.
+16:31 < stefanha> So QEMU does the guest physical address -> device memory region lookup,
+16:31 < stefanha> it doesn't need to ask kvm.ko for help.
+16:32 < stefanha> Then it just calls in to the emulated device's memory access function.
+16:32 < stefanha> zruan0: Look at hw/e1000.c or many other MMIO devices and you'll find the memory region and callback functions.
+16:34 < zruan0> stefanha: See! but I think when ioctl (fd, KVM_RUN) back to userspace, at least gpa should be known by Qemu, how does qemu know it?
+16:35 < stefanha> zruan0: git grep KVM_RUN
+16:35 < stefanha> Read the code
+16:36 < chenwj> stefanha: you here!
+16:49 < zruan0> stefanha: You mean searching qemu git repo?
+16:49 < zruan0> instead of kvm git repo?
+16:50 < chenwj> zruan0: qemu issue KVM_RUN, not kvm
+16:54 < zruan0> I am cloning qemu-kvm git repo now. :-)
+16:55 < chenwj> stefanha: I am reading your blog http://blog.vmsplice.net/2011/03/qemu-internals-overall-architecture-and.html
+16:56 < zruan0> stefanha: but I am confused about that ioctl (fd, KVM_RUN) should issue an ioctl call to a vcpu in kvm, but I don't see it returns with any
+                info to contain gpa info.
+16:56 < chenwj> why you think it should return gpa?
+16:58 < chenwj> zruan0: I am reading your question above... are you asking how kvm pass guest mmio request to qemu?
+16:59 < zruan0> I just guess it should be. A page fault occurs because of unmapped MMIO, then back to qemu, so qemu should know the gpa to look up which
+                device should be emulated.
+16:59 < zruan0> chenwj: yes, you said it.
+16:59 < chenwj> zruan0: oh, then you should look kvm
+16:59 < chenwj> zruan0: cd arch/x86/kvm; grep KVM_EXIT_MMIO *
+17:00 < stefanha> zruan0: Look at the code and you'll see how it gets the address.  Either kvm.ko or qemu.git will show you how it works.
+17:00 < zruan0> chenwj: i am looking at kvm now.
+17:01 < chenwj> zruan0: you will see something like,
+17:01 < chenwj>   gpa = vcpu->mmio_fragments[0].gpa;
+17:01 < chenwj>   vcpu->run->mmio.phys_addr = gpa;
+17:02 < chenwj> then it will return to QEMU, QEMU then get mmio info from kvm_run (vcpu->run) here
+17:03 < chenwj> then everthing goes like stefanha said, "So QEMU does the guest physical address -> device memory region lookup" ...
+17:35 < zruan0> chenwj: I finally got some clues..
+17:35 < zruan0> :-)
+18:12 -!- ram__ is now known as ram_p_away
+18:31 < zruan0> chenwj: I got what you said, Thanks!
+18:31 < zruan0> stefanha: thank you for your help! :-)
+19:08 < yossarianuk> hi - has anyone else reported the seabios/grub looping issue when rebooting from a Centos6.3 guest ?
+19:08 < yossarianuk> I have 2 bug reports
+19:08 < yossarianuk> https://bugs.launchpad.net/centos/+bug/1025188
+19:08 < yossarianuk> http://bugs.centos.org/view.php?id=5841
+19:08 < yossarianuk> and a vid showing the issue - https://launchpadlibrarian.net/110374291/out.ogv
+20:00 < chenwj> zruan0: cool!

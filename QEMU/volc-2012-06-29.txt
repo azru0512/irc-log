@@ -1,0 +1,19 @@
+21:29 < volc> Hi, I'd like to boot qemu from a usb stick to install a qemu guest (rather than boot from cdrom) how do I do this?
+21:30 < chenwj> I don't think qemu support boot from usb
+21:31 < chenwj> at least from the --help message
+21:31 < chenwj> 'drives': floppy (a), hard disk (c), CD-ROM (d), network (n)
+21:32 < chenwj> but I am not 100% sure
+21:33 < volc> thanks, there were a few search results on doing it, but they didn't seem to work/ be current/clear
+21:33 < chenwj> may I have the links you found?
+21:33 < chenwj> just want to take a look
+21:34 < volc> one describes finding the /dev/sd* of the usb and specifying it with -hda
+21:35 < volc> I'll dig the links out
+21:35 < volc> http://superuser.com/questions/395081/test-usb-booting-capabilities-with-qemu-under-linux
+21:37 < volc> http://reboot.pro/9688/
+21:38 < kwolf> Try -boot menu=on, then you should be able to select it in the SeaBIOS boot menu
+21:43 < volc> kwolf, I'm not seeing the usb stick in the boot menu at the moment, I'll look at the usb options
+21:47 < volc> kwolf, Thanks that did it with: qemu-system-x86_64 -boot menu=on -m 512 -usb -usbdevice host:125f:312a install.img
+21:48 < iggy> volc: what version of qemu?
+21:48 < volc> where 125f:312a is the vendor id:product id
+21:49 < volc> 1.0
+21:49 < volc> (ubuntu precise)

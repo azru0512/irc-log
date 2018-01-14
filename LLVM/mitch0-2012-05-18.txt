@@ -1,0 +1,39 @@
+15:39 < mitch0> { char buf[100]; float *p = reinterpret_cast<float*>(buf); *p = 1; } // does this code break strict-aliasing rules?
+15:44 < JamesM_> I'd have thought so
+15:45 < JamesM_> although my strict-aliasing language-lawyver-fu is weak
+15:45 < TechnoMancer> is there anywhere that clearly explains what the strict aliasing rules are except the spec?
+15:47 < mitch0> techno: I'm knee-deep in the internets trying to find it. If I find something worthwhile, I'll let you know ;)
+15:47 < TechnoMancer> thankyou
+15:47 < chenwj> mitch0: http://stackoverflow.com/questions/98650/what-is-the-strict-aliasing-rule
+15:47 < chenwj> mitch0: this one?
+15:47 < JamesM_> mitch0: According to my interpretation of the spec, that breaks strict-aliasing.
+15:48 < mitch0> chenwj: thanks, I'll read that too
+15:48 < JamesM_> mitch0: it'd be fine if you declared buf as float buf[], then reinterpret-casted to char*(
+15:48 < mitch0> hm
+15:48 < JamesM_> because "character type" has an exception in the aliasing rules (6.5 clause 7 exception 6)
+15:49 < mitch0> james: yes, but I kinda thought that applies vice-versa
+15:49 < JamesM_> not according to the spec I'm reading
+15:49 < JamesM_> it's conversion *To* character type that's fine
+15:50 < mitch0> chenwj: unfortunately that SO answer gives an example with int* buf instead of char*...
+15:51 < mitch0> I wonder what's the correct way to create/use a buffer for "unknown" types is then...
+15:52 < chenwj> Its always assumed that char* aliases other types
+15:52 < chenwj> I quote from the stackoverflow...
+15:52 < JamesM_> mitch0: there's an exception for conversion to " an aggregate or union type that includes one of the aformentioned type..."
+15:52 < JamesM_> mitch0: so convert to union u{float, char}*
+15:53 < JamesM_> mitch0: so convert to union u{float, char[4]}*
+15:53 < mitch0> can't really do that...
+15:54 < JamesM_> why not?
+15:54 < mitch0> the example is a bit lengthy, but basically I'm trying to "build" a vertexdata element with a template, and the "storage" part is a char[]
+                buf, which doesn't know the real types sitting in it. but I guess this will not work out after all...
+15:55 < JamesM_> or turn off strict aliasing?
+15:56 < scoopr> I'm quilty of doing excatly that with casting pointer types :P
+15:56 < mitch0> well, I could make the typed-accessors copy stuff from/to the buffer but that's kinda fugly
+15:56 < scoopr> though sometimes I've had underlying struct type for the vertex format
+15:57 < mitch0> scoopr: yeah, that's another approach, but then it's not trivial to enforce a "packed" representation
+15:57 < mitch0> but I guess I'll do that anyway. my Tuple is almost ready for that ;)
+15:58 < scoopr> I've had assert( sizeof(T) == vertexDeclaration.bytes() );  or so
+15:58 < scoopr> but I think I had only floats so no aligment issues..
+16:27 < mitch0> alrighty, I'm at peace with strict-aliasing now. happy happy joy joy
+16:30 < chenwj> mitch0: problem solved?
+16:41 < mitch0> sorta. I'll ditch my current VertexData template ;)
+16:42 < mitch0> but at least now I understand why it is wrong

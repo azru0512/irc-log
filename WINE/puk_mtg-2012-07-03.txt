@@ -1,0 +1,29 @@
+21:08 < chenwj> hi, all
+21:08 < chenwj> in http://www.winehq.org/docs/winedev-guide/c2722
+21:08 < chenwj> it mentions loader/glibc.c, but I don't find it in the source
+21:09 < chenwj> I guess the wiki should be updated?
+21:24 <@puk_mtg> chenwj: that doc is in desperate need for an update
+21:27 < chenwj> I guess it should be "You can find this code in "loader/preloader.c"?
+21:27 < chenwj> do I need register or something so that I can edit the page?
+21:29 <@puk_mtg> chenwj: http://source.winehq.org/git/
+21:29 <@puk_mtg> docs.git
+21:30 < chenwj> then send patch to ML?
+21:30 <@puk_mtg> wine-patches@redhat.com
+21:30 <@puk_mtg> yes
+21:31 < nsivov_> hm
+21:31 < chenwj> ok, thanks
+21:31 <@puk_mtg> http://wiki.winehq.org/GitWine
+21:32 <@puk_mtg> damn wrong one
+21:32 <@puk_mtg> http://wiki.winehq.org/SubmittingPatches
+21:32 < chenwj> puk_mtg: got it :)
+21:33 < Mystral> wine-patches@winehq.org probably works better ;)
+21:33 <@puk_mtg> lol
+21:33 <@puk_mtg> chenwj: what Mystral says
+21:33 <@puk_mtg> damn fingers automatically completing the email address
+21:33 <@puk_mtg> ;)
+21:33 < Mystral> hehe
+21:35 < chenwj> puk_mtg: wine-patches@winehq.org <- so this one?
+21:35 <@puk_mtg> yeah
+21:35 <@puk_mtg> you'll hit moderation if your not subscribed
+21:36 < chenwj> I see
+21:36 <@puk_mtg> chenwj: not an issue, just to account for the delay

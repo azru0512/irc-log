@@ -1,0 +1,34 @@
+13:27 < chenwj> iant: hi
+13:27 < iant> howdy
+13:29 < chenwj> I am wondering why pass_free_cfg is called before passes which can modify the cfg
+13:30 < chenwj> any reason?
+13:30 < iant> those passes do not maintain the CFG data structures
+13:30 < iant> they just modify the insn stream directly
+13:30 < iant> because that is how GCC worked before there was a CFG
+13:30 < iant> Steven Bosscher did a great job pushing the CFG through all the RTL passes
+13:30 < iant> but he didn't try to fix all the different machine_reorg passes
+13:31 < iant> so that is the point where the CFG goes away
+13:31 < chenwj> too hard to maintain CFG through those passes?
+13:31 < iant> maintaining the CFG means adjusting the pass so that it manipulates the CFG rather than the insn stream
+13:31 < chenwj> see
+13:32 < iant> so it would mean working through each of the backends, understanding the reorg pass, and rewriting it accordingly
+13:32 < iant> possible but tedious and difficult
+13:32 < iant> somebody will do it someday
+13:32 < chenwj> :))
+13:32 < chenwj> i see
+13:33 < chenwj> and you said you start with sh in the email
+13:33 < chenwj> what the sh mean?
+13:34 < iant> the Hitachi SH
+13:34 < iant> in gcc/config/sh
+13:36 < chenwj> if I move pass_free_cfg behind, anything bad happened?
+13:41 < iant> I don't know
+13:45 < chenwj> I thought sh means shell, but it seems not
+13:46 < chenwj> it's http://en.wikipedia.org/wiki/SuperH, right?
+13:47 < iant> right
+13:47 < iant> in this case
+13:49 < chenwj> does sh do thing crazy quite often among other backends?
+13:50 < iant> yes
+13:50 < pdox> Hi, I'm trying to compile libstdc++ with a cross-compile in shared library form. Somehow, in the final link, "crti.o" is appearing (with no
+              path), along with other objects,  which are not existent files.
+13:50 < chenwj> that's why you start with it
+13:50 < chenwj> xd

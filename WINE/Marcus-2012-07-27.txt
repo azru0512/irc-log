@@ -1,0 +1,70 @@
+16:15 <@_Marcus_> "fork" is probably a bad example, but most of the others
+16:15 < chenwj> why fork is a bad example?
+15:54 < chenwj> does wine only support windows -> linux, or it also support other OS, too?
+16:05 <@_Marcus_> chenwj: wine also runs on macos and *bsd
+16:05 <@_Marcus_> windows -> macos / windows -> *bsd
+16:06 < chenwj> does that make emulating windows api different?
+16:06 < chenwj> significantly
+16:06 <@_Marcus_> not much. small differences in address space layout
+16:06 <@_Marcus_> and some unix functions, but not significantly
+16:07 < chenwj> so linux, macos and *bsd basically use the same system calls?
+16:11 <@_Marcus_> we use the libc interface, and that is mostly the same between them
+16:12 < chenwj> you mean open, fork those functions provided by libc?
+16:15 <@_Marcus_> "fork" is probably a bad example, but most of the others
+16:15 < chenwj> why fork is a bad example?
+16:16 <@_Marcus_> the Win32 process vs UNIX process management is interesting, fork() is usable, but threading is subtle
+16:16 <@_Marcus_> but we do use fork() too i see, so mark it as "used on all os"
+16:18 < chenwj> iirc, windows treats process and thread as seperate structure, but linux mix them up. do you mean this?
+17:07 <@_Marcus_> chenwj: not really... but we map Win32 processes to UNIX processes (simple) and Win32 threads to pthreads
+17:10 < chenwj> seems if we want to support non-windows target, say macos, the big challenge is implmenting libraries macos app uses, right?
+17:11 <@_Marcus_> you mean MacOS support using Wine?
+17:12 < chenwj> running macos app on linux
+17:12 <@_Marcus_> this will be very much different ;)
+17:12 <@_Marcus_> but linux and macos are more similar than Win32 and Linux ... so threads, processes etc can be directly modeled
+17:13 < chenwj> what do you mean by "very much different"?
+17:15 <@_Marcus_> win32 and linux have different object management, threads and processes ... while macos and linux can be more directly mapped, as MacOS is
+                  basically UNIX underneath
+17:15 < chenwj> so there is a Windows and UNIX-like world!
+17:16 <@_Marcus_> errm, yes.
+17:17 < chenwj> actually what I want to say is running a UNIX-like OS A app on another UNIX-like OS B is much easier than running windows app
+17:18 <@_Marcus_> yes
+17:19 < chenwj> what if the other way around?
+17:19 <@_Marcus_> explain?
+17:20 < chenwj> UNIX-like OSs app running on windows
+17:20 < chenwj> hmmm...
+17:21 < chenwj> we assume those app are not open source
+17:22 < chenwj> so that you won't argue with me that we can use cygwin to compile those app
+17:22 <@_Marcus_> this is similar difficult as Wine I suspect ;)
+17:25 < chenwj> quick question, do you happen to know what server_get_unix_fd does?
+17:26 < chenwj> does windows app (client) use it to send a handle to wineserver, then winserver return a unix fd to the client?
+17:26 <@_Marcus_> yes
+17:26 <@_Marcus_> basically yes.
+17:26 <@_Marcus_> the wineserver manages the handles and keeps track of all the UNIX filedescriptors associated
+17:26 <@_Marcus_> it passes them back and forth from the wine instances
+17:32 < chenwj> I am still not sure I understand how things work in wine. when client call say CreateFile, it get a handle, at the meantime, wineserver
+                creates associated unix fd for that hanndle.
+17:33 < chenwj> latter on, if client works on that handle, it need to ask wineserver to return associated unix fd, then operate on that fd?
+17:33 <@_Marcus_> i think the client creates the fd and pases it to the wineserver, but I would have to read the source
+17:34 <@_Marcus_> but basically yes
+17:45 <@_Marcus_> if you are wondering why we do this via the server is that because the HANDLEs can be duplicated to other processes, and also some handles
+                  are associated names in a global namespace
+17:52 < chenwj> what struct fd (server/fd.c)'s role?
+17:53 <@_Marcus_> it basically manages the fd based server stuff
+17:54 <@_Marcus_> opening, sharing management, polling, umount handling etc
+18:10 < chenwj> ok, send_client_fd (server/request.c) send wineserver side unix fd (corresponding to client handle) to client, client read/write that
+                wineserver side unix fd through socket?
+18:13 <@_Marcus_> no.
+18:14 <@_Marcus_> the client gets the unix socket back rfrom the wineserver via UNIX socket -fd passing, then dsoes read/write itself
+18:17 < chenwj> UNIX socket -fd passing...
+18:19 <@_Marcus_> yes, you can passwd filedescirptors over UNIX domain sockets. little known fact. ;)
+18:19 <@_Marcus_> ... pass filedescriptors ..
+18:20 < chenwj> the fd belong whom, client or wineserver?
+18:21 < chenwj> or it's shared?
+18:27 <@_Marcus_> wineserver manages the lifetime
+18:28 <@_Marcus_> the client basically gets it only for operations (and does some minimal caching)
+18:29 < chenwj> so the owner is wineserver?
+18:31 <@_Marcus_> in a lifetime sense, yes.
+18:32 < chenwj> and it share that fd with client?
+18:35 <@_Marcus_> yes
+18:36 < chenwj> thanks
+18:36 < chenwj> wow, it make me ... you know

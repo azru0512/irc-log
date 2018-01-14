@@ -1,0 +1,13 @@
+16:08 < chenwj> JamesM_: how's your regression test result?
+16:10 < JamesM_> chenwj: check your email
+16:11 < bb-chapuni> build #475 of clang-3stage-cygwin is complete: Success [build successful]  Build details are at
+                    http://bb.pgr.jp/builders/clang-3stage-cygwin/builds/475
+16:11 < JamesM_> chenwj: I'm configuring a build now which will build with that compiler. I think you'd call that a phase 2 build?
+16:12 < chenwj> JamesM_: yes
+16:12 < chenwj> JamesM_: http://people.cs.nctu.edu.tw/~chenwj/tmp/phase3-regression-test.txt <- the phase 3 result is better
+16:12 < chenwj> most failures comes from clang
+16:14 < JamesM_> chenwj: what's phase 3? make check-all with phase 2?
+16:15 < chenwj> JamesM_: use phase 2 to compile clang/llvm again
+16:15 < chenwj> JamesM_: then compare phase2 and phase3 result, iirc
+16:15 < JamesM_> right
+16:15 < JamesM_> phase 2, in progress on my side

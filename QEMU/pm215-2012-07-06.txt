@@ -1,0 +1,66 @@
+17:29 < chenwj> how ARM does syscall, I mean it uses what instruction?
+17:29 < chenwj> if it's swi, I don't see swi in the qemu.log
+17:30 < pm215_> it is SWI, which possibly our disassember may print as SVC
+17:30 < pm215_> (there was a cleanup of the instruction mnemonics in the architecture some time back, but I dunno if our disassembler ever caught up)
+17:31 < chenwj> pm215_: http://pastebin.com/iWAQCDRP <- so this is a syscall?
+17:31 < pm215_> chenwj: yes. syscall number is in r7
+17:32 < pm215_> there is also an older form of syscall interface where the syscall number was passed as the immediate argument to the svc/swi. however any
+                vaguely modern binary should do an SVC 0 and pass the syscall number in r7
+17:33 < chenwj> I see
+17:34 < chenwj> it's good to have ARM expert here ;)
+17:35 < pm215_> arguments are in r0..r5; 64 bit arguments get aligned to an (even,odd) register pair
+17:38 < ChaoRui> svc can enter syscall, when exit syscall, dose it still use svc to change mode ?
+17:39 < chenwj> pm215_: ^^^ I think so, right?
+17:39 < pm215_> what do you mean by 'change mode'
+17:39 < pm215_> ?
+17:39 < ChaoRui> go back to user mode (who call system call)
+17:41 < chenwj> pm215_: x86 has iret when syscall is finished. Does ARM use svc to switch back to user mode?
+17:41 < pm215_> return to user mode is a standard "return from exception"
+17:41 < pm215_> check the ARM ARM for how you can return from an exception
+17:42 < chenwj> ah, so ARM treat syscall as exception?
+17:43 < pm215_> yes. SWI stands for 'software interrupt"
+17:43 < pm215_> http://lxr.linux.no/#linux+v3.4.4/arch/arm/kernel/entry-header.S has the actual kernel code to do return from syscall, in the svc_exit macro
+                (of which there are several versions depending on how you compiled your kernel)
+17:45 < pm215_> (actually I have the mnemonics the wrong way round, SWI was the old style, SVC is the new name)
+17:55 < benh> agraf: I am now :-)
+17:55 < agraf> benh: ah, cool :)
+17:55 < agraf> pm215_: howdy :)
+17:56 < agraf> pm215_: so ben was wondering how arm does instruction decode in the hypervisor
+17:56 < agraf> pm215_: when the guest exits and kvm needs to emulate the instruction in question
+17:56 < benh> pm215_: well, actually, more general question
+17:56 < agraf> pm215_: how does the hv know which instruction got issued?
+17:56 < benh> pm215_: how does kvm access guest virtual addresses (loading the instrution word is one thing, but there's also load/store emulation etc...)
+17:57 < benh> pm215_: do you walk the guest page table ?
+17:57 < benh> the reason I'm asking is bcs that's inherently racy vs. tlb invalidations...
+17:57 < chenwj> doesn't hw mmu walk the page table?
+17:58 < pm215_> so some exits to hypervisor provide enough information (in the "syndrome register") that you don't need to look at the insn to handle them
+17:59 < chenwj> pm215_: does svc_exit macro begin from line 76 to line 89? http://lxr.linux.no/linux+v3.4.4/arch/arm/kernel/entry-header.S
+18:00 < benh> pm215_: ok, I'm more interested by the cases where this doesn't happen or you need to translate a guest VA for other reasons such as emulating
+              a load or store for emulated MMIOs
+18:00 < benh> pm215_: do you have special load/store ops that use the guest context or do you require the hypervisor to walk the guest page table in SW ?
+18:01 < pm215_> I'm pretty sure we just ask the CPU to do it for us, there are hyp mode cp15 ops for "translate this guest address to an IPA"
+18:01 < benh> pm215_: interesting
+18:01 < benh> pm215_: though of course still completely racy if you have HW broadcast TLB shootdown, which I believe you have since v7 right ?
+18:02 < pm215_> and for emulating an MMIO in particular, when we fault on the 2nd stage translation the CPU puts the faulting IPA into the HPFAR so we don't
+                need to translate it
+18:02 < pm215_> NB that I deal mostly with the QEMU side of things. If you have detailed questions about the kernel side you're probably best asking on the
+                kvmarm list : https://lists.cs.columbia.edu/cucslists/listinfo/kvmarm
+18:03 < pm215_> can you give an example of the kind of race you're thinking about?
+18:03 < benh> pm215_: ok, well, my question is more along the lines of
+18:03 < benh> pm215_: there's basically a fundamental assumption done by every OS vs. TLB shootdown
+18:04 < benh> pm215_: which is that after the invalidation is considered "complete", anything that ever used the previous translation is completed (or
+              thrown away)
+18:04 < benh> pm215_: on x86 it's easy, they just wait for the IPIs to complete
+18:04 < benh> pm215_: on powerpc, we have HW broadcast shootdown, so we have a nasty sequence of instructions & barriers to ensure the tlb invalidations
+              have completed on all remote cores
+18:04 < benh> pm215_: including retiring or flushing all instructions that have possibly used the old translation
+18:05 < benh> pm215_: my understanding is that since v7, on ARM, you have a similar HW broadcast, which is synchronized by a barrier or two
+18:05 < benh> pm215_: thus the question, if one CPU shoots a translation
+18:05 < benh> pm215_: and the other CPU uses that translation at the same time to perform a load or store to emulated MMIO (or any other emulated region)
+18:06 < benh> pm215_: in essence, if I understand your description correctly, you have the same race I'm trying to close on powerpc
+18:06 < benh> pm215_: where kvm will do the translation to a guest PA, which will then be passed down to qemu
+18:06 < benh> pm215_: which will perform the actual load or store to guest memory at a latter time
+18:06 < pm215_> possibly. let me find my local kernel guru :-)
+18:06 < benh> pm215_: and this is totally unsynchronized vs the TLB shootdown that happened on the first CPU
+18:06 < benh> pm215_: heh :-) fair enough :-)
+18:07 < benh> thanks btw

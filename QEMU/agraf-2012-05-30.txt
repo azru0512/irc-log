@@ -1,0 +1,62 @@
+18:12 < agraf> chenwj: howdy :)
+18:12 < agraf> chenwj: you got an armada xp, right?
+18:12 < agraf> chenwj: that one is A9 based, so it doesn't have virtualization extensions, no?
+19:05 < chenwj> agraf: no
+19:06 < chenwj> agraf: why ask that?
+19:06 < agraf> chenwj: I'm looking for boxes that'd be useful for OBS
+19:07 < agraf> chenwj: http://build.opensuse.org
+19:07 < chenwj> OBS?
+19:07 < agraf> chenwj: and we basically require virtualization
+19:08 < chenwj> is there any arm product support vitualization?
+19:08 < agraf> chenwj: anything A15 based :)
+19:08 < chenwj> for example?
+19:09 < agraf> chenwj: i.MX 6 IIUC
+19:09 < agraf> chenwj: OMAP5
+19:12 < chenwj> available on the market?
+19:12 < chenwj> seems not
+19:12 < chenwj> This product is intended for high-volume mobile OEMs and ODMs and is not available through distributors. If your company meets this
+                description, please contact your TI sales office
+19:13 < Peetz0r> So with those cpu''s you could emulate an arm device on top of an arm device, and it would not be slow?
+19:13 < Peetz0r> (like intel vt-x on x86?)
+19:14 < ChaoRui> Does A15 support memory virtualization ?
+19:14 < chenwj> I guess so (theoretically)
+19:14 < chenwj> ChaoRui: he
+19:14 < ChaoRui> chenwj: hi
+19:17 < agraf> chenwj: yeah - availablity isn't really great
+19:17 < agraf> ChaoRui: IIUC yes :)
+19:17 < chenwj> cool
+19:17 < agraf> Peetz0r: yeah, that's pretty much what it is :)
+19:17 < Peetz0r> Ah. Nice :)
+19:17 < chenwj> ChaoRui: then we are done the research
+19:18 < Peetz0r> Too bad I don''t have any high-end arm stuff like that
+19:18 < chenwj> agraf: peter might have one, I guess?
+19:18 < agraf> chenwj: I would hope so ;)
+19:18 < Peetz0r> (not like I have high-end x86 stuff, but virtualization extensions are kinda standard on x86)
+19:19 < agraf> chenwj: ah, i.MX 6 is only A9 based, sorry
+19:19 < chenwj> looking for OMAP5
+19:19 < chenwj> TI is pretty fast on this
+19:20 < agraf> chenwj: http://en.wikipedia.org/wiki/ARM_Cortex-A15_MPCore
+19:20 < chenwj> what I should look at?
+19:20 < chenwj> It only says "Hardware virtualization support"
+19:20 < agraf> chenwj: the bottom - Implementations
+19:21 < chenwj> oh
+19:21 < chenwj> Implementations are only expected to sample in 2011, and none are expected to market before 2012 or 2013.
+19:22 < agraf> chenwj: well, TI already showed some OMAP5s back for MWC
+19:22 < chenwj> MWC?
+19:22 < agraf> mobile world congress or so
+19:22 < agraf> chenwj: http://blog.laptopmag.com/texas-instruments-unleashes-dual-core-omap-5-power-at-mobile-world-congress
+19:24 < chenwj> curious, why opensuse need buildbot has virtualization support?
+19:25 < agraf> chenwj: for security reasons
+19:25 < agraf> chenwj: build instances don't have network access for example
+19:25 < chenwj> so the build instance ran in a vm?
+19:25 < agraf> yeah
+19:26 < chenwj> you can run it in qemu lol
+19:30 < agraf> well, that's almost what we do today
+19:30 < agraf> chenwj: https://build.opensuse.org/project/show?project=openSUSE%3AFactory%3AARM
+19:31 < agraf> chenwj: all build jobs are running on x86
+19:51 < chenwj> agraf: are you also at hong kong with peter?
+19:51 < agraf> chenwj: nope :) I'm not affiliated with linaro
+19:52 < chenwj> next week's linuxcon japan?
+19:53 < agraf> chenwj: I don't think I ever managed to go to anywhere in asia for a conference yet ;)
+19:53 < chenwj> you should :p
+19:53 < agraf> heh :)

@@ -1,0 +1,99 @@
+23:17 <chenwj> there?
+23:30 <chapuni64> gotta sleep
+23:30 <chapuni64> how are you!
+23:30 <chenwj> nice!
+23:30 <chenwj> just have dinner with kipping david
+23:31 <chenwj> my friend and I ask he for opinion about llvm workshop
+23:31 <chapuni64> who's he?
+23:32 <chenwj> http://events.linuxfoundation.org/events/collaboration-summit/llvm
+23:33 <chenwj> he is from qualcomm, and invloved in lld developement
+23:33 <chapuni64> aha
+23:34 <chenwj> due to the tight schedule, we might prefer llvm toturial
+23:36 <chapuni64> tutorials for what?
+23:36 <chenwj> llvm/clang
+23:37 <chenwj> well, my friend and I still need to discuss this
+23:37 <chapuni64> I don't understand what I might understand :)
+23:38 <chenwj> ?
+23:39 <chapuni64> umh, ... I'd like to say "I have not checked up the context"
+23:39 <chapuni64> *caught up
+23:39 <chenwj> oh, we were just discussing what form, tutorial/workshop, should be
+23:40 <chapuni64> btw, which language do you guess major in the conference? English, Chinese or Cantonese?
+23:40 <chenwj> english/chinese
+23:41 <chapuni64> yeah
+23:42 <chenwj> or you can say "my english/chinese is poor, please see slide ;)"
+23:42 <chenwj> lol'
+23:42 <chapuni64> always I can ;)
+23:42 <chapuni64> excuse me, gotta sleep, again
+23:43 <chenwj> bye
+23:43 <chapuni64> I might take the topic, ... around global optimization with strong partial evaluation
+23:44 <chenwj> nice
+23:44 <chapuni64> or "runtime optimization (aka non-JIT)"
+23:44 <chapuni64> not sure!
+23:44 <chenwj> :-)
+23:44 <chapuni64> my long-term mission is "Futamura projection"
+23:44 <chenwj> Futamura?
+23:45 <chapuni64> or, generally "how fast compile clang with clang itself by short turn-around"
+23:45 <chapuni64> 二村射影
+23:45 <chenwj> aha
+23:46 <chapuni64> for example, "generate executable "clang -include *.pch"
+23:46 <chapuni64> I forgot my mission for months...
+23:46 <chenwj> too busy?
+23:47 <chapuni64> yeah, I didn't imagine I would become busy with dedicated developer.
+23:47 <chenwj> got payed?
+23:48 <chapuni64> yes. I got funded also for the devmtg
+23:48 <chenwj> that's nice
+23:48 <chapuni64> I have other tasks also for the end customer ;)
+23:48 <chenwj> maybe lauch a open project for your 二村射影 on ml?
+23:49 <chapuni64> I don't think we could focus the futamuraization.
+23:50 <chapuni64> ... we could realize futamurization, if we implemented some key features
+23:50 <chapuni64> hard to describe in English.
+23:50 <chenwj> that's fine
+23:51 <chapuni64> strong global analysis, fast global optimization (with evaluation), memoization, static(but dynamic) code
+                  generation, deoptimization,
+23:51 <chapuni64> for now, I am focusing "how quick we can build clang with clang"
+23:52 <chenwj> what's the bottleneck? linker?
+23:53 <chapuni64> archiver and linker would not occupy so much for now.
+23:53 <chenwj> hrm..
+23:53 <chapuni64> when we could tune one up, linker could be grown up as bottleneck.
+23:54 <chapuni64> other, parallelism in build script,
+23:54 <chapuni64> distributed builder
+23:54 <chapuni64> incremental compilation
+23:54 <chapuni64> you can imagine "our ccache and distcc"
+23:55 <chenwj> can't ccache & distcc be used with clang?
+23:55 <chapuni64> it's mimic. we should provide ccache and distcc with clang-aware architecture
+23:56 <chapuni64> one case, (missing in current ccache),
+23:56 <chapuni64> caching cannot be shared between particular build tree, due to path, example, __FILE__
+23:57 <chapuni64> ccache is not familiar to clang's diagnostics
+23:57 <chapuni64> ccache is not familiar to -emit-llvm
+23:57 <chenwj> we should teach ccache
+23:57 <chapuni64> in contrast, we can take clang as the library
+23:58 <chapuni64> it should be the smartest way to implement our ccache with clang.
+23:58 <chapuni64> in other side, about distcc,
+23:58 <chapuni64> we have "the native crosscompiler"
+23:59 <chenwj> ya
+23:59 <chapuni64> but in fact, none of us is focusing "to generate identical emission among every hosts"
+Day changed to 01 12 2012
+00:00 <chapuni64> googlemen have been trying distributed build system, I know. (seek their blog)
+00:00 <chapuni64> FYI, I am collecting every whole build tree in each build in my buildbot.
+00:01 <chapuni64> to check (and confirm in future) identification among builds. for example, tblgen'ed *.inc(s)
+00:01 <chenwj> what the googlemen blog name?
+00:04 <chapuni64> I forgot keywords...
+00:04 <chenwj> okay
+00:04 <chapuni64> do you think clang can be built within 10 seconds?
+00:05 <chapuni64> I heard chandlerc, 3 minutes. it's fastes I heard.
+00:05 <chapuni64> for me, 6 minutes
+00:06 <chenwj> I don't believe it can be built in 10s
+00:06 <chenwj> the first build?
+00:07 <chapuni64> I assume, from clean without cache
+00:07 <chapuni64> I am sure we could win in future.
+00:08 <chapuni64> ultimately, libsupport - tblgen - others could be the key chain.
+00:08 <chapuni64> some of clang/llvm libs are independent from tblgen'd files
+00:09 <chenwj> so they can be built in parallel?
+00:09 <chapuni64> yes. as parallel as possible
+00:10 <chapuni64> for now, (even with cmake-ninja), I know many redundant dependencies.
+00:11 <chapuni64> and, I know it's offtopic in CGO :D
+00:11 <chapuni64> I'd like to speak in the next llvm devmtg ;)
+00:12 <chapuni64> gotta sleep!
+00:12 <chapuni64> I am seeking the topick related to global optimizaions.
+00:13 <chenwj> bye! :)
+00:13 <chapuni64> night!

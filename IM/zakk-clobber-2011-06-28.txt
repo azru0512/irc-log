@@ -1,0 +1,29 @@
+17:19 < zakk> chenwj: 這個operand會改道r4
+17:19 < zakk> chenwj: 這個operand做完後 r4會被改 這樣
+17:19 <@chenwj> zakk: 恩
+17:19 < zakk> chenwj: r4不一定是target-specific register
+17:19 < zakk> chenwj: http://old.nabble.com/Early-clobber-constraint-in-TableGen-td26804179.html
+17:20 <@chenwj> zakk: r4不一定是target-specific register?
+17:20 <@chenwj> zakk: 那是哪的 register?
+17:21 < zakk> chenwj: 他剛是說沒有一定
+17:21 <@chenwj> zakk: 所以是哪裡的 register?
+17:21 <@chenwj> zakk: 不一定是target-specific 的話
+17:21 <@chenwj> zakk: http://old.nabble.com/Early-clobber-constraint-in-TableGen-td26804179.html <- 看哪裡?
+17:22 < zakk> chenwj: STREX
+17:22 < zakk> chenwj: 是哪裡我不知道
+17:23 <@chenwj> zakk: :~
+17:23 < zakk> chenwj: 硍
+17:24 < zakk> chenwj: 我去問問那個實際指令是clobber
+17:24 <@chenwj> zakk: "$Rn = $Rn_wb,@earlyclobber $Rn_wb", <- 用這個寫 td?
+17:24 < zakk> chenwj: 恩 我剛看td檔有看到
+17:25 <@chenwj> zakk: ...
+17:25 <@chenwj> zakk: 你那時候用 grep 不就 ko
+17:26 < zakk> chenwj: 對喔
+17:26 < zakk> chenwj: ㄎㄎ
+17:26 <@chenwj> zakk: 他們是要問怎麼寫嗎?
+17:26 < zakk> chenwj: 恩
+17:26 < zakk> chenwj: 我知道了
+17:26 < zakk> chenwj: clobbered operands是一堆registers， 我們告訴gcc說這些registers的值已經被暴力的摧毀(被改變了)， 你要重新考慮它們的合法性才行，
+              在這邊0就是%0，gcc會特別照顧一下它所選的%0的值。 有一些規則要說明
+17:26 <@chenwj> zakk: 這三小
+17:27 < zakk> chenwj: 他是問我LLVM怎麼描述這件是

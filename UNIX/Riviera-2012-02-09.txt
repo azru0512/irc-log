@@ -1,0 +1,18 @@
+20:45 < chenwj> when I download linux source, can I find source of bash/sh in it?
+20:48 < Riviera> Depends on what you understand "linux source" is.  But most likely not, no.
+20:49 < chenwj> by source I mean download from kernel.org
+20:50 < Riviera> chenwj: No, that's the source of the Linux kernel, bash is not included there (bash does not belong to Linux).  You can find the bash
+                 source here:  ftp://ftp.gnu.org/gnu/bash/bash-4.2.tar.gz  and here  git://git.savannah.gnu.org/bash.git
+20:51 < chenwj> so I have to find their source one by one?
+20:52 < Riviera> "their?"
+20:52 < chenwj> I mean those utility
+20:53 < Riviera> hehe
+20:53 < chenwj> bash ls cd ...etc
+20:53 < Riviera> "Those" is an appropriate answer to "their?" :)
+20:53 < Riviera> Yes, you have.  cd is part of bash, though, ls on GNU/Linux distributions usually comes from the GNU coreutils.
+20:54 < chenwj> I see
+20:55 < Riviera> GNU/Linux distributions take software from all kinds of sources and package them together, creating their distributions.  Often these have
+                 infrastructure of accessing the sources too, like Debian-based variants that offer "apt-get source <packagename>"
+20:55 < Riviera> Consider asking in a Linux-related channel, for example ##linux or a channel related to a distribution you use.
+20:57 < chenwj> Riviera: thanks :)
+20:58 < Riviera> :)

@@ -1,0 +1,59 @@
+14:21 < chenwj_> agraf_: around?
+14:47 < agraf_> chenwj_: sure :)
+14:48 < chenwj_> http://wiki.qemu.org/Google_Summer_of_Code_2011#IA64_emulation
+14:48 < chenwj_> I see you sugguest the ia-64 emulation
+14:49 < chenwj_> well, I want to try it
+14:50 < agraf_> chenwj_: there were only like 5 instructions implemented
+14:50 < agraf_> chenwj_: when we hit a serious issue - linux-user emulation uses 1:1 virtual mappings
+14:50 < agraf_> chenwj_: but ia64 uses the high nibble to indicate the code, data etc sections
+14:51 < agraf_> chenwj_: so it's impossible to map on x86_64 which only has 48 bits of virtual address space
+14:51 < chenwj_> nibble?
+14:51 < agraf_> 4 bit
+14:52 < chenwj_> how many bits ia64 has to indicate a virtual address space?
+14:54 < chenwj_> 1:1 virtual mappings <- you mean virtual address mapping between guest and host, right?
+14:58 < agraf_> chenwj_: yeah, a VA in the guest process is basically VA on the host + offset
+14:58 < agraf_> chenwj_: mapping an address 0x4000000000000000 thus is pretty hard ;)
+15:01 < chenwj_> simply put, ia64 has 64 bit va but x86_64 only has 48 va?
+15:01 < agraf_> basically, yes
+15:03 < chenwj_> I though the 64 in "x86_64" means it has 64 va :/
+15:03 < n0nsense> I thought it means el-cheapo :)
+15:03 < chenwj_> el-cheapo?
+15:03 < chenwj_> googling...
+15:04 < n0nsense> :D
+15:04 < n0nsense> don't
+15:04 < chenwj_> n0nsense: what's that mean?
+15:04 < n0nsense> http://www.urbandictionary.com/define.php?term=el%20cheapo
+15:04 < agraf_> chenwj_: yeah, everyone thinks that at first ;)
+15:05 < agraf_> chenwj_: the upper bits have to be identical, so it's basically a signed 48 bit number
+15:06 < chenwj_> n0nsense: thx
+15:08 < n0nsense> sorry, I'm a little braindead
+15:08 < n0nsense> didn't sleep enough to qualify as human
+15:08 < n0nsense> are zombies allowed in here?
+15:09 < chenwj_> sure
+15:10  * chenwj_ sleep walking
+15:10 < n0nsense> at least you sleep ;)
+15:11 < chenwj_> ha
+15:11 < chenwj_> agraf_: actually I want to learn how to write a user mode target support
+15:12 < agraf_> chenwj_: ok :)
+15:12 < agraf_> chenwj_: so what do you need?
+15:13 < chenwj_> agraf_: I don't know if ia64 is too hard to a newbie. I want to know what should be implemented at minimum to make it work.
+15:14 < agraf_> chenwj_: ia64 shouldn't have been hard, but turned out to be :)
+15:14 < agraf_> chenwj_: you can look at my s390 patch set though
+15:15 < agraf_> chenwj_: the first version that got upstream basically only implemented user mode emulation
+15:15 < chenwj_> agraf_: http://lists.gnu.org/archive/html/qemu-devel/2011-03/msg02506.html <- this one?
+15:15 < agraf_> chenwj_: yeah, that one includes user and system mode though
+15:16 < chenwj_> ok, I'll read it :)
+15:17 < chenwj_> does it support block linking?
+15:17 < agraf_> chenwj_: http://lists.gnu.org/archive/html/qemu-devel/2011-03/msg02892.html
+15:17 < agraf_> this is an updated version
+15:17 < agraf_> today it does, yes
+15:17 < agraf_> I'm not sure if that particular version did
+15:17 < agraf_> but I'd hope so :)
+15:17 < agraf_> block linking was in pretty early already
+15:19 < chenwj_> anything special we need to do to enable block linking support?
+15:19 < agraf_> well, you need to indicate it
+15:20 < agraf_> see gen_goto_tb()
+15:20 < chenwj_> from to top of my head, I only think we need to do something with gen_goto_tb
+15:21 < chenwj_> what we need to do depends on guest, right? I see each target has its own wrapper on gen_goto_tb
+15:23 < agraf_> well, actually it's not very guest specific
+15:23 < agraf_> it looks almost the same in every target :)

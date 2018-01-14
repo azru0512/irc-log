@@ -1,0 +1,84 @@
+15:49 < chenwj> I am running "qemu linux-0.2.img -vnc:1" in a virtual machine. How can I get qemu vnc output?
+16:05 < stefanha> chenwj: You are running QEMU inside a VM?  How to access the VNC port depends on your network setup.
+16:05 < stefanha> chenwj: If you are using user networking (default), then you need to set up a port forwarding.
+16:06 < stefanha> chenwj: Try: help hostfwd_add
+16:07 < stefanha> Basically you need to forward port 5901 on the host to 127.0.0.1:5901 inside your level 1 guest.
+16:07 < stefanha> Then you can connect vncviewer on the host using :1.
+16:11 < chenwj> stefanha: I'll try it out. Currently, I start a vncserver inside the vm, then connect to vm through vncviewer, start QEMU with
+                another vnc port, then connect it with vncviewer inside vm
+16:11 < chenwj> seems a lot of work...
+16:13 < stefanha> haha
+16:13 < stefanha> VNCeption
+16:13 < stefanha> VNC inside VNC :)
+16:29 < chenwj> Then you can connect vncviewer on the host using :1 <-- I think :1 is occupied by the vm already?
+16:49 < stefanha> chenwj: You need to pick a free port on the host
+16:49 < stefanha> If :1 is already used then use :2
+16:49 < stefanha> So forward host 5902 to guest 127.0.0.1:5901
+16:49 < stefanha> Then on the host use vncviewer :2
+16:50 < stefanha> (VNC ports are 5900+<display>)
+16:51 < chenwj> ok, thanks
+17:31 < chenwj> stefanha: I saw your "QEMU Code Overview", and it's really a 10000... feet high overview :p
+17:32 < stefanha> chenwj: Yes, very high level.
+17:33 < stefanha> It doesn't explain TCG at all :)
+17:34 < chenwj> every component of qemu is big
+17:34 < chenwj> not only tcg
+17:37 < chenwj> I am trying to pass qemu cmdline through libvirt, but no luck.
+17:37 < chenwj> I follow this page http://snippets.webaware.com.au/snippets/running-qemu-with-port-redirection-through-libvirt/
+17:38 < chenwj> and add this to my vm xml,
+17:38 < chenwj>   <qemu:commandline>
+17:38 < chenwj>     <qemu:arg value='-net user,hostfwd_add=::5902-:5901'/>
+17:38 < chenwj>   </qemu:commandline>
+17:38 < chenwj> but virsh keeps saying,
+17:38 < chenwj> error: internal error Process exited while reading console log output: kvm: -net user,hostfwd_add=::5902-:5901: invalid option
+17:41 < stefanha> chenwj: According to the man page it's just "hostfwd", not "hostfwd_add"
+17:41 < stefanha> hostfwd_add is the monitor command
+17:41 < chenwj> oops
+17:43 < chenwj> still no luck.
+17:44 < chenwj>   <qemu:commandline>
+17:44 < chenwj>     <qemu:arg value='-net user,hostfwd=::5902-:5901'/>
+17:44 < chenwj>   </qemu:commandline>
+17:51 < stefanha> chenwj: Yep, that command-line doesn't work
+17:51 < stefanha> You also need to specify a NIC
+17:52 < stefanha> -netdev user,hostfwd=::5902-:5901,id=user0 -device virtio-net-pci,netdev=user0
+17:52 < stefanha> Something like that will work although be careful in case libvirt is defining its own network interfaces.
+17:52 < stefanha> hmm...  http://www.redhat.com/archives/libvir-list/2012-May/msg00538.html
+17:53 < stefanha> Does libvirt already have domain XML syntax for port forwarding?
+17:53 < stefanha> Maybe you don't need to pass through raw QEMU options
+18:02 < zwu> how about the performance of Germany Car?
+18:08 < chenwj> zwu: want buy one?
+18:08 < chenwj> germany car is good, I think
+18:08 < chenwj> but it's very hard to buy a car in china, right?
+18:09 < zwu> no, no, but i don't know if it is hard to buy one germany car
+18:10 < zwu> but it is very easy to buy korea car
+18:10 < zwu> and you?
+18:12 < chenwj> zwu: never think buying a car
+18:13 < chenwj> I mean in china, it's hard to get a license
+18:13 < chenwj> stefanha: googling
+18:14 < zwu> chenwj: no, it is said that Dazhong car is made in china by German, but don't know if it has high perf
+18:15 < zwu> Japan car is very good, but i don't dare to buy it:), it is very dangerous
+18:15 < chenwj> zwu: yeah
+18:16 < bonzini> stefanha: for fleecing, i would hide everything beneath something like "nbd-server-add -s blockdev" (for snapshot)
+18:16 < chenwj> you have to do some study yourself
+18:16 < bonzini> stefanha: we can also add nbd-server-add to qmp-transaction and get atomic point-in-time snapshot via NBD
+18:16 < bonzini> stefanha: yummy :)
+18:16 < stefanha> bonzini: Yes, that is nice.  especially because we don't want to confuse users with too many different types of snapshots.
+18:17 < bonzini> stefanha: yes, and it should really be easy to implement with your backup job
+18:17 < bonzini> stefanha: perhaps you can dust off the job already for 1.6
+18:18 < stefanha> bonzini: 1.6 is doable
+18:19 < zwu> chenwj: yes, how about the price of the car in taiwan?
+18:19 < bonzini> stefanha: yes, the NBD stuff should be easy too
+18:19 < bonzini> stefanha: all the components are already there
+18:24 < chenwj> stefanha: you mean write libvirt xml directly? I found mostly people use iptable, 
+                http://wiki.libvirt.org/page/Networking#Forwarding_Incoming_Connections , for example
+18:24 < chenwj> zwu: depends, 60-70 NT dollars can buy a average car, I think
+18:24 < chenwj> 600-700 k
+18:25 < zwu> so expensive in taiwan
+18:26 < zwu> it is TWD unit?
+18:27 < zwu> if yes, its price is same as in mainland
+18:27 < chenwj> zwu: yes, 5:1 RMB:NT
+18:27 < stefanha> chenwj: It depends on your network configuration.  If you use tap then you should use iptables for port forwarding.
+18:27 < zwu> chenwj: no, it should be RMB: NT = 1:5
+18:27 < stefanha> chenwj: If you use -net user then you need to use hostfwd
+18:28 < zwu> chenwj: Its price is 60-70 NT, it is not expensive
+--------------------------------------------------------------------------------
+18:32 < chenwj> stefanha: I see

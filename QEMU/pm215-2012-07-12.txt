@@ -1,0 +1,15 @@
+17:58 < chenwj> I have a question. QEMU use TranslationBlock * last two bit to encode block linking direction. Why it can ensure the last two bit are always
+                avaliable?
+17:59 < pm215> it's relying on them always being 4-aligned
+18:00 < chenwj> how?
+18:00 < chenwj> does malloc garantee that?
+18:00 < pm215> assuming the host system requires 4-aligned int32_t (which is pretty much everything) the struct will also be aligned
+18:01 < pm215> malloc guarantees "suitably aligned" for the worst case kind of object for the system
+18:01 < chenwj> no matter what we add into TranslationBlock, say a char?
+18:02 < pm215> yes, because even if you put a char at the front of the TB struct, the compiler will have to insert padding to keep the 32 bit fields aligned
+18:04 < chenwj> so (1) host system requires 4-aligned int32_t (2) compiler add padding for us <- have both of them stand?
+18:05 < pm215> you should check the C standard, but basically the spec requires that a struct is as aligned as the most-alignment-requiring field it has
+18:06 < pm215> we assume that int32 (or pointer) will need 4 alignment, and strictly you can have a compliant C system which doesn't impose that alignment
+               requirement, but in practice none of our host systems do that
+18:07 < pm215> (x86 will permit unaligned load/store of int but it prefers aligned and so the compiler/libc treat it as 4-aligned)
+18:08 < chenwj> need read C standard hard!

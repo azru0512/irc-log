@@ -1,0 +1,56 @@
+19:00 < chenwj> is it possible to exort a nfs to a qemu vm?
+19:00 < chenwj> currently, the vm use ip assigned by dhcp (inside qemu, I believe)
+19:01 < stefanha> chenwj: Sure NFS host <-> guest works.  The details depend on your -netdev configuration.
+19:01 < chenwj> stefanha: I use no -netdev
+19:02 < chenwj> use default, I think
+19:02 < stefanha> chenwj: Default means userspace networking (slirp).  It should still be able to do NFS.
+19:02 < stefanha> stefanha: You need the IP of the host, which is 10.0.2.2 or something similar.
+19:02 < stefanha> (default QEMU DHCP)
+19:03 < stefanha> Maybe 10.0.2.3
+19:03 < stefanha> You can try it out or check the slirp source in net/slirp/.
+19:04 < chenwj> the IP of the host <- the machine on which I run QEMU?
+19:04 < stefanha> chenwj: No
+19:04 < stefanha> The default networking is a userspace "virtual" network.
+19:04 < stefanha> It uses 10.0.2.x IP addresses and has its own DHCP server inside QEMU.
+19:04 < stefanha> When the guest sends a packet, the QEMU process opens a socket and sends the data on behalf of the guest.
+19:05 < stefanha> I think the default setting is something like 10.0.2.1 (virtual router), 10.0.2.2 (host), 10.0.2.3 (samba), 10.0.2.15 (guest)
+19:05 < stefanha> Something along those lines.
+19:06 < chenwj> stefanha: that's why you say I have to lookup slirp source?
+19:06 < stefanha> chenwj: Right, that's where those addresses are defined.  But it should also be easy to use netcat to check that 10.0.2.2 is indeed the
+                  host.
+19:08 < pm215> ...or if you're really desperate you can look at the documentation : http://qemu.weilnetz.de/qemu-doc.html#pcsys_005fnetwork
+19:09 < stefanha> pm215: :)
+19:10 < chenwj> pm215: desperate... make spec cpu2006 work on qemu-system-arm is already desperate enough
+19:10 < chenwj> stefanha: the source says, "struct in_addr host = { .s_addr = htonl(0x0a000202) }; /* 10.0.2.2 */"
+19:10 < stefanha> ?
+19:10 < chenwj> is it what I should look for?
+19:10 < stefanha> I thought qemu-system-arm works pretty well
+19:10 < stefanha> speccpu should run fine.
+19:11 < stefanha> chenwj: I guess you mean with your modifications?
+19:11 < chenwj> stefanha: nope
+19:11 < chenwj> stefanha: I have to build spec tools first (a lof ot perl things)
+19:11 < chenwj> and the build script is buggy
+19:12 < chenwj> stefanha: seems slirp host is 10.0.2.2, so my nfs server should export to 10.0.2.2 ?
+19:13 < stefanha> David Gilbert has run speccpu 2k6 on ARM.  He says the scripts are junk :)
+19:13 < chenwj> sad...
+19:13 < stefanha> chenwj: No, your host Linux does not know about the virtual 10.0.2.x network.
+19:14 < stefanha> Just export on localhost.
+19:15 < chenwj> export on localhost? I have another machine running the nfs server
+19:15 < stefanha> Okay, then you should be able to nfs mount that other machine from inside the guest.
+19:15 < mjt> i doubt exporting on localhost will work anyway
+19:16 < mjt> or will it?  When guest connects to 10.0.2.2, how guest sees it
+19:16 < mjt> ?
+19:16 < mjt> er
+19:16 < pm215> try it, look at the nfs server logs to see what ip address it refused a mount request for, tweak nfs server config
+19:16 < mjt> When guest connects to 10.0.2.2, how HOST see the connection, as coming to/from localhost?
+19:16 < stefanha> mjt: I think it should be localhost.
+19:17 < chenwj> refused mount request from 140.109.22.42 for /mnt/data (/mnt/data): illegal port 42100
+19:17 < mjt> heh
+19:17 < chenwj> 140.109.22.42 is the machine on which I run QEMU
+19:17 < mjt> that's more difficult to overcome :)
+19:17 < pm215> ok, so you want that ipaddr and you also need to make the nfs server export it to that ipaddr as 'insecure' (ie accept high ports)
+19:18 < chenwj> pm215: will try
+19:37 < chenwj> pm215: that does the trick :)
+20:33 < afaerber> chenwj, stefanha: speccpu is a benchmark you need to buy sources for?
+20:33 < afaerber> pm215, I notice it has a CFP2006 floating point benchmark
+20:34 < chenwj> afaerber: yap

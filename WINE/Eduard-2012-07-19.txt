@@ -1,0 +1,125 @@
+17:47 < chenwj> is _start in `objdump wine` the real starting point?
+17:50 < Eduard_Munteanu> chenwj: should be 'main', IIRC _start is a glibc thing
+17:51 < chenwj> winedbg show me the backtrace,
+17:51 < Eduard_Munteanu> chenwj: it depends what you mean by entry point though, I think _start might be executed sooner
+17:51 < chenwj>   11 0x000000007bf00dc1 main+0x70(argc=0x2, argv=0x7fff5c0380f8) [/local/chenwj/build/loader/../../wine-1.3.13/loader/main.c:228] in
+                <wine-loader> (0x00007f0d7385f680)
+17:51 < chenwj>   12 0x00007f0d74e2fe9d __libc_start_main+0xfc() in libc.so.6 (0x00007f0d7385f680)
+17:51 < chenwj>   13 0x000000007bf00c89 _start+0x28() in <wine-loader> (0x00007f0d7385f680)
+17:51 < chenwj> Eduard_Munteanu: ^^^
+17:52 <@puk> _Marcus_: that's his bugzilla name
+17:52 < Eduard_Munteanu> chenwj: sure, but that's inserted by the compiler there, it doesn't actually correspond to a C function.
+17:52 < Eduard_Munteanu> At least AFAIR.
+17:53 <@puk> _Marcus_: he seems to test a ton of games after each Wine devel version
+17:53 <@puk> some of them old
+17:54 <@_Marcus_> cool guy
+17:54 <@puk> yeah
+17:54 <@puk> he is a trusted member of "The Wine QA Team"
+17:55 <@puk> ;)
+17:55 < chenwj> Eduard_Munteanu: the _start is inserted by compiler?
+17:55 < Eduard_Munteanu> chenwj: should be, google "linux _start" and you'll get stuff like http://linuxgazette.net/issue84/hawk.html which might clarify it.
+17:56 <@puk> the bug reports are good
+17:56 < chenwj> the reason why I ask this is because I saw "_start+0x28() in <wine-loader>" and _start in loader/preloader.c
+17:57 <@puk> so I tend to question first my perfect commit than his regression test
+17:57 < chenwj> I thought it might be wine's _start not inserted by compiler
+17:57 <@puk> ;)
+17:58 < chenwj> something like,
+17:58 < chenwj> __ASM_GLOBAL_FUNC(_start,
+17:58 < chenwj>                   "movq %rsp,%rax\n\t"
+17:58 < chenwj>                   "leaq -144(%rsp),%rsp\n\t" /* allocate some space for extra aux values */
+17:58 < chenwj> ... etc
+17:58 < Eduard_Munteanu> chenwj: I think the preloader defines its own _start, overriding the normal one
+18:00 < chenwj> but the _start `objdump wine` show me just likes other normal executable, I see no code sequence in preloader.c present in `objdump wine`
+18:01 < Eduard_Munteanu> chenwj: the preloader is compiled to a different executable
+18:01 < Eduard_Munteanu> wine-preloader
+18:01 < chenwj> ah, I see
+18:02 < chenwj> but when we will use wine-preloader rather than wine?
+18:03 < Eduard_Munteanu> You don't use it manually, it's called by other wine code to load stuff.
+18:04 <@_Marcus_> chenwj: what are you looking for actually?
+18:04 < chenwj> I am trying understand how wine works. :)
+18:04 <@_Marcus_> basically "wine" will reexec itself with wine-preloader if there is need
+18:05 < chenwj> for example?
+18:05 <@_Marcus_> all time
+18:06 <@_Marcus_> in loader/main.c:main()
+18:06 <@_Marcus_>             wine_exec_wine_binary( NULL, argv, getenv( "WINELOADER" ));
+18:06 < chenwj> I'll take a look
+18:07 <@_Marcus_> you could start understanding simper zthings first though... this is all very lowlevely ;)
+18:08 < chenwj> you guys might think I am crazy... I am a research assistant and we are studying if there is a general framework that can help different OS
+                interface translation more easier.
+18:08 < chenwj> wine is an example we are studying at the moment
+18:09 <@puk> chenwj: solving the halting problem would help for a start
+18:09 <@puk> ;)
+18:09 < chenwj> hugh?
+18:09 < chenwj> why it's related to halting problem. lol
+18:11 <@puk> to validate that the translation is correct
+18:11 <@puk> ;)
+18:13 < chenwj> well, it's not aim for fully-automatic. just see if there is such framework so that we can create wine for other os easier
+18:13 <@puk> aah
+18:13 <@puk> ok
+18:13 < chenwj> ya
+18:14 <@puk> we have that too
+18:14 <@puk> we call those frameworks austin_laptop and Andre_H
+18:14 <@puk> ;)
+18:15 < chenwj> done research! wow
+18:15 < Eduard_Munteanu> chenwj: Wine doesn't particularly lend itself to generalization in that way
+18:15 < chenwj> puk: what's that?
+18:15 < Eduard_Munteanu> Two Wine hackers :)
+18:16 <@puk> that have the most interest in that domain
+18:16 <@puk> chenwj: joking aside
+18:16 < chenwj> in that domain?
+18:17 <@puk> chenwj: are you looking for a generalized API to use or in a static analyze tool that helps in porting the code?
+18:17 <@puk> chenwj: those two are in interested in porting Wine to "odd" OSes and architectures
+18:18 < Eduard_Munteanu> Though the target (source?) platform is still Windows.
+18:19 < chenwj> let me try,
+18:19 < Eduard_Munteanu> Technically you could run say, a Windows executable on a PPC machine with qemu user emulation and Wine.
+18:20 < Eduard_Munteanu> But there isn't much to use from Wine if you want to run some other platform's code.
+18:20 < chenwj> you know qemu, good. what qemu does is translating one ISA into a intermediate form, then translate that intermediate form to another ISA
+18:21 < chenwj> so we are studying if there is such intermediate form or framework so that one OS interface can be translated into that intermediate form,
+                then turn into another OS interface
+18:21 < Eduard_Munteanu> Yep, but that's not actually translating the API/ABI, it just runs the target OS.
+18:22 < chenwj> Eduard_Munteanu: ^^^ you mean qemu or what I just said?
+18:22 < Eduard_Munteanu> That sounds pretty tough considering the OS could access hardware directly and so on.
+18:22 < Eduard_Munteanu> Qemu.
+18:24 < Eduard_Munteanu> chenwj: btw, do you know Gallium3D?
+18:24 <@puk> chenwj: at what level? Kernel?
+18:24 < chenwj> *perhaps* (just perhaps), we can find general APIs as intermediate form, then do such translation
+18:24 < Eduard_Munteanu> chenwj: somebody implemented a DX10/11 state tracker there
+18:24 < chenwj> puk: same level as wine
+18:25 <@puk> Wine for the most parts does not translate
+18:25 <@puk> it is a reimplementations of the Windows dlls
+18:25 < Eduard_Munteanu> Wine is just a big library in that sense :)
+18:25 < Eduard_Munteanu> Or set of such libraries.
+18:25 <@puk> most of the Wine DLLs can work as well on Windows
+18:27 < Eduard_Munteanu> Anyway, where I was going with the Gallium3D stuff... There are particular subsystems which can be generalized portably, but it's
+                         still not an automatic translation.
+18:27 < chenwj> Eduard_Munteanu: what do you try to show me about Gallium3D or DX10/11 state tracker? might you can give me a brief intro
+18:29 < Eduard_Munteanu> chenwj: it's a way to implement graphics APIs portably.
+18:30 <@stringfellow> also see OpenGL
+18:31 < Eduard_Munteanu> Both the GL and DX10/11 state trackers are implemented in terms of a common internal representation, if you squint at it.
+18:31 < Eduard_Munteanu> But that implementation has been written manually.
+18:32 < Eduard_Munteanu> Or how Java gets you (at least some) cross-OS portability, but they still implemented the interfaces themselves, and the app still
+                         has to be written with that interface in mind.
+18:33 < Eduard_Munteanu> So I'm not sure you can translate OS APIs automatically and meaningfully at the same time.
+18:34 < chenwj> will austin_laptop and Ander_H hang around here?
+18:34 < Eduard_Munteanu> Yeah.
+18:35 < Eduard_Munteanu> (or you could, if you're happy with qemu's way of doing things, i.e. running the entire OS)
+18:36 < chenwj> well, we just want to borrow qemu's intermediate form idea
+18:36 < chenwj> say general interfaces that other OS interfaces can be turned into
+18:37 < chenwj> off the topic. why disable 3 can detect that user're using wine?
+18:37 < Eduard_Munteanu> chenwj: mm, that's sorta been done at the kernel-level, do you know L4?
+18:38 < chenwj> I heared of it
+18:38 < chenwj> it's a micro kernel, right?
+18:38 < Eduard_Munteanu> Yeah.
+18:39 < Eduard_Munteanu> Diablo 3? It probably detects something's odd, rather than Wine.
+18:39 < Eduard_Munteanu> But you can technically run multiple kernels alongside.
+18:40 < Eduard_Munteanu> (as L4 servers)
+18:40 <@stringfellow> as far as I'm aware those users were actually cheating somehow
+18:41 <@stringfellow> I certainly haven't heard from anyone else getting banned for using Wine
+18:41 < Eduard_Munteanu> Interesting. I guess Wine could be a cover-up to defeat their cheating detection system.
+18:41 < chenwj> I thought wine should be transparent to the upper application, right?
+18:42 < Eduard_Munteanu> It should, but it isn't.
+18:42 <@stringfellow> and yeah, you can detect Wine, e.g. ntdll.wine_get_version()
+18:43 < chenwj> interesting...
+18:44 < Eduard_Munteanu> chenwj: anyways, there are lots of crossplatform APIs for doing various stuff, if you're interested.
+18:44 < Eduard_Munteanu> One can definitely write portable apps.
+18:50 < chenwj> Eduard_Munteanu: well, I think I have to study wine first... ;)

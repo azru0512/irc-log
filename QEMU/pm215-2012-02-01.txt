@@ -1,0 +1,18 @@
+17:58 < chenwj> is it sufficient to distinguish a virtual pc (belong process A and B) by using only pc and cs_base?
+18:00 < chenwj> tb_find_fast compares one more thing, tb->flags. I'm wondering using pc and cs_base only is enough or not.
+18:32 < pm215> chenwj: no, it is critical that tb->flags are also compared
+18:34 < pm215> (they contain information about the CPU state for this block which is baked into the generated code, eg "is this user or privileged mode?"
+18:36 < chenwj> you say CPU state, does tb->flags includes crX for example?
+18:40 < pm215> tb->flags includes a target-dependent set of information, see cpu_get_tb_cpu_state()
+18:41 < chenwj> see
+18:42 < pm215> generated code must not hard-code assumptions about CPU state unless it is (a) in tb_flags (b) constant (c) guaranteed that tb_flush happens
+               when the state is changed
+18:43 < pm215> code generation routines in translate.c must take information from tb->flags and not from the apparently equivalent fields in CPUState,
+               because the CPUState passed in isn't guaranteed to be the CPUState for the start of that TB
+18:45 < chenwj> I ask because I'm afraid we link traces belong different guest processes which accidentally have the same pc
+18:46 < chenwj> for example, trace A (belong process A) might jump to 0x1000. But trace B (belong process B) happened to begin with 0x1000
+18:46 < chenwj> and we link trace A to trace B
+18:47 < chenwj> this is direct jump optimization
+18:48 < chenwj> I'm afraid we need to do more checking while linking two traces in system mode
+18:51  * chenwj afk
+18:54 < pm215> chenwj: I think the tlb flush code ought to ensure this can't happen but I haven't looked very closely at it

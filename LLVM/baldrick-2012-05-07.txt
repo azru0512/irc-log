@@ -1,0 +1,95 @@
+16:18 < chenwj> baldrick: do you have the same problem, the bugzilla thing?
+16:19 <@baldrick> chenwj: what bugzilla thing?
+16:19 < chenwj> LLVM 3.1 rc2 phase 1 clang fail to build phase 2 clang <-
+16:19 <@baldrick> chenwj: do you mean PR12751?
+16:19 <@baldrick> OK, you mean PR12751 :)
+16:19 <@baldrick> chenwj: not on x86-64.  I'm testing i386 now.
+16:20 < chenwj> ok, I don't know how to bisect the problem
+16:20 <@baldrick> chenwj: what platform is this on (in the PR it says "Other" for platform)?
+16:20 < chenwj> should I stick to llvm 3.1 rc2, then bisect clang?
+16:20 < chenwj> baldrick: arm
+16:22 <@baldrick> chenwj: I've submitted a bug report asking for "ARM" to be added to the platform list
+16:23 <@baldrick> actually, that doesn't make any sense
+16:24 < chenwj> baldrick: what doesn't make sense?
+16:24 <@baldrick> platform being arm
+16:25 < chenwj> and?
+16:27 <@baldrick> chenwj: you may need to bisect both clang and LLVM.  I suggest you write a little script that, given a revision number, updates both LLVM
+                  and Clang to that revision (I'm talking about revisions in the 3.1 branch) and does the bootstrap
+16:27 <@baldrick> i.e. making it trivial to do the bisection
+16:28 < chenwj> baldrick: so both clang and llvm use the same revision while bisecting?
+16:28 <@baldrick> chenwj: yes
+16:28 < chenwj> ok
+16:28 <@baldrick> chenwj: that way it doesn't matter if the bug was introduced by an LLVM patch or by a clang patch: you will find it anyway in either case
+16:29 <@baldrick> i.e. you are treating LLVM/clang as one joint project rather than as two separate projects
+16:29 <@baldrick> I've done this in the past and it works fine
+22:54 < chenwj> baldrick: it takes a lof of time to bisect the clang problem on arm...
+22:54 <@baldrick> I bet it does :)
+22:56 < d0k> we need an archive of clang builds for speedy bisection :/
+22:57 < chenwj> for each revision?!
+22:57 < d0k> as many revs as possible
+22:58 < dinesh___> hi folks, how can get the CFG of a C program using clang?
+22:58 <@baldrick> how about some ARM buildbots that aren't always red for starters?
+22:58 < d0k> if you have a small enough range of potentially bad revisions you can often find the culprit by guessing
+22:58 < d0k> baldrick: :(
+22:59 < APTX> don't you make a build for every revision?
+22:59 <@baldrick> dinesh___: clang my_wonder_program_and_other_options -emit-llvm -o - | opt -view-cfg -disable-output
+22:59 < nbjoerg> d0k: create a google account for each revision and mail them the debug build?
+23:00 < d0k> nbjoerg: heh
+23:00 <@baldrick> dinesh___: I forgot to mention that you should pass -c or -S to clang
+23:00 < d0k> nbjoerg: there are ways to do deduplication and compression, you know?
+23:00 < chenwj> baldrick: hmmm, does buildbot build self-host clang?
+23:00 < d0k> smooshlab archives x86 builds already
+23:01 <@baldrick> chenwj: I don't know
+23:01 <@baldrick> chenwj: there are several idle ARM build slaves that could be used for this
+23:01 <@baldrick> chenwj: I can give you access if you want to set some up
+23:02 < chenwj> baldrick: cool :p
+23:02 < chenwj> why they are idle. :/
+23:02 < d0k> APTX: best effort, we skip builds because builders aren't fast enough
+23:03 < APTX> fast enough?
+23:04 < tjablin> nicholas: I opened the bug we talked about last night here: http://llvm.org/bugs/show_bug.cgi?id=12754
+23:04 < d0k> APTX: revisions come in faster than builders complete a build
+23:04 <@baldrick> chenwj: because no-one was interested
+23:05 < APTX> d0k: why is that a problem?
+23:05 <@baldrick> chenwj: actually I just took a look and all my ARM buildslaves are down
+23:05 < chenwj> ah, I'll try to pick them up
+23:05 < chenwj> we need more arm buildbot ;)
+23:06 < d0k> APTX: you can't get a build for every revision without the build queue growing all the time
+23:07 < nbjoerg> threshold scheme
+23:07 < nbjoerg> if the build queue for the primary bots is past a certain limit, disallow new commits :)
+23:08 < chenwj> disallow new commits means we can go off work?
+23:09 < d0k> just commit a ton of whitespace changes in the morning and slack off for the rest of the day :)
+23:10 < APTX> d0k: I see, I assumed that there was a time of day when people didn't commit :P
+23:11 <@baldrick> APTX: it slows down a bit when the US goes to bed, but the rest of the world keeps things fairly busy
+23:11 < chenwj> baldrick: what arm machines you have?
+23:12 <@baldrick> chenwj: all the ones listed here: http://gcc.gnu.org/wiki/CompileFarm
+23:12 <@baldrick> chenwj: unfortunately they all seem to be offline right now
+23:12  * baldrick is checking their status
+23:12 < d0k> https://github.com/llvm-mirror/llvm/graphs/punch-card has the data ;)
+23:13 < APTX> baldrick: well, I do want to replace gcc/msvc as soon as possible
+23:14 < chenwj> d0k: amazing!
+23:14 <@baldrick> d0k: what's the time zone?
+23:15 < d0k> hmm
+23:15 < d0k> probably UTC
+23:15 < tjfontaine> it looks utc, I was expecting github to adjust for your accounts time though
+23:17 < APTX> there's the chance you're from iceland :P
+23:19 <@baldrick> d0k: is that only looking at commits made via git?
+23:19 < d0k> no, it's a git mirror of the svn repository
+23:19 < d0k> some of the graphs only use data from people that have a github account connected to their email though
+23:20 < APTX> BTW, any reason why you're using svn instead of a got or some other dvcs?
+23:20 < nbjoerg> read the mailing list archives
+23:20 < d0k> mostly laziness
+23:21 < nbjoerg> more like it is not sure if the pain is worth it
+23:21 < d0k> it's a lot of work to switch the entire infrastructure (including devs) and the advantages aren't THAT huge
+23:21 < APTX> so you started with svn?
+23:21 < triton1> someone here working on improving Clang to be compatible with MSVC ABI?
+23:21 < APTX> was the only reason I could think of
+23:21 < d0k> llvm started with cvs
+23:22 < jey> and git+svn seems to work well?
+23:22 < nbjoerg> modulo git issues
+23:22  * APTX never saw a difference between git and svn
+23:23 < ki9a> are the rules for c vararg passing declared somewhere? Apparently it promotes float to double (But llvm does not)
+23:23 < nbjoerg> ki9a: depends on the platform
+23:23 < ki9a> ah that sounds like it was fun to implement for the clang devs.
+23:24 < d0k> "fun", yeeeah
+23:24 < nbjoerg> not sure from memory about the promotion rules for float
+23:25 < nbjoerg> hm. right, platform code should promote those accordingly

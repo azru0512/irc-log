@@ -1,0 +1,102 @@
+14:01 <@chenwj> ppc52776: 有人建議我說看 blkid
+14:01 <@chenwj> ppc52776: 我在 arm2 上看到的是 mmcblk0
+14:01 < ppc52776> chenwj: 那也要先可以開機吧@@?
+14:01 < ppc52776> chenwj: 不同 kernel 會不同名稱,
+14:02 < ppc52776> chenwj: 我看你開機參數用 sd , 有可能也是 mmcblk0
+14:02 <@chenwj> ppc52776: ...
+14:02 <@chenwj> ppc52776: 我那個是亂試的
+14:02 <@chenwj> ppc52776: -hda -sd 都有試過
+14:04 < ppc52776> chenwj: hda 的話~他有可能是 /dev/hda
+14:04 < ppc52776> chenwj: 還是看一下他開機訊息比較知道
+14:07 <@chenwj> ppc52776: http://people.cs.nctu.edu.tw/~chenwj/tmp/boot.PNG
+14:07 <@chenwj> ppc52776: -M versatilepb -boot c -kernel zImage -hda rootfs.ext2 -append "root=/dev/hda" -vnc 0.0.0.0:1
+14:08 < ppc52776> chenwj: 改成 sda看看
+14:08 < ppc52776> chenwj: root=/dev/sda
+14:08 < ppc52776> chenwj: 你 image 是 2G?
+14:08 <@chenwj> ppc52776: 1.7G
+14:08 < ppc52776> chenwj: 恩
+14:08 < ppc52776> chenwj: 那應該是 /dev/sda
+14:08 <@chenwj> ppc52776: 我改成 -hda rootfs.ext2 -append "root=/dev/sda" 也是一樣的畫面
+14:11 < ppc52776> chenwj: 所以不管 append 什麼~他都是找 hda ?
+14:12 < ppc52776> chenwj: 那開機用 -hda rootfs.ext2 可以嘛
+14:12 <@chenwj> ppc52776: -hda rootfs.ext2 -append "root=/dev/sda"
+14:13 <@chenwj> ppc52776: 所以不管 append 什麼~他都是找 hda ? <- 你看到哪一行說他是找 hda?
+14:13 < ppc52776> chenwj: VFS: Cannot open root device "hda"
+14:14 <@chenwj> ppc52776: wait...
+14:16 <@chenwj> ppc52776: sda 長這樣 http://people.cs.nctu.edu.tw/~chenwj/tmp/boot_sda.PNG
+14:16 <@chenwj> ppc52776: 看來是 sda 沒錯? 現在是說 init not found
+14:16 < ppc52776> chenwj: yes
+14:17 < ppc52776> chenwj: image 裡面有 init ?
+14:17 <@chenwj> ppc52776: 怎麼看?
+14:17 < ppc52776> chenwj: 不過 ubuntu 的 image 好像不能直接執行
+14:17 <@chenwj> ppc52776: 怎麼說?
+14:17 < ppc52776> chenwj: 上次我們用熊貓版~好像也有這個問題
+14:18 < ppc52776> chenwj: 要透過他安裝程式的樣子
+14:18 <@chenwj> ppc52776: hmmm 要不然我就說 boot 時間差不多
+14:18 <@chenwj> ppc52776: 就用 buildroot 弄得 image 就好
+14:19 < ppc52776> chenwj: 恩~或是用 archlinux 也可
+14:19 < ppc52776> chenwj: 上面工具比較完整
+14:19 <@chenwj> ppc52776: 用 archlinux 的 rootfs?
+14:19 < ppc52776> chenwj: 恩
+14:19 <@chenwj> ppc52776: 你手上有嗎?
+14:21 < ppc52776> chenwj: http://archlinuxarm.org/os/ArchLinuxARM-omap-smp-latest.tar.gz
+14:22 <@chenwj> ppc52776: nice
+14:22 < ppc52776> chenwj: 不過他是 tar , 要另外做成 rootfs.ext2
+14:23 <@chenwj> ppc52776: 用 genext2fs.sh?
+14:24 < ppc52776> chenwj: 也是可以,  不過我覺得 mount 的方式比較好
+14:24 <@chenwj> ppc52776: ok
+16:02 < ppc52776> chenwj: 對了~ CASN 那篇 paper 阿~後來你有看到他說可以不同位置嘛?
+16:03 <@chenwj> ppc52776: 可以
+16:04 < ppc52776> chenwj: 那他可以支援不同 size 嘛?
+16:04 < ppc52776> chenwj: 32/16/8 bit ?
+16:04 <@chenwj> ppc52776: 我只看到他說 word size
+16:07 < ppc52776> chenwj: 恩
+16:44 <@chenwj> ppc52776: http://people.cs.nctu.edu.tw/~chenwj/tmp/boot_archlinux.PNG
+16:45 <@chenwj> ppc52776: attempt to kill init?
+16:45 <@chenwj> ppc52776: 我這樣下: -M versatilepb -kernel zImage -hda rootfs.ext2 -append "root=/dev/sda" -vnc 0.0.0.0:1
+16:46 < ppc52776> chenwj: ㄟ~ 我們那些 binary 是 armv7 的有關係嘛?
+16:46 <@chenwj> ppc52776: 你說 rootfs 上的?
+16:46 < ppc52776> chenwj: 恩阿
+16:47 < ppc52776> chenwj: 還是用 -cpu cortex-a9 開機?
+16:47 <@chenwj> ppc52776: -M 似乎要加
+16:48 <@chenwj> ppc52776: versatilepb ARM Versatile/PB (ARM926EJ-S)
+16:48 <@chenwj> ppc52776: 可能有關係 ARM9 用的可能是 armv5
+16:48 < ppc52776> chenwj: -M 後還可以加 -cpu 嘛?
+16:49 < ppc52776> chenwj: 恩阿~可能有 instruction 沒有支援?
+16:50 <@chenwj> ppc52776: -cpu cortex-a9 -M versatilepb <- 黑屏
+16:50 <@chenwj> ppc52776: 我還是覺得用 buildroot 就好，這樣搞下去可能來不及跑 bench
+16:50 < ppc52776> chenwj: 恩,,,
+16:51 < ppc52776> chenwj: 先可以跑比較重要
+16:53 <@chenwj> ppc52776: buildroot default 是用 arm926t
+16:53 <@chenwj> ppc52776: 這應該有關係
+16:54 <@chenwj> ppc52776: 我問你喔，buildroot 裡面的 Toolchain 是指我們在 build image/rootfs 用的 toolchain 還是到時候裝在 guest 上的?
+16:55 < ppc52776> chenwj: build 時的
+16:55 <@chenwj> ppc52776: ok
+16:56 < ppc52776> chenwj: 對了~那你要先 compile 好才放進去 image 跑嗎
+16:57 <@chenwj> ppc52776: 你說 SPEC?
+16:57 < ppc52776> chenwj: 恩
+16:57 <@chenwj> ppc52776: 原本沒這打算
+16:57 < ppc52776> chenwj: 直接在模擬器裏面編譯？
+16:58 <@chenwj> ppc52776: 先 cross compile 再丟進去，他跑得起來嗎?
+16:58 <@chenwj> ppc52776: 因為我想說在模擬器裏面編譯 應該就能執行
+16:59 <@chenwj> ppc52776: cross compile 的話，crosstool-ng 的 kernel libc gcc binutils 都要跟 vm 裡的一樣
+17:00 <@chenwj> ppc52776: 有漏掉什麼嗎?
+17:01 < ppc52776> chenwj: 恩
+17:01 < ppc52776> chenwj: 其實用 buildroot 裏面的 toolchain
+17:01 < ppc52776> chenwj: 就會是一樣的版本了
+17:01 <@chenwj> ppc52776: nice
+17:02 <@chenwj> ppc52776: Kernel -> Install kernel image to /boot in target
+17:02 <@chenwj> ppc52776: 這個到時候會把 zImage 弄進 rootfs?
+17:02 < ppc52776> chenwj: 恩
+17:02 < ppc52776> chenwj: 這個應該是要做一個可以直接開機~含 bootloader 的 image
+17:03 <@chenwj> ppc52776: 用 buildroot 裏面的 toolchain
+17:03 <@chenwj> ppc52776: 也是要等他 make 完?
+17:03 <@chenwj> ppc52776: 再用他的 toolchain build SPEC，再打包?
+17:04 < ppc52776> chenwj: 你都已經可以 build rootfs.img 了~表示已經有了
+17:04 < ppc52776> chenwj: 恩
+17:04 <@chenwj> ppc52776: 你都已經可以 build rootfs.img 了~表示已經有了 <-?
+17:05 < ppc52776> chenwj: 已經有可以執行的 toolchain 了@@
+17:05 <@chenwj> ppc52776: 噢噢
+17:05 < ppc52776> chenwj: 還是每次你都會 make clean ??
+17:05 <@chenwj> ppc52776: 不會
+17:05 < ppc52776> chenwj: 恩

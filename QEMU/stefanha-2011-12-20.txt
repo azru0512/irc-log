@@ -1,0 +1,7 @@
+20:31 < chenwj_> does savevm save the running qemu as a file?
+20:33 < stefanha> chenwj_: It saves RAM, device state, and disk into an existing .qcow2 disk image that you are using.
+20:33 < stefanha> So you need to use .qcow2 files.
+20:33 < chenwj_> i see
+20:33 < chenwj_> if I savevm w/o tag/id, what's the default name
+20:33 < stefanha> chenwj_: I don't know, check the code or try it ;)
+20:34 < chenwj_> haha, ok

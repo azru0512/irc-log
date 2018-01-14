@@ -1,0 +1,17 @@
+17:28 < chenwj> agraf: ok to send typo patch to kvm?
+17:57 < agraf> chenwj: typo where? :)
+17:57 < chenwj> hang on
+17:59 < chenwj> agraf: x86/kvm/vmx.c:   * but due to arrata below it can't be used. Workaround is to use
+17:59 < chenwj> agraf: should be errata?
+17:59 < agraf> chenwj: most likely, yes
+17:59 < agraf> chenwj: just send a patch to kvm-devel :)
+17:59 < chenwj> I checkout the code from git://git.kernel.org/pub/scm/virt/kvm/kvm.git
+18:00 < chenwj> is that the right place?
+18:00 < agraf> sounds about right :)
+18:00 < chenwj> ok
+18:03 < chenwj> agraf: should I send to kvm@vger.kernel.org or https://lists.sourceforge.net/lists/listinfo/kvm-devel ?
+18:03 < chenwj> kvm-devel says it's obsolete
+18:03 < agraf> chenwj: the sourceforge one is dead
+18:03 < agraf> chenwj: kvm@vger is the one :)
+18:03 < chenwj> ;)
+18:19 < chenwj> agraf: sent

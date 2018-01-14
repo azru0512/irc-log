@@ -1,0 +1,117 @@
+20:25 < chenwj> wondering if anyone ever notice this post http://lists.gnu.org/archive/html/qemu-devel/2011-11/msg03420.html
+20:27 < pm215> chenwj: I saw that go past and thought "yes, indeed, making it possible to debug 'something went wrong' problems is one of the hard issues
+               that a recompile-hotspots design needs to solve" :-)
+20:28  * chenwj sigh
+20:28 < pm215> incidentally, cpu_unlink_tb() is just broken and needs to go away
+20:29 < agraf_> chenwj: ah, cool, I must've missed that mail :)
+20:29 < chenwj> you mean even without those optimizations I mention?
+20:29 < agraf_> chenwj: I was thinking about this for a while myself - doing hotspot analysis with llvm
+20:29 < agraf_> chenwj: yes, it's broken without the optimizations
+20:30 < pm215> yes, it's a cool thing to have a go at; there are some serious software engineering challenges in there to tackl
+20:30 < pm215> have you got to a point where you can see if the approach in general speeds things up?
+20:31 < chenwj> in process mode, the answer is yes
+20:31 < chenwj> but as I said in the post, we only test SPEC benchmark
+20:32 < pm215> what sort of speedup do you see there?
+20:32 < chenwj> hang on
+20:32 < chenwj> http://people.cs.nctu.edu.tw/~chenwj/slide/paper/hqemu.pdf
+20:34 < chenwj>  2.4X ~ 4X on SPEC benchmark on x86 to x86-64 emulation
+20:35 < pm215> that's pretty good
+20:36 < pm215> I think the way I'd approach this is to start off with overhauling the existing TCG setup so that it is (a) properly multithreaded (b) race
+               condition free (c) well documented (d) clean code. Then you have a firm foundation you can put the llvm work on top of.
+20:37 < chenwj> overhauling the existing TCG setup <- !
+20:37 < pm215> this is fairly standard with qemu. in order to do the interesting stuff you first have to kick the existing code into shape.
+20:38 < chenwj> does the emulation part of qemu evolve much in recent visions?
+20:39 < davidgiluk> chenwj, Your approach of tweeking the threshold at which you run the trace is a good way to debug, to find the broken block; another is
+                    if you add some configuration to only do traces if they start at an address >limit and change the limit until you find which block broke
+20:40 < chenwj> only do traces if they start at an address >limit ?
+20:41 < chenwj> davidgiluk: it's hard to say why the block is broken
+20:41 < chenwj> for now, the trace lenght is limit to one
+20:41 < chenwj> length
+20:42 < davidgiluk> chenwj: Do you know which block/trace has gone wrong?
+20:42 < chenwj> and we have tested llvm-only system mode (i.e., we replace TCG with LLVM)
+20:42 < chenwj> davidgiluk: sort of, but I'm not sure
+20:43 < chenwj> the broken one generate a few trace that work one has not
+20:44 < agraf_> chenwj: yeah, so what he's saying is execute it n times and every time only generate LLVM code for the ones where VA > x
+20:44 < agraf_> chenwj: with x increasing every iteration
+20:44 < chenwj> I guess those traces could be suspicious
+20:44 < agraf_> chenwj: then after a while you have narrowed it down to a virtual address
+20:45 < davidgiluk> That is if it always fails at the same place - which in system mode is not always true
+20:45 < chenwj> how's that say so?
+20:47 < davidgiluk> chenwj, Things don't always run in the same order because of interrupts and timers
+20:48 < chenwj> I see
+20:49 < agraf_> pm215: any innovative ideas on how to create a timer without breaking the guest's timers?
+20:49 < pm215> not offhand
+20:49 < pm215> also watch out for "signal sent to guest is configured to restart syscalls"...
+20:50 < agraf_> mh?
+20:51 < pm215> if you just set up the timer for those then you'll end up returning EINTR when you shouldn't
+20:52 < agraf_> oh - you can configure signals to continue syscalls?
+20:52 < pm215> yep
+20:52 < agraf_> wow
+20:53 < chenwj> pm215: how do you do that?
+20:53 < pm215> use the SA_RESTART flag when installing the signal handler. Note that it only restarts some system calls, not all
+20:53 < pm215> (see the signal(7) manpage
+20:56 < chenwj> pm215, agraf thanks for the reply
+20:57 < agraf_> pm215: but that's orthogonal, no?
+20:57 < pm215> orthogonal to what?
+20:57 < agraf_> pm215: i mean we still need to handle SA_RESTART in the normal syscall interruption case
+20:57 < agraf_> pm215: it's orthogonal to the race condition
+20:57 < agraf_> pm215: SA_RESTART can bite us just as well without the timer - unless of course we configure the host's signal to also do SA_RESTART
+20:58 < agraf_> pm215: which shouldn't work
+20:58 < agraf_> pm215: because we're not running the guest's signal handler in host's signal context
+20:58 < pm215> at the moment we just assume that passing SA_RESTART through to the host is good enough
+20:58 < agraf_> pm215: really?
+20:58 < agraf_> pm215: how do signals get handled at all then=
+20:58 < agraf_> ?
+20:58 < agraf_> pm215: are we seriously executing guest code from the host's signal handler?
+20:58 < pm215> no
+20:59 < agraf_> then passing SA_RESTART is a bad idea either way
+20:59 < friggle> how many of the qemu summer of code projects this year were successful?
+20:59 < agraf_> because we can't break up the chain if we just continue running the syscall
+20:59 < pm215> the effect is that we delay taking the signal until after the syscall finishes
+20:59 < agraf_> ... which can be forever
+21:00 < pm215> yeah, but if the signal is a restartable one then presumably the guest is fine with that
+21:00 < pm215> if the signal isn't restartable, then (other than this race) we'll return EINTR because the host signal interrupted the host syscall
+21:00 < agraf_> hrm
+21:00 < agraf_> so to make this work without timers
+21:01 < agraf_> or at least without messing with setitimer and multiplexing it between the poke we're talking about and the guest's timers
+21:01 < pm215> not passing SA_RESTART would probably break things because syscalls would return EINTR when the guest wasn't expecting it
+21:01 < agraf_> yeah, my thinking was that we'd handle SA_RESTART in the syscall handler code
+21:01 < agraf_> somehow
+21:01 < agraf_> either way
+21:01 < davidgiluk> chenwj, When you build the traces, do you make sure the traces stay within one page?
+21:02 < agraf_> we could do a separate thread per thread
+21:02 < agraf_> and then a simple flag in env that says "I am in do_syscall" and another one saying "I need a signal"
+21:02 < agraf_> oh wait - we have those flags already!
+21:02 < agraf_> :)
+21:02 < chenwj> davidgiluk: the trace length is limit to one basic block for now
+21:02 < agraf_> so then this helper-thread can poll for the flags and if necessary send an internal signal to the real thread
+21:02 < agraf_> waking it up from the syscall
+21:02 < afaerber> agraf_: suddenly you like threads, it seems... ;)
+21:03 < davidgiluk> chenwj, Ah OK
+21:03 < agraf_> afaerber: :)
+21:03 < pm215> one basic block doesn't imply one page...
+21:03 < chenwj> pm215: really?
+21:03 < chenwj> it has only 2 or 3 instructions
+21:03 < pm215> unless you mean a TCG block
+21:04 < pm215> which we do stop at the page boundary
+21:04 < pm215> but if you limit llvm compilation to one TCG block it has very little to actually work on
+21:04 < chenwj> our trace is composed of TCG block if IIRC
+21:04 < chenwj> pm215: that's for system mode setting
+21:04 < chenwj> in process mode, the length is 16
+21:06 < chenwj> we insert instrumented code in the TCG block
+21:06 < pm215> why should the setting be different in system and process modes?
+21:07 < chenwj> pm215: I want the situation be simple enough, I hope
+21:07 < chenwj> I am debugging the system mode, so ...
+21:07 < pm215> obviously reducing to one bblk for debug purposes is a good idea
+21:07 < davidgiluk> pm215: most of the time your process mode code doesn't get swapped around on a per-page basis
+21:07 < pm215> but you still need to cope with it (eg attached gdb sets a breakpoint midway through a trace)
+21:08 < davidgiluk> pm215: But then you can dorp the code and regenerate it split appropriately
+21:08 < davidgiluk> drop
+21:09 < pm215> this applies also to system mode IMHO
+21:09 < davidgiluk> pm215: it's much harder to track which page remappings break things
+21:10 < chenwj> what's the big difference/challenge between process and system mode?
+21:11 < chenwj> my big boss think it should be not a big deal to apply process mode opt on system mode
+21:12 < davidgiluk> chenwj: They always think that until they try to debug it
+21:13 < chenwj> davidgiluk: they won't do it. :/
+
+

@@ -1,0 +1,100 @@
+21:40 < chapuni64> good evening!
+21:42 < chenwj> evening!
+21:42 < chapuni64> chenwj: are you still at the univ?
+21:43 < chenwj> chapuni64: work
+21:43 < chenwj> chapuni64: what's up?
+21:44 < chapuni64> I have been becoming busy in this week :D
+21:44 < chapuni64> chenwj: do you work as a lecturer or assistant?
+21:44 < chenwj> it's Thur
+21:44 < chenwj> research assistant
+21:44 < chapuni64> for the PhD?
+21:45 < chenwj> nope
+21:45 < chenwj> just work :)
+21:46 < chenwj> more accurate, serve my military service
+21:46 < chapuni64> aah!
+21:46 < chapuni64> for two yrs?
+21:46 < chenwj> 3
+21:48 < chapuni64> excuse me for political topic, do you feel it would waste your time?
+21:49 < chenwj> sometimes, but this job can let me play with llvm and qemu
+21:50 < chenwj> so it's kind of trade-off
+21:50 < chapuni64> heheh it would be wonderful in your country!
+21:50 < chenwj> ?
+21:50 < chapuni64> I didn't imagine that position in service
+21:51 < chenwj> I didn't imagine that position in service <-  in military service?
+21:51 < chapuni64> I gussed
+21:52 < chenwj> it's a special military service. You work for company or research center as your military service
+21:52 < pyknite> chenwj: are you swiss?
+21:52 < chenwj> not usual soldier
+21:53 < chenwj> pyknite: I come from taiwan
+21:53 < kmacy> pyknite: he is connecting from taiwan ...
+21:53 < espindola> chandlerc: how many Decls would you expect in http://pastebin.mozilla.org/1599012?
+21:53 < chenwj> southeast island beside mainland china
+21:53 < kmacy> heh
+21:53 < kmacy> I would hope we all know where it is
+21:54 < chenwj> well, I am not sure ;)
+21:54 < chapuni64> of course I know where Taiwan is!
+21:54 < chenwj> It's a tiny spot on the map
+21:54 < kmacy> well
+21:54 < kmacy> its independence is a thorn in the side of the PRC
+21:54 < kmacy> so, it may be tiny
+21:55 < kmacy> but it gets a fair amount of commentary
+21:55 < chapuni64> Taiwan is known as "the beautiful tropical islang" :D
+21:55 < chapuni64> *island
+21:55 < kmacy> uhm
+21:55 < jtcranme1> I can get most of the countries, although I'll fail in the central asian portion of the former USSR and the smaller countries of west
+                   africa
+21:55 < kmacy> if you say so
+21:55 < pyknite> chenwj: oh ok... We have something like this system here too
+21:55 < jtcranme1> and the Carribean
+21:55 < kmacy> pyknite: what canton are you in?
+21:56 < jcranmer> so much for "ignorant American" stereotypes :-P
+21:56 < chenwj> chapuni64: are you work at Tokyo. I might attend LinuxCon Japan at Yakohama on 6/6 - 6/8
+21:57 < chapuni64> 1 hrs to Minato-mirai, Yokohama
+21:57 < chapuni64> I live in 30km west from Yokohama
+21:58 < kmacy> chapuni64: what line?
+21:58 < chapuni64> kmacy: from Ebina with Sotetsu line
+21:58 < kmacy> ok
+21:58 < chenwj> kmacy: are you work at Japan, too?
+21:59 < kmacy> I lived on keihin kyuko, about 30min south of Yokosuka a long time ago
+21:59 < kmacy> keihin kyukosen
+21:59 < kmacy> between oppama and mutsuura
+21:59 < chapuni64> Yokosuka! for cellular phone, or US marine?
+21:59  * chapuni64 or Nissan...
+21:59 < kmacy> exchange student at oppama koukou
+22:00 < chapuni64> heh, it was good :D
+22:00 < kmacy> hrrm?
+22:00 < chenwj> chapuni64: perhaps I can meet u there :p
+22:01 < chapuni64> I wont expect to attend then :(
+22:01 < chenwj> nono, I mean go outside
+22:01 < chapuni64> I could take dinner in Yokohama
+22:01 < chenwj> cool
+22:01 < chenwj> I am wondering where to eat
+22:02 < chapuni64> kmacy: "It was the good opportunity for you!"
+22:02 < kmacy> ahh
+22:02 < kmacy> ok
+22:02 < kmacy> yeah it was interesting
+22:02 < kmacy> it was hhrrm
+22:02 < kmacy> 23 years ago
+22:02 < kmacy> ;D
+22:02 < chenwj> wow
+22:02 < kmacy> daibu mae no koto da
+22:02 < chapuni64> Yokosuka is known as the town of US Navy (mistook, not Marine)
+22:02 < kmacy> yup
+22:03 < kmacy> I know
+22:03 < kmacy> but I had no connection
+22:03 < kmacy> I did manage to sneak on the base a couple of times through a hole in the fence
+22:03 < kmacy> :D
+22:03 < chapuni64> the hole is always important
+22:05  * chapuni64 had the experienct that the military police tracked him at Sasebo, Kyushu :D
+22:05 < chenwj> 0.o ?
+22:05 < kmacy> something is lost in translation
+22:05 < kmacy> :D
+22:06 < chapuni64> I have to stop off-topic lol
+22:06 < chenwj> :)
+22:06 < pyknite> kmacy: Vaud
+22:08 < kmacy> pyknite: ok, I guess with TI being less than half the population of San Francisco the odds of bumping in to someone from there online are
+               pretty small
+22:09 < pyknite> kmacy: TI?
+22:09 < kmacy> ticino
+22:09 < pyknite> oh ok.. I was looking for an acronyme ;)
+22:09 < kmacy> ahh

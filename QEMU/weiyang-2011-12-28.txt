@@ -1,0 +1,13 @@
+15:29 < weiyang> -nographic -serial unix:'/tmp/serial-20111213-120657-nmfl this option will redirect the output to this file?
+15:29 < weiyang> while i use cat it see nothing
+15:31 < weiyang> cat: /tmp/serial-20111213-120657-nmfl: No such device or address
+17:06 < alon> weiyang, mkfifo /tmp/serial-20111213-120657-nmfl first
+17:09 < weiyang>  mkfifo -m 777 /tmp/serial-20111213-120657-nmfl
+17:09 < weiyang> mkfifo: cannot create fifo `/tmp/serial-20111213-120657-nmfl': File exists
+17:09 < weiyang> alon,  i tried your command also couldn't
+17:10 < chenwj> weiyang: mkfifo another file?
+17:10 < weiyang> chenwj,  ? how?
+17:10 < chenwj> mkfifo /tmp/whatever ?
+17:12 < weiyang> chenwj,  it works
+17:12 < weiyang> chenwj, fine
+17:12 < chenwj> ;)

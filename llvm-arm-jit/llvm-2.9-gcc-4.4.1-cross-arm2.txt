@@ -1,0 +1,359 @@
+llvm[0]: Running test suite
+make[1]: Entering directory `/nfs_home/chenwj/test/cross-build/arm2xbuild/test'
+Making a new site.exp file...
+Making LLVM 'lit.site.cfg' file...
+Making LLVM unittest 'lit.site.cfg' file...
+( ulimit -t 600 ; ulimit -d 512000 ; ulimit -m 512000 ; ulimit -v 1024000 ; \
+	  /nfs_home/chenwj/test/llvm-2.9/utils/lit/lit.py -s -v . )
+-- Testing: 5840 tests, 4 threads --
+Testing: 0 .. 10.. 20.
+FAIL: LLVM :: CodeGen/Thumb/select.ll (1597 of 5840)
+******************** TEST 'LLVM :: CodeGen/Thumb/select.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -march=thumb | grep beq | /nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/count 1
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -march=thumb | grep bgt | /nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/count 1
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -march=thumb | grep blt | /nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/count 3
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -march=thumb | grep ble | /nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/count 1
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -march=thumb | grep bls | /nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/count 1
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -march=thumb | grep bhi | /nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/count 1
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -mtriple=thumb-apple-darwin | grep __ltdf2
+--
+Exit Code: 1
+Command Output (stderr):
+--
+Expected 3 lines, got 1.
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60
+FAIL: LLVM :: LLVMC/EmptyCompilationGraph.td (3763 of 5840)
+******************** TEST 'LLVM :: LLVMC/EmptyCompilationGraph.td' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/tblgen -I /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/../../include --gen-llvmc /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/EmptyCompilationGraph.td -o /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/EmptyCompilationGraph.td.tmp
+arm-unknown-linux-gnueabi-g++ -I/nfs_home/chenwj/test/cross-build/arm2xbuild/include -I/nfs_home/chenwj/test/cross-build/arm2xbuild/test -I/nfs_home/chenwj/test/llvm-2.9/include -I/nfs_home/chenwj/test/llvm-2.9/test -DNDEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -g  -fno-rtti -fPIC -Woverloaded-virtual -Wcast-qual -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -c -x c++  /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/EmptyCompilationGraph.td.tmp
+--
+Exit Code: 127
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/EmptyCompilationGraph.td.script: line 4: arm-unknown-linux-gnueabi-g++: command not found
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60
+FAIL: LLVM :: LLVMC/AppendCmdHook.td (3764 of 5840)
+******************** TEST 'LLVM :: LLVMC/AppendCmdHook.td' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/tblgen -I /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/../../include --gen-llvmc /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/AppendCmdHook.td -o /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/AppendCmdHook.td.tmp
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/FileCheck -input-file /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/AppendCmdHook.td.tmp /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/AppendCmdHook.td
+arm-unknown-linux-gnueabi-g++ -I/nfs_home/chenwj/test/cross-build/arm2xbuild/include -I/nfs_home/chenwj/test/cross-build/arm2xbuild/test -I/nfs_home/chenwj/test/llvm-2.9/include -I/nfs_home/chenwj/test/llvm-2.9/test -DNDEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -g  -fno-rtti -fPIC -Woverloaded-virtual -Wcast-qual -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -c -x c++  /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/AppendCmdHook.td.tmp
+--
+Exit Code: 127
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/AppendCmdHook.td.script: line 6: arm-unknown-linux-gnueabi-g++: command not found
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60
+FAIL: LLVM :: LLVMC/Alias.td (3765 of 5840)
+******************** TEST 'LLVM :: LLVMC/Alias.td' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/tblgen -I /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/../../include --gen-llvmc /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/Alias.td -o /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/Alias.td.tmp
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/FileCheck -input-file /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/Alias.td.tmp /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/Alias.td
+arm-unknown-linux-gnueabi-g++ -I/nfs_home/chenwj/test/cross-build/arm2xbuild/include -I/nfs_home/chenwj/test/cross-build/arm2xbuild/test -I/nfs_home/chenwj/test/llvm-2.9/include -I/nfs_home/chenwj/test/llvm-2.9/test -DNDEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -g  -fno-rtti -fPIC -Woverloaded-virtual -Wcast-qual -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -c -x c++  /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/Alias.td.tmp
+--
+Exit Code: 127
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/Alias.td.script: line 6: arm-unknown-linux-gnueabi-g++: command not found
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60
+FAIL: LLVM :: LLVMC/ForwardAs.td (3766 of 5840)
+******************** TEST 'LLVM :: LLVMC/ForwardAs.td' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/tblgen -I /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/../../include --gen-llvmc /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/ForwardAs.td -o /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/ForwardAs.td.tmp
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/FileCheck -input-file /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/ForwardAs.td.tmp /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/ForwardAs.td
+arm-unknown-linux-gnueabi-g++ -I/nfs_home/chenwj/test/cross-build/arm2xbuild/include -I/nfs_home/chenwj/test/cross-build/arm2xbuild/test -I/nfs_home/chenwj/test/llvm-2.9/include -I/nfs_home/chenwj/test/llvm-2.9/test -DNDEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -g  -fno-rtti -fPIC -Woverloaded-virtual -Wcast-qual -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -c -x c++  /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/ForwardAs.td.tmp
+--
+Exit Code: 127
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/ForwardAs.td.script: line 6: arm-unknown-linux-gnueabi-g++: command not found
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60
+FAIL: LLVM :: LLVMC/EnvParentheses.td (3767 of 5840)
+******************** TEST 'LLVM :: LLVMC/EnvParentheses.td' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/tblgen -I /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/../../include --gen-llvmc /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/EnvParentheses.td -o /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/EnvParentheses.td.tmp
+not grep {FOO")));} /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/EnvParentheses.td.tmp
+arm-unknown-linux-gnueabi-g++ -I/nfs_home/chenwj/test/cross-build/arm2xbuild/include -I/nfs_home/chenwj/test/cross-build/arm2xbuild/test -I/nfs_home/chenwj/test/llvm-2.9/include -I/nfs_home/chenwj/test/llvm-2.9/test -DNDEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -g  -fno-rtti -fPIC -Woverloaded-virtual -Wcast-qual -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -c -x c++  /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/EnvParentheses.td.tmp
+--
+Exit Code: 127
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/EnvParentheses.td.script: line 6: arm-unknown-linux-gnueabi-g++: command not found
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60
+FAIL: LLVM :: LLVMC/ForwardTransformedValue.td (3768 of 5840)
+******************** TEST 'LLVM :: LLVMC/ForwardTransformedValue.td' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/tblgen -I /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/../../include --gen-llvmc /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/ForwardTransformedValue.td -o /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/ForwardTransformedValue.td.tmp
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/FileCheck -input-file /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/ForwardTransformedValue.td.tmp /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/ForwardTransformedValue.td
+arm-unknown-linux-gnueabi-g++ -I/nfs_home/chenwj/test/cross-build/arm2xbuild/include -I/nfs_home/chenwj/test/cross-build/arm2xbuild/test -I/nfs_home/chenwj/test/llvm-2.9/include -I/nfs_home/chenwj/test/llvm-2.9/test -DNDEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -g  -fno-rtti -fPIC -Woverloaded-virtual -Wcast-qual -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -c -x c++  /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/ForwardTransformedValue.td.tmp
+--
+Exit Code: 127
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/ForwardTransformedValue.td.script: line 6: arm-unknown-linux-gnueabi-g++: command not found
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60
+FAIL: LLVM :: LLVMC/ForwardValue.td (3769 of 5840)
+******************** TEST 'LLVM :: LLVMC/ForwardValue.td' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/tblgen -I /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/../../include --gen-llvmc /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/ForwardValue.td -o /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/ForwardValue.td.tmp
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/FileCheck -input-file /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/ForwardValue.td.tmp /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/ForwardValue.td
+arm-unknown-linux-gnueabi-g++ -I/nfs_home/chenwj/test/cross-build/arm2xbuild/include -I/nfs_home/chenwj/test/cross-build/arm2xbuild/test -I/nfs_home/chenwj/test/llvm-2.9/include -I/nfs_home/chenwj/test/llvm-2.9/test -DNDEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -g  -fno-rtti -fPIC -Woverloaded-virtual -Wcast-qual -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -c -x c++  /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/ForwardValue.td.tmp
+--
+Exit Code: 127
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/ForwardValue.td.script: line 6: arm-unknown-linux-gnueabi-g++: command not found
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60
+FAIL: LLVM :: LLVMC/HookWithArguments.td (3770 of 5840)
+******************** TEST 'LLVM :: LLVMC/HookWithArguments.td' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/tblgen -I /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/../../include --gen-llvmc /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/HookWithArguments.td -o /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/HookWithArguments.td.tmp
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/FileCheck -input-file /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/HookWithArguments.td.tmp /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/HookWithArguments.td
+arm-unknown-linux-gnueabi-g++ -I/nfs_home/chenwj/test/cross-build/arm2xbuild/include -I/nfs_home/chenwj/test/cross-build/arm2xbuild/test -I/nfs_home/chenwj/test/llvm-2.9/include -I/nfs_home/chenwj/test/llvm-2.9/test -DNDEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -g  -fno-rtti -fPIC -Woverloaded-virtual -Wcast-qual -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -c -x c++  /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/HookWithArguments.td.tmp
+--
+Exit Code: 127
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/HookWithArguments.td.script: line 6: arm-unknown-linux-gnueabi-g++: command not found
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60
+FAIL: LLVM :: LLVMC/Init.td (3771 of 5840)
+******************** TEST 'LLVM :: LLVMC/Init.td' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/tblgen -I /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/../../include --gen-llvmc /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/Init.td -o /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/Init.td.tmp
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/FileCheck -input-file /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/Init.td.tmp /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/Init.td
+arm-unknown-linux-gnueabi-g++ -I/nfs_home/chenwj/test/cross-build/arm2xbuild/include -I/nfs_home/chenwj/test/cross-build/arm2xbuild/test -I/nfs_home/chenwj/test/llvm-2.9/include -I/nfs_home/chenwj/test/llvm-2.9/test -DNDEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -g  -fno-rtti -fPIC -Woverloaded-virtual -Wcast-qual -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -c -x c++  /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/Init.td.tmp
+--
+Exit Code: 127
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/Init.td.script: line 6: arm-unknown-linux-gnueabi-g++: command not found
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60
+FAIL: LLVM :: LLVMC/LanguageMap.td (3772 of 5840)
+******************** TEST 'LLVM :: LLVMC/LanguageMap.td' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/tblgen -I /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/../../include --gen-llvmc /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/LanguageMap.td -o /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/LanguageMap.td.tmp
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/FileCheck -input-file /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/LanguageMap.td.tmp /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/LanguageMap.td
+arm-unknown-linux-gnueabi-g++ -I/nfs_home/chenwj/test/cross-build/arm2xbuild/include -I/nfs_home/chenwj/test/cross-build/arm2xbuild/test -I/nfs_home/chenwj/test/llvm-2.9/include -I/nfs_home/chenwj/test/llvm-2.9/test -DNDEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -g  -fno-rtti -fPIC -Woverloaded-virtual -Wcast-qual -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -c -x c++  /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/LanguageMap.td.tmp
+--
+Exit Code: 127
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/LanguageMap.td.script: line 6: arm-unknown-linux-gnueabi-g++: command not found
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60
+FAIL: LLVM :: LLVMC/HookWithInFile.td (3773 of 5840)
+******************** TEST 'LLVM :: LLVMC/HookWithInFile.td' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/tblgen -I /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/../../include --gen-llvmc /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/HookWithInFile.td -o /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/HookWithInFile.td.tmp
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/FileCheck -input-file /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/HookWithInFile.td.tmp /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/HookWithInFile.td
+arm-unknown-linux-gnueabi-g++ -I/nfs_home/chenwj/test/cross-build/arm2xbuild/include -I/nfs_home/chenwj/test/cross-build/arm2xbuild/test -I/nfs_home/chenwj/test/llvm-2.9/include -I/nfs_home/chenwj/test/llvm-2.9/test -DNDEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -g  -fno-rtti -fPIC -Woverloaded-virtual -Wcast-qual -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -c -x c++  /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/HookWithInFile.td.tmp
+--
+Exit Code: 127
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/HookWithInFile.td.script: line 6: arm-unknown-linux-gnueabi-g++: command not found
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60
+FAIL: LLVM :: LLVMC/MultipleCompilationGraphs.td (3774 of 5840)
+******************** TEST 'LLVM :: LLVMC/MultipleCompilationGraphs.td' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/tblgen -I /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/../../include --gen-llvmc /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/MultipleCompilationGraphs.td -o /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/MultipleCompilationGraphs.td.tmp
+arm-unknown-linux-gnueabi-g++ -I/nfs_home/chenwj/test/cross-build/arm2xbuild/include -I/nfs_home/chenwj/test/cross-build/arm2xbuild/test -I/nfs_home/chenwj/test/llvm-2.9/include -I/nfs_home/chenwj/test/llvm-2.9/test -DNDEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -g  -fno-rtti -fPIC -Woverloaded-virtual -Wcast-qual -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -c -x c++  /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/MultipleCompilationGraphs.td.tmp
+--
+Exit Code: 127
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/MultipleCompilationGraphs.td.script: line 4: arm-unknown-linux-gnueabi-g++: command not found
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60
+FAIL: LLVM :: LLVMC/MultiValuedOption.td (3775 of 5840)
+******************** TEST 'LLVM :: LLVMC/MultiValuedOption.td' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/tblgen -I /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/../../include --gen-llvmc /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/MultiValuedOption.td -o /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/MultiValuedOption.td.tmp
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/FileCheck -input-file /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/MultiValuedOption.td.tmp /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/MultiValuedOption.td
+arm-unknown-linux-gnueabi-g++ -I/nfs_home/chenwj/test/cross-build/arm2xbuild/include -I/nfs_home/chenwj/test/cross-build/arm2xbuild/test -I/nfs_home/chenwj/test/llvm-2.9/include -I/nfs_home/chenwj/test/llvm-2.9/test -DNDEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -g  -fno-rtti -fPIC -Woverloaded-virtual -Wcast-qual -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -c -x c++  /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/MultiValuedOption.td.tmp
+--
+Exit Code: 127
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/MultiValuedOption.td.script: line 6: arm-unknown-linux-gnueabi-g++: command not found
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60
+FAIL: LLVM :: LLVMC/MultipleOutputLanguages.td (3778 of 5840)
+******************** TEST 'LLVM :: LLVMC/MultipleOutputLanguages.td' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/tblgen -I /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/../../include --gen-llvmc /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/MultipleOutputLanguages.td -o /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/MultipleOutputLanguages.td.tmp
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/FileCheck -input-file /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/MultipleOutputLanguages.td.tmp /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/MultipleOutputLanguages.td
+arm-unknown-linux-gnueabi-g++ -I/nfs_home/chenwj/test/cross-build/arm2xbuild/include -I/nfs_home/chenwj/test/cross-build/arm2xbuild/test -I/nfs_home/chenwj/test/llvm-2.9/include -I/nfs_home/chenwj/test/llvm-2.9/test -DNDEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -g  -fno-rtti -fPIC -Woverloaded-virtual -Wcast-qual -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -c -x c++  /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/MultipleOutputLanguages.td.tmp
+--
+Exit Code: 127
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/MultipleOutputLanguages.td.script: line 6: arm-unknown-linux-gnueabi-g++: command not found
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60
+FAIL: LLVM :: LLVMC/NoActions.td (3779 of 5840)
+******************** TEST 'LLVM :: LLVMC/NoActions.td' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/tblgen -I /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/../../include --gen-llvmc /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/NoActions.td -o /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/NoActions.td.tmp
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/FileCheck -input-file /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/NoActions.td.tmp /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/NoActions.td
+arm-unknown-linux-gnueabi-g++ -I/nfs_home/chenwj/test/cross-build/arm2xbuild/include -I/nfs_home/chenwj/test/cross-build/arm2xbuild/test -I/nfs_home/chenwj/test/llvm-2.9/include -I/nfs_home/chenwj/test/llvm-2.9/test -DNDEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -g  -fno-rtti -fPIC -Woverloaded-virtual -Wcast-qual -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -c -x c++  /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/NoActions.td.tmp
+--
+Exit Code: 127
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/NoActions.td.script: line 6: arm-unknown-linux-gnueabi-g++: command not found
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60
+FAIL: LLVM :: LLVMC/NoCompilationGraph.td (3780 of 5840)
+******************** TEST 'LLVM :: LLVMC/NoCompilationGraph.td' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/tblgen -I /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/../../include --gen-llvmc /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/NoCompilationGraph.td -o /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/NoCompilationGraph.td.tmp
+arm-unknown-linux-gnueabi-g++ -I/nfs_home/chenwj/test/cross-build/arm2xbuild/include -I/nfs_home/chenwj/test/cross-build/arm2xbuild/test -I/nfs_home/chenwj/test/llvm-2.9/include -I/nfs_home/chenwj/test/llvm-2.9/test -DNDEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -g  -fno-rtti -fPIC -Woverloaded-virtual -Wcast-qual -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -c -x c++  /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/NoCompilationGraph.td.tmp
+--
+Exit Code: 127
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/NoCompilationGraph.td.script: line 4: arm-unknown-linux-gnueabi-g++: command not found
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60
+FAIL: LLVM :: LLVMC/OneOrMore.td (3781 of 5840)
+******************** TEST 'LLVM :: LLVMC/OneOrMore.td' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/tblgen -I /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/../../include --gen-llvmc /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/OneOrMore.td -o /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/OneOrMore.td.tmp
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/FileCheck -input-file /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/OneOrMore.td.tmp /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/OneOrMore.td
+arm-unknown-linux-gnueabi-g++ -I/nfs_home/chenwj/test/cross-build/arm2xbuild/include -I/nfs_home/chenwj/test/cross-build/arm2xbuild/test -I/nfs_home/chenwj/test/llvm-2.9/include -I/nfs_home/chenwj/test/llvm-2.9/test -DNDEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -g  -fno-rtti -fPIC -Woverloaded-virtual -Wcast-qual -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -c -x c++  /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/OneOrMore.td.tmp
+--
+Exit Code: 127
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/OneOrMore.td.script: line 6: arm-unknown-linux-gnueabi-g++: command not found
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60
+FAIL: LLVM :: LLVMC/OptionPreprocessor.td (3782 of 5840)
+******************** TEST 'LLVM :: LLVMC/OptionPreprocessor.td' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/tblgen -I /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/../../include --gen-llvmc /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/OptionPreprocessor.td -o /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/OptionPreprocessor.td.tmp
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/FileCheck -input-file /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/OptionPreprocessor.td.tmp /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/OptionPreprocessor.td
+arm-unknown-linux-gnueabi-g++ -I/nfs_home/chenwj/test/cross-build/arm2xbuild/include -I/nfs_home/chenwj/test/cross-build/arm2xbuild/test -I/nfs_home/chenwj/test/llvm-2.9/include -I/nfs_home/chenwj/test/llvm-2.9/test -DNDEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -g  -fno-rtti -fPIC -Woverloaded-virtual -Wcast-qual -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -c -x c++  /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/OptionPreprocessor.td.tmp
+--
+Exit Code: 127
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/OptionPreprocessor.td.script: line 6: arm-unknown-linux-gnueabi-g++: command not found
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60
+FAIL: LLVM :: LLVMC/OutputSuffixHook.td (3784 of 5840)
+******************** TEST 'LLVM :: LLVMC/OutputSuffixHook.td' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/tblgen -I /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/../../include --gen-llvmc /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/OutputSuffixHook.td -o /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/OutputSuffixHook.td.tmp
+/nfs_home/chenwj/test/cross-build/arm2xbuild/Debug/bin/FileCheck -input-file /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/OutputSuffixHook.td.tmp /nfs_home/chenwj/test/llvm-2.9/test/LLVMC/OutputSuffixHook.td
+arm-unknown-linux-gnueabi-g++ -I/nfs_home/chenwj/test/cross-build/arm2xbuild/include -I/nfs_home/chenwj/test/cross-build/arm2xbuild/test -I/nfs_home/chenwj/test/llvm-2.9/include -I/nfs_home/chenwj/test/llvm-2.9/test -DNDEBUG -D_GNU_SOURCE -D__STDC_LIMIT_MACROS -D__STDC_CONSTANT_MACROS -g  -fno-rtti -fPIC -Woverloaded-virtual -Wcast-qual -pedantic -Wno-long-long -Wall -W -Wno-unused-parameter -Wwrite-strings -c -x c++  /nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/OutputSuffixHook.td.tmp
+--
+Exit Code: 127
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/cross-build/arm2xbuild/test/LLVMC/Output/OutputSuffixHook.td.script: line 6: arm-unknown-linux-gnueabi-g++: command not found
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.. 
+Testing Time: 475.27s
+********************
+Failing Tests (20):
+    LLVM :: CodeGen/Thumb/select.ll
+    LLVM :: LLVMC/Alias.td
+    LLVM :: LLVMC/AppendCmdHook.td
+    LLVM :: LLVMC/EmptyCompilationGraph.td
+    LLVM :: LLVMC/EnvParentheses.td
+    LLVM :: LLVMC/ForwardAs.td
+    LLVM :: LLVMC/ForwardTransformedValue.td
+    LLVM :: LLVMC/ForwardValue.td
+    LLVM :: LLVMC/HookWithArguments.td
+    LLVM :: LLVMC/HookWithInFile.td
+    LLVM :: LLVMC/Init.td
+    LLVM :: LLVMC/LanguageMap.td
+    LLVM :: LLVMC/MultiValuedOption.td
+    LLVM :: LLVMC/MultipleCompilationGraphs.td
+    LLVM :: LLVMC/MultipleOutputLanguages.td
+    LLVM :: LLVMC/NoActions.td
+    LLVM :: LLVMC/NoCompilationGraph.td
+    LLVM :: LLVMC/OneOrMore.td
+    LLVM :: LLVMC/OptionPreprocessor.td
+    LLVM :: LLVMC/OutputSuffixHook.td
+
+  Expected Passes    : 5230
+  Expected Failures  : 48
+  Unsupported Tests  : 542
+  Unexpected Failures: 20
+make[1]: Leaving directory `/nfs_home/chenwj/test/cross-build/arm2xbuild/test'

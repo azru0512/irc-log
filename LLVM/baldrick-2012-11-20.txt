@@ -1,0 +1,49 @@
+17:29 < chenwj> maybe ask this on ml to get ARM guys attention?
+17:31 < pyknite> Hi!
+17:31 < chenwj> yo!
+17:32 < chenwj> pyknite: long time no see
+17:33 <@baldrick> chenwj: is it worth caring about this test?
+17:34 < pyknite> I'm trying to add a required pass to my pass... I have: virtual void getAnalysisUsage(AnalysisUsage &AU){ AU.addRequiredID(LowerSwitchID);
+                 } but LowerSwitch pass is never called
+17:34 < chenwj> well... I am writing a toy backend, and want to write small test case first. I am a little confused why they don't have asm
+17:36 < pyknite> I don't see what I'm missing :(
+17:37 < j`ey> chenwj: its not worth worrying about
+17:37 < j`ey> it used to just do .ll -> .bc -> .s, now just .ll -> .s
+17:38 <@baldrick> chenwj: if it's just a test that ARM codegen doesn't crash on this IR, then it is correct as it is
+17:39 < j`ey> "added some tests for argument passing"
+17:39 < j`ey> was the original commit message
+17:15 < chenwj> I saw some test case only has llvm ir, without expect target asm. why?
+17:15 < chenwj> take test/CodeGen/ARM/ret_void.ll as example,
+17:15 < chenwj> ; RUN: llc < %s -march=arm
+17:15 < chenwj> define void @test() {
+17:15 < chenwj>         ret void
+17:15 < chenwj> }
+17:16 <@baldrick> chenwj: because ARM codegen used to crash on this maybe?
+17:16 < chenwj> you mean XFAIL?
+17:17 <@baldrick> clearly ARM doesn't crash on it now, but perhaps it used to
+17:17 <@baldrick> so no, not XFAIL
+17:17 <@baldrick> just a test it doesn't crash
+17:18 < chenwj> I thought it should have line "; CHECK: ARM asm" above "ret void"
+17:18 < chenwj> no?
+17:19 <@baldrick> why?
+17:19 <@baldrick> if llc crashes the test will fail
+17:20 <@baldrick> if llc doesn't crash then the test will pass
+17:20 <@baldrick> if doesn't need any CHECK lines if that is what it is testing
+17:20 <@baldrick> what does the commit log say?
+17:25 < chenwj> baldrick: http://llvm.org/viewvc/llvm-project/llvm/trunk/test/CodeGen/ARM/ret_void.ll?revision=81293&view=markup
+17:26 < chenwj> baldrick: Eliminate more uses of llvm-as and llvm-dis. ??
+17:27 <@baldrick> yes, pretty odd
+17:29 < chenwj> maybe ask this on ml to get ARM guys attention?
+17:31 < pyknite> Hi!
+17:31 < chenwj> yo!
+17:32 < chenwj> pyknite: long time no see
+17:33 <@baldrick> chenwj: is it worth caring about this test?
+17:34 < pyknite> I'm trying to add a required pass to my pass... I have: virtual void getAnalysisUsage(AnalysisUsage &AU){ AU.addRequiredID(LowerSwitchID);
+                 } but LowerSwitch pass is never called
+17:34 < chenwj> well... I am writing a toy backend, and want to write small test case first. I am a little confused why they don't have asm
+17:36 < pyknite> I don't see what I'm missing :(
+17:37 < j`ey> chenwj: its not worth worrying about
+17:37 < j`ey> it used to just do .ll -> .bc -> .s, now just .ll -> .s
+17:38 <@baldrick> chenwj: if it's just a test that ARM codegen doesn't crash on this IR, then it is correct as it is
+17:39 < j`ey> "added some tests for argument passing"
+17:39 < j`ey> was the original commit message

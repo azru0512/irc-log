@@ -1,0 +1,23 @@
+08:47 <jia> 你什么个情况啊？
+08:47 <chenwj> ?
+08:51 <chenwj> $ ./Debug+Asserts/bin/llc -march=unicore32 -filetype=asm ../llvm/test/CodeGen/UniCore/ret.ll
+08:51 <chenwj> ./Debug+Asserts/bin/llc: target does not support generation of this file type!
+08:51 <chenwj> 我這邊不知道還差了什麼
+08:51 <jia> 先说你发给我的tarball
+08:52 <jia> 我昨晚发了3个，你把剩下的分割整理成patch吧
+08:52 <jia> 然后，我们再看少了什么，应该不少
+08:53 <chenwj> 我想把後端整個接起來 發成 patchset
+08:53 <jia> 先把目前的弄一下啊
+08:54 <chenwj> 恩
+08:54 <jia> 你这，一下MCIntsrLowering的stub都有了，不好查啊
+08:54 <jia> 一步一步来，好查
+08:55 <chenwj> 我今天再是一是
+08:58 <jia> split一下啊，我就不重复劳动了
+08:58 <chenwj> 怎麼 split?
+08:59 <jia> Framelowering一个
+08:59 <jia> TargetInfo一个
+08:59 <jia> TargetObjectFile一个
+08:59 <jia> ISleLowering单独一个
+09:00 <jia> MCLowering一个
+09:00 <jia> ISelDAGToDAG一个
+09:03 <chenwj> 恩

@@ -1,0 +1,127 @@
+05:24 < agraf> mmu_man: "must be enabled"?
+08:09 < mmu_man> agraf: as in the msr bit isn't set
+08:09 < mmu_man> by U-Boot
+08:10 < mmu_man> I notice we already do this for non-boot cpus already
+14:53 < Jia> hello, is Blue here?
+14:53 < Jia> As I mention in the later patch, this makes AREG0 to be used for CPUState (also HELPER_CFLAGS is not used to compile mem_helper.o). Please
+             avoid it, then you also need to adjust CONFIG_TCG_PASS_AREG0 case in configure.
+14:53 < Jia> I'm not fully understand this.
+15:06 < agraf> mmu_man: yeah, that's what usually happens ;)
+15:20 < kashyap_> hi, cache=none, meaning all the data is written to the disk. right?
+16:55 < chenwj> agraf: doesn't sleep?
+16:55 < agraf> chenwj: who doesn't sleep? :)
+16:56 < chenwj> I thought you are awake at about 5 pm (UTC +8, our time zone) ;)
+16:56 < agraf> chenwj: heh :)
+16:56 < agraf> chenwj: i wake up at random times
+16:56 < chenwj> ha
+16:57 < agraf> chenwj: though mostly between 7-11am :)
+16:57 < Jia> 5:00 pm
+16:57 < chenwj> Jia: ?
+16:58 < Jia> I‘m at UTC+8, 5:00 pm, too.
+16:58 < chenwj> Jia: you can asj agraf about the ARGV0 problem that blue mentioned in your patchset
+16:58 < chenwj> s/asj/ask
+17:00 < Jia> agraf: hello, may you tell me something about AREG0 global env and dyngen_exec.h?
+17:00 < Jia> I get a comenmt
+17:01 < Jia> As I mention in the later patch, this makes AREG0 to be used for CPUState (also HELPER_CFLAGS is not used to compile mem_helper.o). Please
+             avoid it, then you also need to adjust CONFIG_TCG_PASS_AREG0 case in configure.
+17:01 < Jia> But I'm not fully understand this.
+17:01 < agraf> Jia: not sure what you don't understand about it :)
+17:01 < agraf> Jia: without areg0, env is a global register variable
+17:02 < agraf> Jia: with areg0, env is always passed as parameter to all the functions that need it
+17:02 < Jia> agraf: thanks! I get it! you are really a expert!
+17:05 < chenwj> agraf: should be in another way around?
+17:05 < agraf> chenwj: uh
+17:05 < chenwj> without areg0, env is always passed as parameter to all the functions that need it
+17:05 < agraf> chenwj: yes
+17:05 < agraf> chenwj: I mean "with the areg0 patches"
+17:05 < agraf> :)
+17:05  * chenwj poke Jia
+17:05 < agraf> sorry
+17:05 < Jia> but when I pass env as a arg.
+17:06 < Jia> I can NOT delete dyngen_exec.h still
+17:07 < Jia> I was told by chenwj&richi that dyngen_exec.h evil, and delete it.
+17:07 < chenwj> uh... you delete it or just remove it from your target?
+17:07 < chenwj> becasue other targets might need dyngen_exec.h :/
+17:08 < Jia> sparc did delete it.
+17:09 < chenwj> Jia: by delete it, I mean delete it from the source tree
+17:09 < Jia> but when I delete it, get lots of errors.
+17:09 < Jia> chenwj:  just delete     #include "dyngen_exec.h"
+17:11 < Jia> home/jia/qemu/softmmu_header.h:107:9: error: ‘env’ undeclared (first use in this function)
+17:17 < chenwj> Jia: *if* iirc, blue sent a patch which remove global env everywhere
+17:17 < chenwj> Jia: and add wrapper functions
+17:18 < afaerber> chenwj: I'm pretty sure he didn't (yet)
+17:18 < afaerber> not all targets have been converted yet
+17:18 < chenwj> Jia: you just remove #include "dyngen_exec.h" from target-openrisc/mem_helper.c, right?
+17:18 < Jia> yes
+17:19 < afaerber> so far only sparc(64) and alpha; ppc(64) and x86 are still pending
+17:19 < chenwj> Jia: do you #include softmmu_header.h in mem_helper.c?
+17:19 < chenwj> afaerber: I see
+17:19 < Jia> yes, I have to
+17:19 < afaerber> Jia, check if your helper.h file has the env parameter set up correctly
+17:20 < Jia> my helper.h is quite simple.
+17:21 < Jia> #include "def-helper.h"
+17:21 < Jia> /* exception */
+17:21 < Jia> DEF_HELPER_FLAGS_2(exception, 0, void, env, i32)
+17:21 < Jia> /* float */
+17:21 < Jia> DEF_HELPER_FLAGS_2(itofd, 0, tl, env, tl)
+17:21 < Jia> DEF_HELPER_FLAGS_2(itofs, 0, tl, env, tl)
+17:21 < chenwj> Jia: that's why it complain it cannot find env
+17:21 < Jia> DEF_HELPER_FLAGS_2(ftoid, 0, tl, env, tl)
+17:21 < Jia> DEF_HELPER_FLAGS_2(ftois, 0, tl, env, tl)
+17:21 < Jia> /* int */
+17:21 < Jia> DEF_HELPER_FLAGS_1(ff1, 0, tl, tl)
+17:21 < Jia> DEF_HELPER_FLAGS_1(fl1, 0, tl, tl)
+17:21 < Jia> DEF_HELPER_FLAGS_3(add, 0, tl, env, tl, tl)
+17:21 < Jia> DEF_HELPER_FLAGS_3(addc, 0, tl, env, tl, tl)
+17:21 < Jia> DEF_HELPER_FLAGS_3(sub, 0, tl, env, tl, tl)
+17:21 < Jia> /* interrupt */
+17:21 < Jia> DEF_HELPER_FLAGS_1(rfe, 0, void, env)
+17:21 < Jia> /* sys */
+17:21 < Jia> DEF_HELPER_FLAGS_4(mtspr, 0, void, env, tl, tl, tl)
+17:21 < Jia> DEF_HELPER_FLAGS_4(mfspr, 0, void, env, tl, tl, tl)
+17:21 < Jia> #include "def-helper.h"
+17:22 < Jia> env is a global ARG, it is needed by qemu/softmmu_template.h
+17:22 < afaerber> so ff1 and fl1 are the only ones without env - do they use it?
+17:22 < Jia> nope, ff1&fl1 have nothing to do with env.
+17:23 < afaerber> Jia, so which function provokes the "'env' undeclared" then?
+17:24 < afaerber> there's gotta be a callstack beyond softmmu_helper.h
+17:25 < Jia> sorry, I'm not sure about this. I can not fully understand qemu yet.
+17:25 < afaerber> you need to read/post the exact error message - not just one line of it
+17:26 < Jia> In file included from /home/jia/qemu/softmmu_exec.h:27:0,
+17:26 < Jia>                  from /home/jia/qemu/target-openrisc/mmu_helper.c:26:
+17:26 < Jia> /home/jia/qemu/softmmu_header.h: In function ‘ldubMMU_MODE0_SUFFIX’:
+17:26 < Jia> /home/jia/qemu/softmmu_header.h:107:9: error: ‘env’ undeclared (first use in this function)
+17:26 < Jia> and blabla...
+17:27 < afaerber> does config-host.mak contain CONFIG_TCG_PASS_AREG0?
+17:27 < Jia> no, it does not.
+17:28 < Jia> need I add it? and, how can I add it?
+17:28 < afaerber> then you need to check configure and assure you set it :)
+17:28 < Jia> case "$target_arch2" in
+17:28 < Jia>   alpha | openrisc | sparc*)
+17:28 < Jia>     echo "CONFIG_TCG_PASS_AREG0=y" >> $config_target_mak
+17:28 < Jia>   ;;
+17:28 < Jia> esac
+17:28 < afaerber> yep
+17:28 < Jia> I think I've set it.
+17:29 < Jia> but I still get the deam errors...
+17:29 < Jia> what did I miss?
+17:29 < afaerber> maybe that's not working then? maybe it's or32 instead of openrisc?
+17:30 < Jia>   or32)
+17:30 < Jia>     TARGET_ARCH=openrisc
+17:30 < Jia>     TARGET_BASE_ARCH=openrisc
+17:30 < Jia>     target_phys_bits=32
+17:30 < Jia>   ;;
+17:30 < Jia> I think it should be openrisc, but not or32. whatever, I'll have a try.
+17:32 < afaerber> Jia, my fault: you need to check config-target.mak, not config-host.mak ;)
+17:33 < afaerber> in or32-softmmu/ subdirectory
+17:33 < Jia> afaerber: thank you very much!!! it is or32 but not openrisc.
+17:33 < chenwj> Jia: so you set or32 not openrisc?
+17:34 < afaerber> $TARGET_ARCH, $target_arch2, etc. are a complete mess ;)
+17:34 < Jia> chenwj: or32 is target, openrisc is ARCH.
+17:34 < Jia> I've got so much.
+17:36 < Jia> you are so nice people.
+17:36 < chenwj> Jia: problem solved?
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+17:37 < Jia> yes
+17:37 < Jia> but another problem show up.
+17:37 < chenwj> Jia: let's solve it one by one

@@ -1,0 +1,111 @@
+12:53 < gmaxwell> Is graphite unmaintined or something?  Usually when I open a reproducable ICE bug in bugzilla its fixed before I can reload the page. This
+                  report of mine is still sitting in unconfirmed after three months: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=50335
+12:53 < gccbot> Bug 50335: normal, P3, ---, unassigned, UNCONFIRMED , ICE in psct_dynamic_dim, at graphite-poly.h:659
+13:54 -!- gccbot changed the topic of #gcc to: Development of GCC || Trunk status - stage 3 || Still 115 regressions in 4.4, 137 in 4.5, 137 in 4.6 and 173
+          in 4.7 (`)
+15:06 < jakub> gmaxwell: I'm afraid it is, Sebastian Pop seems to be working on LLVM/Poly instead of Graphite these days
+15:54 -!- gccbot changed the topic of #gcc to: Development of GCC || Trunk status - stage 3 || Still 115 regressions in 4.4, 137 in 4.5, 137 in 4.6 and 173
+          in 4.7 (`)                                                                                                                                         16:25 < Dodji`> Hello                                                                                                                                        16:28 -!- Dodji` is now known as Dodji                                                                                                                       16:33 < richi> moin                                                                                                                                          16:41 < jakub> richi: any ideas what to do with the graphite PRs?  Seems Sebastian works now on LLVM/Poly, at least I haven't seen any patch/commit from him                to GCC since July
+16:41 < jakub> richi: we have at least one P1 graphite related
+16:47 < jakub> TobiasG: do you think anyone from the graphite folks will have time/interest for the 4.7 graphite regressions?
+16:50 < richi> jakub: I suppose we can downgrade them when it suits us
+16:52 < jakub> more importantly, if graphite dies, we'd need some other loop transformation framework (resurrect tree-loop-linear.c and fix it up?)
+16:52 < richi> yes, I plan to look into some high-level loop stuff w/o gaphite this stage3/4
+16:55 < maximk> It does not feel right for graphite to die off just because its maintainer temporarily or permanently does not have time to work on it.
+                Things happen with humans, but the code (assuming it does something useful, and graphite, I believe, qualifies) should be able to survive
+                that.
+16:56 < jakub> maximk: well, if we don't have anybody sufficiently familiar with the code to fix up issues in it and continually improve it, then either
+               somebody stands up and learns it, or it will die off, either officially, or just become irrelevant
+16:57 < richi> it's also true that "the graphite promise" basically discouraged work on alternative high-level loop transforms
+16:57 < maximk> jakub: I completely agree.  In my opinion, the default mindset should be that someone will step up.
+16:59 < maximk> jakub: [without any commitment] I'm now building trunk GCC to try look into PR50335.  I have very vague idea how graphite works, but, maybe,
+                that will be enough.
+17:00 < maximk> Also, I doubt Sebastian would abandon Graphite in any case.
+17:01 < richi> anybody knows where he is working now?
+17:02 < maximk> richi: AMD, last time I heard.
+17:02 < richi> no, not any longer
+17:03 < maximk> richi: right, Qualcomm
+17:04 < jakub> http://www.mail-archive.com/cfe-commits@cs.uiuc.edu/msg41191.html suggests Qualcomm
+17:10 < Dodji> indeed, linkedin says Qualcomm
+17:11 < chenwj> graphite is a good way to do loop optimization?
+17:36 < maximk> chenwj: yes, I think so.
+17:39 < chenwj> I guess graphite only works on scientific application?
+17:44 < jakub> maximk: well, it is unclear, graphite didn't improve stuff as it promissed, I think the main problem is that it doesn't work on the GIMPLE
+               IL, but transforms things into another kind of IL and back
+17:44 < chenwj> polly does the same thing IIRC
+17:48 < jakub> chenwj: see vmakarov's SPEC results
+17:48 < chenwj> is there a link?
+17:48 < TobFZJ> If I have understood Tobias Grosser correctly the last time we met, the GCC's graphite does not do much optimization, yet, and does
+                currently mostly gimple -> polyhedron -> gimple transformations.
+17:49 < TobFZJ> I think (for existing but badly written code) the -floop-interchange is most useful.
+17:50 < jakub> chenwj: http://gcc.gnu.org/ml/gcc/2011-09/msg00043.html
+17:50 < chenwj> thanks, jakub
+17:50 < TobFZJ> It think Tobi doesn't do much GCC work himself as his project relates to GPUs for which LLVM is more suited than GCC
+17:51 < chenwj> since LLVM has PTX backend?
+17:51 < TobFZJ> I think the main advantage of LLVM is that the hardware vendors use it to generate from the LLVM IL the code for the GPU,
+17:52 < TobFZJ> which is more a question of what is implemented than a real technical reason.
+17:52 < jakub> TobFZJ: yeah, though graphite didn't do more than that in the 5 years since it has been created
+17:52 < TobFZJ> But I can be completely wrong since I have not done much with GPUs. Though, I would love to see more GPU support in GCC.
+17:53 < chenwj> is possiable to implement a GPU backend in GCC?
+17:54 < jakub> TobFZJ: I think you aren't alone, but are there any GPUs that are actually sufficiently documented?  My understanding is that most of the
+               GPUs are kept highly secret and that is why they have their own proprietary IL feeded into proprietary compilers
+17:54 < jakub> chenwj: I guess SPU is somewhat similar and we have support for that
+17:55 < chenwj> jakub: LLVM PTX be emits PTX assembly which is documented
+17:55 < chenwj> and leave it to Nvidia blackbox
+17:56 < richi> yeah, it's basically a little bit more low-level than the various high level languages
+17:56 < richi> but it's still "compiled", not only assembled
+17:57 < TobFZJ> I wonder who is interested in Graphite. AMD was when Sebastian was there (is it still?), as David Edelsohn had once some discussion, maybe
+                IBM is interested in supporting Graphite?
+17:57 < richi> The issue with Graphite is that this polyhedral stuff is not easy
+17:58 < TobFZJ> I thought some of the difficulties are hidden in the library - but probably not enough. (BTW IBM's xl uses PolyLib.)
+17:58 < richi> Looking at our benchmark analyses what GCC would benefit most from is some tree level loop fusion and unrolling (to make unroll-and-jam, aka
+               outer loop unrolling, possible)
+17:59 < richi> I was planning to look at loop distribution to see whether I can fit in fusion
+17:59 < jakub> interchange is useful too
+17:59 < richi> of course
+17:59 < monoid> richi: I wonder why you say that ptx is only a little bit more low-level
+18:00 < richi> monoid: because it doesn't map to hardware directly
+18:00 < richi> monoid: it's not an assembler language in the traditional sense
+18:01 < jakub> kind of like you would say Java bytecode is an assembly language
+18:02 < jakub> I mean text representation thereof
+18:02 < monoid> yeah, I was questioning the "little" part
+18:02 < richi> ah, ok
+18:08 < TobiasG> The isl optimizer should then be easy to add to graphite.
+18:10 < TobiasG> maximk: Hi, in case you want to help with graphite
+18:10 < TobiasG> I would highly appreciate this.,
+18:11 < TobiasG> And will obviously help you with any questions or reviewing questions.
+18:11 < TobiasG> or patches.
+18:28 < TobFZJ> TobiasG: Do you think that adding the ISL will help with the optimization? Currently, Graphite suffers
+18:28 < TobFZJ> TobiasG: from helping with the performance while being not really maintained.
+18:29 < TobFZJ> s/from/from not/
+18:29 < TobiasG> TobFZJ: The use of isl has two advantages.
+18:29 < TobFZJ> At least the last time I tried graphite, the overall performace was a bit lower than w/o graphite.
+18:30 < TobiasG> First it gives us integer polyhedra, which help to express certain constructs like calculations on unsigned integers.
+18:30 < TobiasG> Furthermore, it allows more precise calculations (it uses integer polyhedra instead of rational polyhedra).
+18:30 < TobiasG> These are the main benefits in terms of the integer library.
+18:31 < TobiasG> However, the main benefit of using isl widely is actually the stuff Sven and me are currently working on.
+18:31 < TobiasG> As you stated graphite does not give huge speedups.
+18:31 < TobiasG> There are two main causes for it.
+18:32 < TobiasG> First of all, graphite can not yet represent/optimize all the loop bodies that are interesting to optimize.
+18:32 < TobiasG> This can be improved gradually and isl is one step to increase the amount of code we can optimize.
+18:32 < TobiasG> However, the biggest issue with graphite at the moment is
+18:32 < TobiasG> that graphite has some basic/classical loop optimizations implemented.
+18:33 < TobiasG> However, it is still missing a really good optimizer.
+18:33 < TobiasG> You can see this easily by realizing that graphite does in many cases not give good speedups.
+18:34 < TobiasG> This is what I am working on currently
+18:34 < TobiasG> (Even though not visible on the gcc mailing lists)
+18:34 < TobiasG> The idea is to get a production qualtiy implementation of Pluto into isl
+18:35 < TobiasG> Pluto: http://pluto-compiler.sourceforge.net/
+18:35 < TobiasG> This is an advanced polyhedral optimizer, that has shown good results on research papers.
+18:35 < TobiasG> But also, the original author of Pluto was employed by IBM to reimplement this approach in IBM XL.
+18:36 < TobiasG> At the moment we have a working implementation in isl, though it still needs tuning of the heuristics.
+18:37 < TobiasG> Also, we need to work on defining the optimization space in such a way that the optimization can be calculated during normal compilation.
+18:38 < TobiasG> This is at the moment a problem in Polly.
+18:38 < TobiasG> However, rethinking this. It should actually be less of a Problem for Graphite
+18:38 < TobiasG> As graphite can provide more information about the program, such that the optimization problem itself is actually easier to solve.
+18:39 < TobiasG> So, in short.
+18:39 < TobiasG> Sven and me are working on an optimizer in isl.
+18:39 < TobiasG> This can hopefully solve the problem of a missing optimizer in graphite.
+18:50 < TobiasG> Sorry, my battery is dying. I will either be back in the chat today.
+18:50 < TobiasG> Or otherwise start a thread to discuss the current state and future of graphite.
+18:50 < TobiasG> I think an update is necessary here.

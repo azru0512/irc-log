@@ -1,0 +1,36 @@
+03:34 < landley> Anybody know what Fabrice Bellard is doing these days?
+03:34 < ohsix> being french at google
+03:35 < landley> Hmmm.
+03:35 < landley> I just emailed him to ask how much he'd charge to glue tcg to tcc and redo tccboot with the result.
+03:35 < landley> I was thinking of running a kickstarter.
+03:35 < landley> But if he's not contracting anymore, that makes it a bit harder.
+03:36 < landley> I'd have to coordinate with his boss. :)
+03:42 < ohsix> hm i thought he was at google, but i can't find anything like what made me think that
+04:41 < chenwj_> landley: I guess he's working on http://bellard.org/jslinux/
+05:34 < shog> hello. is there any easy way to check if qcow2 disk was created with preallacation=metadata or not? qemu-img info isn't really helpful in such
+              case.
+05:48 < landley> chenwj_ Which is cool, but clearly not his day job.
+05:48 < landley> If he's at Google it might be his 20% project.
+05:49 < landley> I emailed him to ask how much it would cost to refactor tcc to use tcg as a code generator, and then use the result to resurrect tccboot
+                 with a current 3.x kernel.
+05:49 < landley> If he was up for it, I'd then do a kickstarter based on that figure...
+05:50 < landley> ohsix: I twittered Chris Dibona to ask.  He'd know...
+05:51 < chenwj_> kickstarter?
+05:52 < landley> http://en.wikipedia.org/wiki/Kickstarter
+05:52 < landley> http://www.kickstarter.com/projects/847271320/ogre-designers-edition
+05:53 < landley> http://www.kickstarter.com/projects/amandapalmer/amanda-palmer-the-new-record-art-book-and-tour
+05:53 < landley> http://www.kickstarter.com/projects/599092525/the-order-of-the-stick-reprint-drive
+05:53 < landley> It's basically a site that does a PBS fund drive for arbitrary projects.
+05:54 < landley> They reserve money on people's credit cards, but only actually _charge_ the card if the project makes its minimum "money needed to do this
+                 thing" goal.
+05:55 < landley> Considering that I can probably get a couple different corporations to chip in at least $10k each to this, and they can do so
+                 semi-anonymously through the site...
+05:55 < landley> Basically I've wanted to do qcc for years but haven't had time to learn everything I need.
+05:55 < landley> Too many other projects.
+05:55 < landley> http://landley.net/code/tinycc/qcc/todo.txt
+05:55 < landley> http://landley.net/code/tinycc/qcc/commands.txt
+05:56 < landley> Both of those are from 2009.  No progress in 3 years, time to call in a professional...
+05:57 < chenwj_> a tiny toolchain?
+05:57 < landley> chenwj_: yup.
+05:58 < landley> Keep in mind tcc alrady does preprocessing, compiling, assembling, and linking.
+05:58 < landley> I just wanted to refactor it to expose the individual functionality the way busybox does.

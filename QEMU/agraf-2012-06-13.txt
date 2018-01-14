@@ -1,0 +1,73 @@
+14:54 < chenwj> agraf: yo!
+14:54 < agraf> chenwj: yo! :)
+14:54 < chenwj> agraf: fimilar with kvm?
+14:54 < agraf> chenwj: depends ;)
+14:55 < agraf> chenwj: I don't know ia64 too well and I'm not very familiar with vmx
+14:55 < agraf> chenwj: the rest, sure
+14:55 < chenwj> ok to switch to the official chatroom? ;)
+14:55 < agraf> chenwj: sure :)
+14:56 < agraf> chenwj: keep in mind though that i need to run in 20 minutes :)
+14:56 < chenwj> ok
+14:57 < chenwj> could you give me an overview on how qemu works when kvm enabled?
+14:58 < agraf> chenwj: the short version? :)
+14:59 < chenwj> try it out.
+14:59 < agraf> chenwj: basically instead of calling into tcg's main loop, it calls an ioctl() on /dev/kvm to execute the vm
+14:59 < agraf> chenwj: you have some other ioctls to synchronize state between the 2
+14:59 < agraf> chenwj: any time something happens that needs qemu involvement (mmio, signals, …) the ioctl returns
+14:59 < chenwj> the 2?
+15:00 < agraf> 2 == { qemu, kvm kernel module }
+15:00 < chenwj> mind to point it out? -> it calls an ioctl() on /dev/kvm to execute the vm
+15:01 < agraf> chenwj: should be in kvm-all.c
+15:01 < chenwj> ok
+15:01 < agraf> chenwj: int kvm_cpu_exec(CPUArchState *env)
+15:01 < agraf> chenwj:         run_ret = kvm_vcpu_ioctl(env, KVM_RUN, 0);
+15:01 < agraf> chenwj: that function is the kvm main loop :)
+15:02 < chenwj> ah, cool
+15:02 < agraf> chenwj: ah, one piece i was missing is
+15:02 < agraf> chenwj: you have multiple state trackers
+15:02 < agraf> chenwj: first you create a "vm" file descriptor on /dev/kvm
+15:02 < agraf> chenwj: so you open /dev/kvm
+15:02 < chenwj> yes
+15:02 < agraf> chenwj: then you call an ioctl to spawn a new "vm"
+15:03 < agraf> chenwj: that fd is used for "machine" wide configuration
+15:03 < chenwj> ioctl(kvm_fd, ...) to create a vm?
+15:03 < agraf> chenwj: (virtual machine)
+15:03 < agraf> kvm_fd is env->kvm_fd, no? :) and env is the vcpu, so no
+15:04 < chenwj> kvm_fd = open("/dev/kvm")
+15:04 < agraf> then you call more ioctls on that "vm" fd to spawn new vcpu fds
+15:04 < agraf>     s->vmfd = kvm_ioctl(s, KVM_CREATE_VM, 0);
+15:05 < chenwj> wait a minute, how many fd here?
+15:05 < chenwj> one for /dev/kvm, anything else?
+15:09 < agraf> one for /dev/kvm
+15:09 < agraf> one for vm
+15:09 < agraf> <amount cpus> ones for vcpus
+15:09 < chenwj> ok
+15:10 < chenwj> /dev/kvm -> vm -> vcpus
+15:12 < agraf> yeah
+15:12 < agraf> chenwj: http://mac-on-linux.svn.sourceforge.net/viewvc/mac-on-linux/trunk/src/cpu/kvm/kvm.c?revision=171&view=markup
+15:13 < agraf> chenwj: this probably explains things more easily :)
+15:13 < agraf> chenwj: for the init
+15:14 < chenwj> ha, you wrote it. reading...
+15:14 < agraf> chenwj: http://mac-on-linux.svn.sourceforge.net/viewvc/mac-on-linux/trunk/src/cpu/kvm/misc.c?revision=166&view=markup
+15:14 < agraf> chenwj: you can also check out molcpu_mainloop for a very simple main loop
+15:15 < agraf> chenwj: that code is ppc only though :)
+15:15 < agraf> chenwj: but it's probably easier to understand that way, since less layers are involved
+15:15 < chenwj> ok
+15:16 < chenwj> I guess you have to run?
+15:20 < agraf> chenwj: yes :)
+15:20 < agraf> chenwj: need to be at suse in 10 minutes and need ~15 to get there
+15:20 < agraf> chenwj: so see you around :) and have fun with kvm :D
+15:20 < chenwj> ?
+15:20 < chenwj> ok
+15:20 < chenwj> byebye :)
+15:20 < agraf> chenwj: there's also a nice api documentation text in the kernel
+15:20 < chenwj> I'll read it
+15:20 < agraf> chenwj: http://www.mjmwired.net/kernel/Documentation/kvm/api.txt
+15:21 < agraf> chenwj: this one's a but outdated - better take a more recent kernel git snapshot
+15:21 < chenwj> sure
+16:37 < agraf> chenwj: i don't think ppc implements that one :)
+16:37 < agraf> chenwj: but if you find shortcomings in the documentation, avi is always happy to receive an email on it :)
+16:37 < chenwj> ok, how about x86
+16:38 < chenwj> the doc says KVM_TRANSLATE only avaiable on x86
+16:39 < chenwj> just want to make sure I understand what KVM_TRANSLATE try to do
+16:41 < chenwj> does it translate guest virtual addr to gpa/hva/hpa ?

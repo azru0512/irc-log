@@ -1,0 +1,3 @@
+18:39 < chenwj> what coroutine main purpose in qemu?
+18:40 < afaerber_> chenwj: simplifying threading ;)
+18:40 < chenwj> for io thread?

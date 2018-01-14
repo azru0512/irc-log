@@ -1,0 +1,962 @@
+llvm[0]: Running test suite
+make[1]: Entering directory `/nfs_home/chenwj/test/native-build/arm1/test'
+Making a new site.exp file...
+Making LLVM 'lit.site.cfg' file...
+Making LLVM unittest 'lit.site.cfg' file...
+( ulimit -t 600 ; ulimit -d 512000 ; ulimit -m 512000 ; ulimit -v 1024000 ; \
+	  /nfs_home/chenwj/test/llvm-2.9/utils/lit/lit.py -s -v . )
+-- Testing: 5840 tests, 1 threads --
+Testing: 0 .. 10.. 20.
+FAIL: LLVM :: CodeGen/Thumb/select.ll (1593 of 5840)
+******************** TEST 'LLVM :: CodeGen/Thumb/select.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -march=thumb | grep beq | /nfs_home/chenwj/test/native-build/arm1/Debug/bin/count 1
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -march=thumb | grep bgt | /nfs_home/chenwj/test/native-build/arm1/Debug/bin/count 1
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -march=thumb | grep blt | /nfs_home/chenwj/test/native-build/arm1/Debug/bin/count 3
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -march=thumb | grep ble | /nfs_home/chenwj/test/native-build/arm1/Debug/bin/count 1
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -march=thumb | grep bls | /nfs_home/chenwj/test/native-build/arm1/Debug/bin/count 1
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -march=thumb | grep bhi | /nfs_home/chenwj/test/native-build/arm1/Debug/bin/count 1
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -mtriple=thumb-apple-darwin | grep __ltdf2
+--
+Exit Code: 1
+Command Output (stderr):
+--
+Expected 3 lines, got 1.
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/2002-12-16-ArgTest.ll (3090 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/2002-12-16-ArgTest.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2002-12-16-ArgTest.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2002-12-16-ArgTest.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/2002-12-16-ArgTest.ll.script: line 2: 17518 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2002-12-16-ArgTest.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/2003-01-04-ArgumentBug.ll (3091 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/2003-01-04-ArgumentBug.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-01-04-ArgumentBug.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-01-04-ArgumentBug.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/2003-01-04-ArgumentBug.ll.script: line 2: 17520 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-01-04-ArgumentBug.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/2003-01-04-LoopTest.ll (3092 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/2003-01-04-LoopTest.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-01-04-LoopTest.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-01-04-LoopTest.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/2003-01-04-LoopTest.ll.script: line 2: 17522 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-01-04-LoopTest.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/2003-01-04-PhiTest.ll (3093 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/2003-01-04-PhiTest.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-01-04-PhiTest.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-01-04-PhiTest.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/2003-01-04-PhiTest.ll.script: line 2: 17524 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-01-04-PhiTest.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/2003-01-09-SARTest.ll (3094 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/2003-01-09-SARTest.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-01-09-SARTest.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-01-09-SARTest.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/2003-01-09-SARTest.ll.script: line 2: 17526 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-01-09-SARTest.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/2003-01-10-FUCOM.ll (3095 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/2003-01-10-FUCOM.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-01-10-FUCOM.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-01-10-FUCOM.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/2003-01-10-FUCOM.ll.script: line 2: 17528 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-01-10-FUCOM.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/2003-01-15-AlignmentTest.ll (3096 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/2003-01-15-AlignmentTest.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-01-15-AlignmentTest.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-01-15-AlignmentTest.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/2003-01-15-AlignmentTest.ll.script: line 2: 17530 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-01-15-AlignmentTest.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/2003-05-06-LivenessClobber.ll (3097 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/2003-05-06-LivenessClobber.ll' FAILED ********************
+Script:
+--
+not /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-05-06-LivenessClobber.ll
+--
+Exit Code: 1
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-05-06-LivenessClobber.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+Error: Aborted
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/2003-05-07-ArgumentTest.ll (3098 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/2003-05-07-ArgumentTest.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-05-07-ArgumentTest.ll test
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-05-07-ArgumentTest.ll test 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/2003-05-07-ArgumentTest.ll.script: line 2: 17535 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-05-07-ArgumentTest.ll' 'test'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/2003-05-11-PHIRegAllocBug.ll (3099 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/2003-05-11-PHIRegAllocBug.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-05-11-PHIRegAllocBug.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-05-11-PHIRegAllocBug.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/2003-05-11-PHIRegAllocBug.ll.script: line 2: 17537 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-05-11-PHIRegAllocBug.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/2003-06-04-bzip2-bug.ll (3100 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/2003-06-04-bzip2-bug.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-06-04-bzip2-bug.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-06-04-bzip2-bug.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/2003-06-04-bzip2-bug.ll.script: line 2: 17539 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-06-04-bzip2-bug.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/2003-06-05-PHIBug.ll (3101 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/2003-06-05-PHIBug.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-06-05-PHIBug.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-06-05-PHIBug.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/2003-06-05-PHIBug.ll.script: line 2: 17541 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-06-05-PHIBug.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/2003-08-15-AllocaAssertion.ll (3102 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/2003-08-15-AllocaAssertion.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-08-15-AllocaAssertion.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-08-15-AllocaAssertion.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/2003-08-15-AllocaAssertion.ll.script: line 2: 17543 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-08-15-AllocaAssertion.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/2003-08-21-EnvironmentTest.ll (3103 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/2003-08-21-EnvironmentTest.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-08-21-EnvironmentTest.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-08-21-EnvironmentTest.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/2003-08-21-EnvironmentTest.ll.script: line 2: 17545 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-08-21-EnvironmentTest.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/2003-08-23-RegisterAllocatePhysReg.ll (3104 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/2003-08-23-RegisterAllocatePhysReg.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-08-23-RegisterAllocatePhysReg.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-08-23-RegisterAllocatePhysReg.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/2003-08-23-RegisterAllocatePhysReg.ll.script: line 2: 17547 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-08-23-RegisterAllocatePhysReg.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/2003-10-18-PHINode-ConstantExpr-CondCode-Failure.ll (3105 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/2003-10-18-PHINode-ConstantExpr-CondCode-Failure.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-10-18-PHINode-ConstantExpr-CondCode-Failure.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-10-18-PHINode-ConstantExpr-CondCode-Failure.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/2003-10-18-PHINode-ConstantExpr-CondCode-Failure.ll.script: line 2: 17549 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/2003-10-18-PHINode-ConstantExpr-CondCode-Failure.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/hello.ll (3111 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/hello.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/hello.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/hello.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/hello.ll.script: line 2: 17563 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/hello.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/hello2.ll (3112 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/hello2.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/hello2.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/hello2.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/hello2.ll.script: line 2: 17565 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/hello2.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/simplesttest.ll (3113 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/simplesttest.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/simplesttest.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/simplesttest.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/simplesttest.ll.script: line 2: 17567 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/simplesttest.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/simpletest.ll (3114 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/simpletest.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/simpletest.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/simpletest.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/simpletest.ll.script: line 2: 17569 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/simpletest.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/stubs.ll (3115 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/stubs.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli -disable-lazy-compilation=false /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/stubs.ll
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli -disable-lazy-compilation=false /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/stubs.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/stubs.ll.script: line 2: 17571 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '-disable-lazy-compilation=false' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/stubs.ll'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/test-arith.ll (3116 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/test-arith.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-arith.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-arith.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/test-arith.ll.script: line 2: 17573 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-arith.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/test-branch.ll (3117 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/test-branch.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-branch.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-branch.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/test-branch.ll.script: line 2: 17575 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-branch.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/test-cast.ll (3119 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/test-cast.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-cast.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-cast.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/test-cast.ll.script: line 2: 17579 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-cast.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/test-constantexpr.ll (3120 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/test-constantexpr.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-constantexpr.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-constantexpr.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/test-constantexpr.ll.script: line 2: 17581 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-constantexpr.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/test-fp.ll (3121 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/test-fp.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-fp.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-fp.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/test-fp.ll.script: line 2: 17583 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-fp.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/test-loadstore.ll (3122 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/test-loadstore.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-loadstore.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-loadstore.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/test-loadstore.ll.script: line 2: 17585 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-loadstore.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/test-logical.ll (3123 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/test-logical.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-logical.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-logical.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/test-logical.ll.script: line 2: 17587 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-logical.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/test-loop.ll (3124 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/test-loop.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-loop.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-loop.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/test-loop.ll.script: line 2: 17589 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-loop.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/test-malloc.ll (3125 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/test-malloc.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-malloc.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-malloc.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/test-malloc.ll.script: line 2: 17591 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-malloc.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/test-phi.ll (3126 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/test-phi.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-phi.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-phi.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/test-phi.ll.script: line 2: 17593 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-phi.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/test-ret.ll (3127 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/test-ret.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-ret.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-ret.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/test-ret.ll.script: line 2: 17595 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-ret.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/test-setcond-fp.ll (3128 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/test-setcond-fp.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-setcond-fp.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-setcond-fp.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/test-setcond-fp.ll.script: line 2: 17597 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-setcond-fp.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/test-setcond-int.ll (3129 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/test-setcond-int.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-setcond-int.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-setcond-int.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/test-setcond-int.ll.script: line 2: 17599 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-setcond-int.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50
+FAIL: LLVM :: ExecutionEngine/test-shift.ll (3130 of 5840)
+******************** TEST 'LLVM :: ExecutionEngine/test-shift.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-shift.ll > /dev/null
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli /nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-shift.ll 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/ExecutionEngine/Output/test-shift.ll.script: line 2: 17601 Aborted                 '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli' '/nfs_home/chenwj/test/llvm-2.9/test/ExecutionEngine/test-shift.ll' > '/dev/null'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.
+FAIL: LLVM :: Transforms/LICM/2003-12-11-SinkingToPHI.ll (5060 of 5840)
+******************** TEST 'LLVM :: Transforms/LICM/2003-12-11-SinkingToPHI.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm1/Debug/bin/opt < /nfs_home/chenwj/test/llvm-2.9/test/Transforms/LICM/2003-12-11-SinkingToPHI.ll -licm | /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli
+--
+Exit Code: 134
+Command Output (stderr):
+--
+UNREACHABLE executed!
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli 
+1.	Running pass 'ARM Machine Code Emitter' on function '@main'
+/nfs_home/chenwj/test/native-build/arm1/test/Transforms/LICM/Output/2003-12-11-SinkingToPHI.ll.script: line 3: 22836 Done                    '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/opt' '-licm' < '/nfs_home/chenwj/test/llvm-2.9/test/Transforms/LICM/2003-12-11-SinkingToPHI.ll'
+     22837 Aborted                 | '/nfs_home/chenwj/test/native-build/arm1/Debug/bin/lli'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.
+FAIL: LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JIT.GlobalInFunction (5669 of 5840)
+******************** TEST 'LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JIT.GlobalInFunction' FAILED ********************
+Note: Google Test filter = JIT.GlobalInFunction
+[==========] Running 1 test from 1 test case.
+[----------] Global test environment set-up.
+[----------] 1 test from JIT
+[ RUN      ] JIT.GlobalInFunction
+UNREACHABLE executed!
+Stack dump:
+0.	Running pass 'ARM Machine Code Emitter' on function '@F1'
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.
+FAIL: LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITEventListenerTest.MatchesMachineCodeInfo (5670 of 5840)
+******************** TEST 'LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITEventListenerTest.MatchesMachineCodeInfo' FAILED ********************
+Note: Google Test filter = JITEventListenerTest.MatchesMachineCodeInfo
+[==========] Running 1 test from 1 test case.
+[----------] Global test environment set-up.
+[----------] 1 test from JITEventListenerTest
+[ RUN      ] JITEventListenerTest.MatchesMachineCodeInfo
+UNREACHABLE executed!
+Stack dump:
+0.	Running pass 'ARM Machine Code Emitter' on function '@id'
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.
+FAIL: LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITEventListenerTest.MultipleListenersDontInterfere (5671 of 5840)
+******************** TEST 'LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITEventListenerTest.MultipleListenersDontInterfere' FAILED ********************
+Note: Google Test filter = JITEventListenerTest.MultipleListenersDontInterfere
+[==========] Running 1 test from 1 test case.
+[----------] Global test environment set-up.
+[----------] 1 test from JITEventListenerTest
+[ RUN      ] JITEventListenerTest.MultipleListenersDontInterfere
+UNREACHABLE executed!
+Stack dump:
+0.	Running pass 'ARM Machine Code Emitter' on function '@id'
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.
+FAIL: LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITEventListenerTest.Simple (5672 of 5840)
+******************** TEST 'LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITEventListenerTest.Simple' FAILED ********************
+Note: Google Test filter = JITEventListenerTest.Simple
+[==========] Running 1 test from 1 test case.
+[----------] Global test environment set-up.
+[----------] 1 test from JITEventListenerTest
+[ RUN      ] JITEventListenerTest.Simple
+UNREACHABLE executed!
+Stack dump:
+0.	Running pass 'ARM Machine Code Emitter' on function '@id'
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.
+FAIL: LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.AvailableExternallyFunctionIsntCompiled (5679 of 5840)
+******************** TEST 'LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.AvailableExternallyFunctionIsntCompiled' FAILED ********************
+Note: Google Test filter = JITTest.AvailableExternallyFunctionIsntCompiled
+[==========] Running 1 test from 1 test case.
+[----------] Global test environment set-up.
+[----------] 1 test from JITTest
+[ RUN      ] JITTest.AvailableExternallyFunctionIsntCompiled
+UNREACHABLE executed!
+Stack dump:
+0.	Running pass 'ARM Machine Code Emitter' on function '@func'
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.
+FAIL: LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.AvailableExternallyGlobalIsntEmitted (5680 of 5840)
+******************** TEST 'LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.AvailableExternallyGlobalIsntEmitted' FAILED ********************
+Note: Google Test filter = JITTest.AvailableExternallyGlobalIsntEmitted
+[==========] Running 1 test from 1 test case.
+[----------] Global test environment set-up.
+[----------] 1 test from JITTest
+[ RUN      ] JITTest.AvailableExternallyGlobalIsntEmitted
+UNREACHABLE executed!
+Stack dump:
+0.	Running pass 'ARM Machine Code Emitter' on function '@loader'
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.
+FAIL: LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.EscapedLazyStubStillCallable (5681 of 5840)
+******************** TEST 'LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.EscapedLazyStubStillCallable' FAILED ********************
+Note: Google Test filter = JITTest.EscapedLazyStubStillCallable
+[==========] Running 1 test from 1 test case.
+[----------] Global test environment set-up.
+[----------] 1 test from JITTest
+[ RUN      ] JITTest.EscapedLazyStubStillCallable
+UNREACHABLE executed!
+Stack dump:
+0.	Running pass 'ARM Machine Code Emitter' on function '@get_stub'
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.
+FAIL: LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.FarCallToKnownFunction (5682 of 5840)
+******************** TEST 'LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.FarCallToKnownFunction' FAILED ********************
+Note: Google Test filter = JITTest.FarCallToKnownFunction
+[==========] Running 1 test from 1 test case.
+[----------] Global test environment set-up.
+[----------] 1 test from JITTest
+[ RUN      ] JITTest.FarCallToKnownFunction
+UNREACHABLE executed!
+Stack dump:
+0.	Running pass 'ARM Machine Code Emitter' on function '@test'
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.
+FAIL: LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.FunctionPointersOutliveTheirCreator (5683 of 5840)
+******************** TEST 'LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.FunctionPointersOutliveTheirCreator' FAILED ********************
+Note: Google Test filter = JITTest.FunctionPointersOutliveTheirCreator
+[==========] Running 1 test from 1 test case.
+[----------] Global test environment set-up.
+[----------] 1 test from JITTest
+[ RUN      ] JITTest.FunctionPointersOutliveTheirCreator
+UNREACHABLE executed!
+Stack dump:
+0.	Running pass 'ARM Machine Code Emitter' on function '@get_foo_addr'
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.
+FAIL: LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.ModuleDeletion (5684 of 5840)
+******************** TEST 'LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.ModuleDeletion' FAILED ********************
+Note: Google Test filter = JITTest.ModuleDeletion
+[==========] Running 1 test from 1 test case.
+[----------] Global test environment set-up.
+[----------] 1 test from JITTest
+[ RUN      ] JITTest.ModuleDeletion
+UNREACHABLE executed!
+Stack dump:
+0.	Running pass 'ARM Machine Code Emitter' on function '@main'
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.
+FAIL: LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.NonLazyCompilationStillNeedsStubs (5685 of 5840)
+******************** TEST 'LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.NonLazyCompilationStillNeedsStubs' FAILED ********************
+Note: Google Test filter = JITTest.NonLazyCompilationStillNeedsStubs
+[==========] Running 1 test from 1 test case.
+[----------] Global test environment set-up.
+[----------] 1 test from JITTest
+[ RUN      ] JITTest.NonLazyCompilationStillNeedsStubs
+UNREACHABLE executed!
+Stack dump:
+0.	Running pass 'ARM Machine Code Emitter' on function '@func1'
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.
+FAIL: LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.NonLazyLeaksNoStubs (5686 of 5840)
+******************** TEST 'LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.NonLazyLeaksNoStubs' FAILED ********************
+Note: Google Test filter = JITTest.NonLazyLeaksNoStubs
+[==========] Running 1 test from 1 test case.
+[----------] Global test environment set-up.
+[----------] 1 test from JITTest
+[ RUN      ] JITTest.NonLazyLeaksNoStubs
+UNREACHABLE executed!
+Stack dump:
+0.	Running pass 'ARM Machine Code Emitter' on function '@func1'
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.
+FAIL: LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/LazyLoadedJITTest.EagerCompiledRecursionThroughGhost (5687 of 5840)
+******************** TEST 'LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/LazyLoadedJITTest.EagerCompiledRecursionThroughGhost' FAILED ********************
+Note: Google Test filter = LazyLoadedJITTest.EagerCompiledRecursionThroughGhost
+[==========] Running 1 test from 1 test case.
+[----------] Global test environment set-up.
+[----------] 1 test from LazyLoadedJITTest
+[ RUN      ] LazyLoadedJITTest.EagerCompiledRecursionThroughGhost
+UNREACHABLE executed!
+Stack dump:
+0.	Running pass 'ARM Machine Code Emitter' on function '@recur1'
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.
+FAIL: LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/LazyLoadedJITTest.MaterializableAvailableExternallyFunctionIsntCompiled (5688 of 5840)
+******************** TEST 'LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/LazyLoadedJITTest.MaterializableAvailableExternallyFunctionIsntCompiled' FAILED ********************
+Note: Google Test filter = LazyLoadedJITTest.MaterializableAvailableExternallyFunctionIsntCompiled
+[==========] Running 1 test from 1 test case.
+[----------] Global test environment set-up.
+[----------] 1 test from LazyLoadedJITTest
+[ RUN      ] LazyLoadedJITTest.MaterializableAvailableExternallyFunctionIsntCompiled
+UNREACHABLE executed!
+Stack dump:
+0.	Running pass 'ARM Machine Code Emitter' on function '@func'
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.
+FAIL: LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/MultiJitTest.EagerMode (5689 of 5840)
+******************** TEST 'LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/MultiJitTest.EagerMode' FAILED ********************
+Note: Google Test filter = MultiJitTest.EagerMode
+[==========] Running 1 test from 1 test case.
+[----------] Global test environment set-up.
+[----------] 1 test from MultiJitTest
+[ RUN      ] MultiJitTest.EagerMode
+UNREACHABLE executed!
+Stack dump:
+0.	Running pass 'ARM Machine Code Emitter' on function '@foo1'
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.
+FAIL: LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/MultiJitTest.JitPool (5690 of 5840)
+******************** TEST 'LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/MultiJitTest.JitPool' FAILED ********************
+Note: Google Test filter = MultiJitTest.JitPool
+[==========] Running 1 test from 1 test case.
+[----------] Global test environment set-up.
+[----------] 1 test from MultiJitTest
+[ RUN      ] MultiJitTest.JitPool
+UNREACHABLE executed!
+Stack dump:
+0.	Running pass 'ARM Machine Code Emitter' on function '@foo1'
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.
+FAIL: LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/MultiJitTest.LazyMode (5691 of 5840)
+******************** TEST 'LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/MultiJitTest.LazyMode' FAILED ********************
+Note: Google Test filter = MultiJitTest.LazyMode
+[==========] Running 1 test from 1 test case.
+[----------] Global test environment set-up.
+[----------] 1 test from MultiJitTest
+[ RUN      ] MultiJitTest.LazyMode
+UNREACHABLE executed!
+Stack dump:
+0.	Running pass 'ARM Machine Code Emitter' on function '@foo1'
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.. 
+Testing Time: 1181.45s
+********************
+Failing Tests (54):
+    LLVM :: CodeGen/Thumb/select.ll
+    LLVM :: ExecutionEngine/2002-12-16-ArgTest.ll
+    LLVM :: ExecutionEngine/2003-01-04-ArgumentBug.ll
+    LLVM :: ExecutionEngine/2003-01-04-LoopTest.ll
+    LLVM :: ExecutionEngine/2003-01-04-PhiTest.ll
+    LLVM :: ExecutionEngine/2003-01-09-SARTest.ll
+    LLVM :: ExecutionEngine/2003-01-10-FUCOM.ll
+    LLVM :: ExecutionEngine/2003-01-15-AlignmentTest.ll
+    LLVM :: ExecutionEngine/2003-05-06-LivenessClobber.ll
+    LLVM :: ExecutionEngine/2003-05-07-ArgumentTest.ll
+    LLVM :: ExecutionEngine/2003-05-11-PHIRegAllocBug.ll
+    LLVM :: ExecutionEngine/2003-06-04-bzip2-bug.ll
+    LLVM :: ExecutionEngine/2003-06-05-PHIBug.ll
+    LLVM :: ExecutionEngine/2003-08-15-AllocaAssertion.ll
+    LLVM :: ExecutionEngine/2003-08-21-EnvironmentTest.ll
+    LLVM :: ExecutionEngine/2003-08-23-RegisterAllocatePhysReg.ll
+    LLVM :: ExecutionEngine/2003-10-18-PHINode-ConstantExpr-CondCode-Failure.ll
+    LLVM :: ExecutionEngine/hello.ll
+    LLVM :: ExecutionEngine/hello2.ll
+    LLVM :: ExecutionEngine/simplesttest.ll
+    LLVM :: ExecutionEngine/simpletest.ll
+    LLVM :: ExecutionEngine/stubs.ll
+    LLVM :: ExecutionEngine/test-arith.ll
+    LLVM :: ExecutionEngine/test-branch.ll
+    LLVM :: ExecutionEngine/test-cast.ll
+    LLVM :: ExecutionEngine/test-constantexpr.ll
+    LLVM :: ExecutionEngine/test-fp.ll
+    LLVM :: ExecutionEngine/test-loadstore.ll
+    LLVM :: ExecutionEngine/test-logical.ll
+    LLVM :: ExecutionEngine/test-loop.ll
+    LLVM :: ExecutionEngine/test-malloc.ll
+    LLVM :: ExecutionEngine/test-phi.ll
+    LLVM :: ExecutionEngine/test-ret.ll
+    LLVM :: ExecutionEngine/test-setcond-fp.ll
+    LLVM :: ExecutionEngine/test-setcond-int.ll
+    LLVM :: ExecutionEngine/test-shift.ll
+    LLVM :: Transforms/LICM/2003-12-11-SinkingToPHI.ll
+    LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JIT.GlobalInFunction
+    LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITEventListenerTest.MatchesMachineCodeInfo
+    LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITEventListenerTest.MultipleListenersDontInterfere
+    LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITEventListenerTest.Simple
+    LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.AvailableExternallyFunctionIsntCompiled
+    LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.AvailableExternallyGlobalIsntEmitted
+    LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.EscapedLazyStubStillCallable
+    LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.FarCallToKnownFunction
+    LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.FunctionPointersOutliveTheirCreator
+    LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.ModuleDeletion
+    LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.NonLazyCompilationStillNeedsStubs
+    LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/JITTest.NonLazyLeaksNoStubs
+    LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/LazyLoadedJITTest.EagerCompiledRecursionThroughGhost
+    LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/LazyLoadedJITTest.MaterializableAvailableExternallyFunctionIsntCompiled
+    LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/MultiJitTest.EagerMode
+    LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/MultiJitTest.JitPool
+    LLVM-Unit :: ExecutionEngine/JIT/Debug/JITTests/MultiJitTest.LazyMode
+
+  Expected Passes    : 5196
+  Expected Failures  : 48
+  Unsupported Tests  : 542
+  Unexpected Failures: 54
+make[1]: Leaving directory `/nfs_home/chenwj/test/native-build/arm1/test'

@@ -1,0 +1,62 @@
+23:17 < chenwj> pm215, afaerber, agraf_. can you guys help me checkout this http://www.mail-archive.com/qemu-devel@nongnu.org/msg99524.html ?
+23:18 < agraf_> chenwj: short answer: yes
+23:18 < afaerber> chenwj: I do not understand what you mean with "precise exception"?
+23:18 < agraf_> chenwj: long answer: different handlers can define different constraints
+23:18 < agraf_> afaerber: a precise exception is one where the IP matters
+23:18 < agraf_> afaerber: unlike an imprecise exception like an external interrupt, which can be deferred
+23:19 < afaerber> agraf_, is that something ARM-specific or QEMU terminology?
+23:19 < agraf_> afaerber: *shrug* i know that ppc uses that terminology
+23:19 < agraf_> afaerber: it's probably more of a CS thing
+23:19 < afaerber> ok, thx
+23:19 < pm215> so if something might raise an exception then all the guest registers need to either be right or in the small set of things that
+               restore_state_to_opc() can restore
+23:20 < agraf_> yup - and a helper can indicate if it can potentially raise an exception
+23:20 < pm215> qemu never reorders memory operations so that is not an issue
+23:20 < chenwj> afaerber: it's quite important for binary translation
+23:20 < agraf_> pm215: btw, I do have sector 256 raw boot working now
+23:20 < agraf_> pm215: but it breaks as soon as I use our MBR O_o
+23:21 < chenwj> pm215: so items I list on the mail is all QEMU does for precise exception?
+23:22 < pm215> chenwj: well, your "except guest pc" isn't quite right, eg on arm we use the same mechanism for ITSTATE
+23:22 < pm215> and on x86 for the condition flags
+23:22 < chenwj> ok
+23:23 < chenwj> those are handled in cpu_restore_state, I think
+23:24 < pm215> yes. the purpose of cpu_restore_state is to fix the CPUState so that it is correct at the point of the exception
+23:24 < chenwj> good
+23:25 < chenwj> thanks, pm215, afaerber, agraf :)
+23:25 < agraf_> it's only used for segfaults though, no?
+23:25 < chenwj> agraf_: guest page fault
+23:25 < agraf_> chenwj: yeah, which are host segfaults
+23:26 < agraf_> iirc
+23:26 < pm215> are they?
+23:26 < agraf_> i thought i saw some code like that a while back, yeah
+23:26 < agraf_> i could be wrong of course :)
+23:26 < pm215> anyway, the other kind of precise exception is one you know is going to happen (eg executing an ARM SVC insn) and we usually deal with those
+               by just emitting code that syncs the CPUState
+23:27 < pm215> helper can indicate if it can potentially raise an exception> how does that work?
+23:27 < chenwj> QEMU has this mechanism?
+23:28 < pm215> that's a question to agraf :-)
+23:28 < chenwj> If a helper can give this hint, it can remove some CPUState save
+23:41 < agraf_> pm215: it's defined in helper.h
+23:41 < agraf_> pm215: see tcg/README
+23:42 < agraf_> TCG_CALL_CONST
+23:42 < agraf_> TCG_CALL_PURE
+23:43 < agraf_> so for TCG_CALL_PURE, state is not saved to CPUState, which means that you really shouldn't raise exceptions in that code :)
+23:44 < agraf_> chenwj: yes, it's a hint
+23:44 < agraf_> chenwj: but tcg actually implements it fwiw
+23:47 < pm215> TCG doesn't know anything about CPUState, CALL_PURE is for whether it should store temporaries into tcg globals, right?
+23:47 < agraf_> uh
+23:47 < agraf_> i thought it also means that there are no side effects
+23:48 < pm215> well, that too
+23:48 < agraf_> so that when another opcode before that modified rX before and another opcode after that also modifies rX, but the opcode itself shouldn't
+                modify rX unless it's an argument
+23:48 < pm215> but if you call a function that isn't PURE then nothing in tcg will automatically save things into CPUState for you
+23:48 < agraf_> it syncs register contents to memory
+23:49 < agraf_> otherwise CPUState might be cached in registers, no?
+23:49 < pm215> not all targets use TCG globals for CPU registers
+23:49 < agraf_> maybe that only works for globals though, yeah
+23:49 < pm215> er, or do they?
+23:49 < agraf_> all fast ones do ;)
+23:49 < pm215> might be better to say "for all CPU registers"
+00:01 < pm215> agraf_: anyway, the thing I was thinking about is that there's a difference between "tcg globals definitely back in RAM" and "CPUState in
+               sync" for at least some CPUState fields
+00:03 < agraf_> pm215: well, the same thing also applies for temporaries

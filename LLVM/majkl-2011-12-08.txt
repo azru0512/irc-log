@@ -1,0 +1,137 @@
+22:45 < chenwj> %seen dgregor
+22:45 < carli> nadav: which frontend generates vectors that you work on llvm's vector ability?
+22:46 < pcc> nadav: I think it went well
+22:48 < nadav> carli: The Intel OpenCL SDK Vectorizer generates LLVM-IR.
+22:48 < nadav> carli: but I often use ISPC to write tests.
+22:49 < carli> nadav: intes uses llvm for opencl? i thought they have their super-duper intel compiler?
+22:54 < majkl> %seen dgregor
+22:54 <@baldrick> carli: I guess the super-dooper icc targets only x86, not GPUs and such like
+22:55 <@baldrick> maybe this also suggests that icc's internal design is kind of rigid: too hard to retarget
+22:55 < chenwj> majkl: %seen is used on #gcc to see how long someone left the chatroom
+22:55 < chenwj> majkl: I think this command is not supported here
+22:56 < majkl> chenwj: ah so.. ;)
+22:56 < chenwj> baldrick: do they consider retargetabiity?
+22:56 < majkl> wel.. it isnt.. i tried though.. ;)
+22:56 < chenwj> majkl: post your question on clang mailing list and go to sleep ;)
+22:56 <@baldrick> chenwj: if they had, presumably they would not be using LLVM for OpenCL
+22:57 < chenwj> I thought intel only have to care x86
+22:57 < david_chisnall> Intel makes GPUs too...
+22:57 < david_chisnall> Not very good ones, admittedly...
+22:57 < styrone> and ICC supports Itanium, no?
+22:57 < david_chisnall> Does anything support Itanium well?
+22:58 < chenwj> no idea
+22:58 < majkl> chenwj: its far from sleeping yet.. its 16:00 here.. ;) ..but i have to leave work soon, and i have training, my chinese lessons, etc, etc..
+               i'll miss him, till i get home prolly...
+22:58 < chenwj> majkl: chinese lesson!
+22:58  * david_chisnall recalls a story about the iAPX team not talking to the compiler team and waiting until the silicon was shipping before discovering
+          that their chip that was designed for OOP required a 200 cycle operation for computing instance variable addresses...
+22:59 < chenwj> majkl: I can teach you
+22:59 < chenwj> OOP -> object oriented programming?
+22:59 < david_chisnall> Yes.
+22:59 < styrone> Well, Itanium is vastly more successful than the 432 was =)
+22:59 < chenwj> design a chip for oop?
+23:00 < david_chisnall> iAPX -> i860 -> Itanium
+23:00 < david_chisnall> Yes.  It had things like a 24-bit segment table, so you could have one object per segment.
+23:00 < styrone> chenwj: read up on iAPX / 432.  It was Intel's first next-gen architecture.
+23:00 < david_chisnall> GC then became easy because there were never any interior pointers.
+23:01 < majkl> chenwjI:ye.. well.. im "studying" mandarin.. (not that ?? though) ..have a lot of other work..
+23:01 < majkl> chenwj: you are from china?
+23:01 < chenwj> majkl: taiwan
+23:02 < majkl> zhende ma? :) ..unfortunatelly my irc client here doesnt except chinese characters :(
+23:02 < chenwj> a southeast island beside china mainland
+23:02 < majkl> accept*
+23:03  * baldrick wonders if "I speak Chinese" is like saying "I speak European"
+23:03 < chenwj> zhende ma sounds like "really"
+23:03 < majkl> i know, i know.. you use mainalnd's mandarin.. ?
+23:03 < chenwj> majkl: y
+23:03 <@baldrick> i.e. big region with a gazillion languages
+23:03 < majkl> yes... it should be ..really? ;)
+23:04 < styrone> @baldrick: mandarin is fairly universal in china now.
+23:04 < chenwj> baldrick: speak chinese basically means speak  mandarin
+23:04 < majkl> chenwj: i mean in taiwan, you use mainland's mandarin ?
+23:04 < chenwj> majkl: y
+23:05 < styrone> There are a lot of regional languages, but everyone learns mandarin in school.
+23:05 <@baldrick> styrone, chenwj: thanks for the explanation
+23:05 < majkl> chenwj: well.. when i was in shanghai and canton.. they i hadnt understood a thing.. cantonesse is really different...
+23:06 < chenwj> baldrick: y
+23:06 < chenwj> majkl: y
+23:08 < chenwj> majkl: where are you from?
+23:08 < majkl> chenwj: Czech Republic
+23:09 < chenwj> then you were in shanghai can canton for?
+23:09 < chenwj> s/can/and
+23:10 < majkl> chenwj: hey.. i would like to take some "computer related" lessons.. with some terms regarding IT.. :)
+23:10 -!- styrone_ is now known as styrone
+23:11 < chenwj> majkl: chinese terms regarding IT?
+23:13 < majkl> majkl: i've been traveling around the china.. Beijing, Xian, Shanghai, Guangzhou, Xianggang, etc...
+23:13 < chenwj> cool
+23:13 < majkl> chenwj: just traveling..
+23:13 < chapuni64> cool ;)
+23:14 < chenwj> chapuni64: yo
+23:14 < chapuni64> yeah, drinking!
+23:14 < majkl> chenwj: yes.. id like to.. my chinese teacher and computers.. are two different worlds.. ;)
+23:15 < chenwj> chapuni64: sake?
+23:15 < chapuni64> chenwj: cheap beer
+23:16 < chenwj> majkl: I always thinking google translator is pretty good
+23:17 < majkl> chenwj: yeah .. cheap beer.. :) ...well.. i dont like chinese beer, as same as our czech beer, but.. its not that bad.. and for chinese
+               prizes... :)
+23:17 < styrone> yes, chinese prices are hard to argue with.
+23:18 < chapuni64> chinese green beer is based on germany, iirc
+23:18 < majkl> chenwj: to put it right.. i think, that after czech(/slovak) and german beer ... the next is chinese.. the rest of europe has strange,
+               non-drinkable beers.. ;)
+23:18  * chapuni64 青島?
+23:18 < chenwj> green beer?
+23:18 < david_chisnall> majkl: Depends on the kind of beer you like
+23:19 < chapuni64> green-bottle, ... Tsingtao
+23:20 < chenwj> chapuni64: chinese green beer is based on germany <- you're right
+23:20 < majkl> david_chisnall: well.. right.. i was kinda rude.. i know, that western europe probably also has good beers.. but completely different from my
+               taste... . i know, that irish beer is prolly really good, but i dont like it much..
+23:20 < majkl> chenwj, chapuni64: aaa..thats why i liked it probably.. ;)
+23:20 < chenwj> haha
+23:20 < david_chisnall> Lots of nice British beer, but very little good lager.
+23:21  * chapuni64 knows only Guiness
+23:24 < majkl> david_chisnall: maybe.. but when i was in london, i havent found a beer to my taste.. maybe, i wasnt trying the right ones.. it was kinda
+               expensive for me.. and it was a long ago.. during my poor-university-student years.. so i gave up after few tryouts.. :)
+23:25 < david_chisnall> Everything is expensive in London, and most things are rubbish.
+23:25 < david_chisnall> Most pubs will have one or two decent beers on pumps though.
+23:26 < cartman> is placing compiler_rt in projects directory enough?
+23:26 < cartman> Its either not built and/or installed
+23:26 < carli> is MachineInstr bundle support a feature to write better vliw code generators?
+23:26 < majkl> david_chisnall: i always tried one, and move to other pub.. ;)
+23:26 < majkl> moved*
+23:28 < david_chisnall> majkl: Ah, but if you try the wrong one this is no good!
+23:33 < majkl> david_chisnall:yes, but it was afterall good thing to do.. i hadnt spent too much money.. ;)
+23:34 < majkl> and i've compensated few years later in china.. :))
+23:40 < hansw> dgregor: about typo suggestions for implicit function declc being slow... chandler pointed out that typo correction is probably too expensive
+               to do on anything but errors
+23:40 < chapuni64> good morning dgregor!
+23:40 < andersca> dgregor!
+23:41 < chapuni64> *good morning our dgregor!*
+23:41 < hansw> dgregor: but i'd still like to keep the typo suggestions if possible.. would it make sense to keep them for -Werror (and -pedantic-errors in
+               c99), where an implicit function decl is treated as error?
+23:41 < david_chisnall> hansw: Not for warnings?
+23:41 < hansw> david_chisnall: there's lots of "correct" code which trigger lots of these warnings, and get slowed down by this typo correction
+23:41 < david_chisnall> Making the compiler slower for warnings encourages developers to fix them.
+23:42 < hansw> david_chisnall: making benchmarks faster by "fixing" them would be cheating, i believe :)
+23:42 < david_chisnall> Spawn another thread to do all of the warning reporting :-)
+23:44 < erikjv> david_chisnall: there is code out there with warnings because some other broken compilers crash (or generate bogus errors or generate bad
+                code) without them :-/
+23:45 < dgregor> hansw: yeah, it's fine to check whether that warning is mapped to an error, and only do the typo correction in that case
+23:46 < majkl> dgregor: Hi...sorry about spamming you... i see, there is lot of people spamming you... so :/  but if you have a little time to answer me...
+               Is there a possibility to use clang_saveTranslationUnit, when the unit is parsed and reparsed with PrecompilePreamble flag? it always crashes
+               with: ASTWriter.cpp:3422: clang::serialization::DeclID clang::ASTWriter::getDeclID(const clang::Decl*): Assertion `DeclIDs.find(D) !=
+               DeclIDs.end() && "Declaration not
+23:46 < majkl> emitted!"
+23:46 < hansw> dgregor: cool! i've got a patch ready for landing, then :)
+23:46 < david_chisnall> erikjv: Tell them not to use broken compilers?
+23:46 < dgregor> hi chapuni64!
+23:46 < dgregor> hi andersca!
+23:47 < dgregor> majkl: I would like for that to work, but I'm not at all surprised that it doesn't work now. I'd appreciate if you file a bug, but
+                 unfortunately I don't expect that it will get fixed "soon"
+23:47 < erikjv> david_chisnall: would love to, but that's not always an option. Unfortunately.
+23:48 < david_chisnall> I got told off recently for committing some code that would break GCC <2.7 :-(
+23:48 < david_chisnall> I am firmly of the opinion that people who use ancient compilers deserve all of the problems that they encounter.
+23:51 < espindola> another one in the "comparative studies of open source projects" series
+23:51 < espindola> http://blog.mozilla.com/respindola/2011/12/08/open-source-communities/
+23:53 < chapuni64> dgregor: http://pastebin.com/G1Mnvxq5
+23:53  * chapuni64 is afraid if it could not be seen
+23:54 < majkl> dgregor: already done : http://llvm.org/bugs/show_bug.cgi?id=11500 with example program

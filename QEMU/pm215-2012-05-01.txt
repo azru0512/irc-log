@@ -1,0 +1,10 @@
+22:35 < chenwj> I am reading QEMU's makefile
+22:35 < chenwj> quiet-command = $(if $(V),$1,$(if $(2),@echo $2 && $1, @$1))
+22:35 < chenwj> what the V is?
+22:35 < chenwj> $(call quiet-command,$(CC) $(QEMU_INCLUDES) $(QEMU_CFLAGS) $(QEMU_DGFLAGS) $(CFLAGS) -c -o $@ $<,"  CC    $(TARGET_DIR)$@")
+22:35 < pm215> it's what lets you say "make V=1" to get make to print what it's doing more verbosely
+22:36 < chenwj> okay, then if I type "make V=1" then it execute $1?
+22:39 < pm215> well, in fact if it's anything non empty
+22:40 < pm215> note that it will always execute $1 one way or another, it's what else it does that can change
+22:41 < chenwj> I mean it execute $1 rather than @$1, so that we can see what command being executed
+22:42 < pm215> the most common case is that we end up executing @echo $2 && $1

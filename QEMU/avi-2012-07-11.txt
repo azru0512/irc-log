@@ -1,0 +1,27 @@
+18:23 < chenwj> there is no such VMExit instruction just like VMLAUCH/VMRESUME for VMEntry, right?
+18:42 < avi> chenwj, VMCALL
+19:19 < chenwj> avi: I check kvm_vmx_exit_handlers, and VMCALL is just one of them. Let's say guest execute INVLPG, is it hw being trigger to go back to
+                kvm, not executing any other VMExit-like instruction?
+19:24 < chenwj> avi: and do we have to modified guest OS to use VMCALL?
+19:24 < avi> it's already modified
+19:25 < chenwj> you mean newer linux kernel, right?
+19:26 < avi> yes
+19:26 < avi> agraf, megasas segfaults immediately for me
+19:26 < avi> unfortunately. gdb is confused
+19:26 < agraf> avi: ugh
+19:27 < agraf> avi: let me call hannes into here
+19:28 < chenwj> avi: besides VMCALL, when guest execute instruction like invplg, the cpu automaically exit guest mode and back to kvm?
+19:29 < hare> agraf: What now?
+19:29 < avi> if the hardware is configured this way
+19:29 < agraf> [1:26pm] avi: agraf, megasas segfaults immediately for me
+19:29 < hare> avi: Oh?
+19:29 < hare> avi: backtrace? Something?
+19:29 < chenwj> avi: I see, thanks
+19:29 < avi> hare, gdb just hangs on me
+19:29 < avi> I'm looking at it
+19:30 < hare> avi: can you enable tracing?
+19:30 < hare> avi: I got tons of tracing for megasas; should help here.
+19:30 < avi> it's during init. probably something stupid
+19:30 < avi> guest not up yet
+19:31 < avi> what's with this stupid gdb?
+19:31 < hare> avi: during init? but surely the megasas code already been running, right?

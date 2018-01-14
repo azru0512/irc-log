@@ -1,0 +1,21 @@
+[11:19] <chenwj> say I have a CMSIS-DAP compatible link and a Cortex-M4 board which is not list in openocd. What should I do to make load & debug work?
+[11:40] <projectgus> chenwj: i guess the first step is to make the cmsis-dap driver recognise your adapter, which will allow you to read & write memory, run, stop, etc.
+[11:40] <projectgus> that gives you loading to RAM and debugging
+[11:40] <projectgus> then second step is to write a flash driver for your particular M4 target
+[11:41] <projectgus> that gives you ability to load to flash
+[11:41] <projectgus> what cmsis adapter, and does openocd work with it at all at the moment?
+[11:42] <chenwj> projectgus: http://developer.mbed.org/handbook/CMSIS-DAP
+[11:43] <projectgus> I understand what cmsis-dap is, all the adapters tend to be subtly different in practice
+[11:44] <projectgus> so what exact board do you have?
+[11:46] <chenwj> well, the adapter and the board doesn't exist right now. I only know the adapter will be cmsis-dap, and the board would be cortex-m4
+[11:47] <chenwj> just want to know what should be done before they comes to real :)
+[11:47] <projectgus> have you chosen a micro to run the cmsis adapter firmware?
+[11:48] <projectgus> if you use a cmsis adapter firmware that's already supported by openocd, and a cortex-m4 mcu that's already supported by openocd, all you have to do is write a config file that combines those two (at least in theory)
+[11:48] <projectgus> (and by "at least in theory", I mean that'll probably work or requiure only minor tweaking)
+[11:48] <chenwj> I see
+[11:49] <projectgus> if you have a new cmsis adapter firmware, it'll probably "just work" but not as definitely as if you choose something identical to already supported
+[11:49] <projectgus> if that makes sense
+[11:49] <projectgus> by "new" I mean "new to openocd"
+[13:43] <PaulFertser> chenwj: mbed cmsis-dap implementation is known to work fine
+[13:45] <chenwj> PaulFertser: thanks for the input. :)
+[14:00] <PaulFertser> chenwj: in current state cmsis-dap in openocd is quite slow but I have a rewritten driver which needs some minor debugging on EDBG and LPC-Link but works nicely with mbed.

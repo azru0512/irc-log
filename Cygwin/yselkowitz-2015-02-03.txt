@@ -1,0 +1,2 @@
+[11:09] <yselkowitz> chenwj, NAME="mingw64-x86_64-hidapi", and of course rename the file accordingly
+[11:12] <chenwj> I am wondering why CROSS_HOST and NAME had different mingwXX name, one is "i686-w64-mingw32", the other is ""mingw64-x86_64-hidapi""

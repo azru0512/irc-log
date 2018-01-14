@@ -1,0 +1,103 @@
+20:11 < chenwj> where should I look into if I want to see what happened when I reboot the virtual machine?
+20:19 < mjt> what _may_ happen?
+20:21 < chenwj> I mean when I reboot the VM, is there some guest binary sequence to init the rebooting process, syscall maybe?
+20:33 < agraf> chenwj: just put a breakpoint at the cpu reset vector
+20:33 < agraf> chenwj: with a bit of luck, that's where you pop out on reboot ;)
+20:33 < chenwj> reset vector?
+20:34 < chenwj> for x86, where is it?
+20:54 < chenwj> agraf: I guess rebooting vm will call cpu_reset to set "reset vector"?
+21:05 < pm215> what do you mean exactly by "rebooting vm" here
+21:05 < pm215> ?
+21:08 < chenwj> in linux-0.2.img case, when I type "exit" the whole system get reboot
+21:10 < pm215> I imagine that the guest userspace binary is doing a syscall to get the guest OS to reboot, the guest OS does the hardware dance necessary to
+               reset a PC, and qemu emulates that by calling qemu_system_reset_request() which will reset the whole emulated system, so we restart executing
+               guest code in the manner the guest CPU requires for coming-out-of-reset
+21:12 < agraf> chenwj: depends on your method of rebooting iirc
+21:12 < agraf> chenwj: but in most cases, yes
+21:13 < agraf> chenwj: x86 only has a few reboot conditions
+21:13 < agraf> chenwj: most of them are hard to trigger
+21:13 < agraf> chenwj: so if you're accidentally hitting a reboot, you're most likely getting a triple fault
+21:14 < chenwj> our binary translation system get some error (not fatal error) while booting the system, but those error disappeared when I reboot the vm
+21:14 < agraf> chenwj: that happens for example if you get a page fault (1), that page fault is handled by the page fault handler, but that page fault
+               handler isn't mapped either (2) so it triggers another page fault (3)
+21:15 < chenwj> so I have to investigate if we need to clear something or whatever when reboot the vm
+21:16 < chenwj> prehapes clear llvm cache or something
+21:21 < pm215> the per-target cpu_reset() functions [eg the x86 one is in target-i386/helper.c] call tlb_flush() which needs to result in all the relevant
+               cached stuff being dumped
+21:22 < pm215> cpu_reset() is called on initial "qemu just started" reset as well as for guest-initiated resets
+21:23 < chenwj> wondering if we need to do some cleanup when tlb_flush is called
+21:23 < chenwj> currently, we only do cleanup when "tb_flush" is called
+21:25 < chenwj> iotlb is for MMIO, right?
+21:25 < pm215> I never quite figured out how tlb_flush() was supposed to cause us to clear cached translated code...
+21:26 < chenwj> by cleanup, I mean not only the cached translated code
+21:27 < agraf> jforbes_: ping
+21:27 < chenwj> we will patch direct jump if its target (guest pc) already has a translated code
+21:29 < chenwj> this kind optimization causes strange error if my guess is right
+21:29 < agraf> chenwj: does adding a tb_flush() to cpu_reset help?
+21:30 < chenwj> agraf: no idea, but I'll see if we need to do something at that point
+21:31 < agraf> chenwj: yeah, though I'm not sure why you even would have to flush
+21:31 < agraf> chenwj: since memory gets overwritten by the bios again
+21:31 < agraf> chenwj: at which point the normal page invalidation mechanism should kick ni
+21:31 < agraf> in*
+21:32 < chenwj> agraf: I mean our (llvm) part
+21:33 < agraf> chenwj: sure, that llvm part shouldn't behave any differently
+21:33 < agraf> chenwj: when normal TBs get flushed, you should invalidate your trace
+21:33 < pm215> the code translation bits shouldn't have to care about guest cpu reset : it's just another kind of change of state of the guest cpu which
+               happens to require eg tb invalidation
+21:33 < pm215> *tlb invalidation
+21:34 < pm215> avi: re "I never quite figured out how tlb_flush() was supposed to cause us to clear cached translated code"; do you know?
+21:34 < agraf> pm215: I don't think it does
+21:34 < agraf> pm215: TBs point to physical pages
+21:35 < pm215> so who is responsible for saying "all that translated code is invalid" when we do a cpu_reset() if it's not the call to tlb_flush() ?
+21:36 < agraf> cpu_reset doesn't have to make any code invalid
+21:36 < agraf> cpu_reset only resets the cpu state to something different
+21:36 < agraf> memory is still the same from cpu_reset's pov
+21:37 < agraf> then there's the rom subsystem that overwrites some memory with the stored roms
+21:37 < pm215> er, but chances are very likely that cpu_reset changes some of the CPUState state which is baked into translated code
+21:37 < agraf> and that should invalidate any code written to those pages before
+21:37 < agraf> then it changes it through wrappers which would also call tb_flush normally, no?
+21:38 < pm215> er, no, cpu_reset changes most of its state via the bulk memset()
+21:38 < agraf> that's bad then :)
+21:39 < pm215> this is why I am assuming that there must be some other bit of the common system responsible for clearing the translated code cache on reset
+21:39 < pm215> since every cpu is going to need it there's no point requiring every cpu to do it by hand
+21:39 < agraf> hmmm maybe :)
+21:39 < agraf> or it's just broken
+21:39 < pm215> yeah, I have no idea how this is working :-)
+21:39 < chenwj> me neither
+21:41 < chenwj> so ideally the guest binary should be re-translated when reboot, right?
+21:42 < pm215> well, ideally it would only be translated if it had to be, but the chances are it will have to be
+21:42 < pm215> hmm, there doesn't seem to be a bit of common code for handling cpu_reset, maybe it would be easier just to add a tb_flush() to go alongside
+               the tlb_flush() ?
+21:44 < pm215> chenwj: if you add a tb_flush() call to cpu_reset() do your problems go away ?
+21:46 < chenwj> er, tb_flush takes care of qemu part. we have another llvm code cache, I need to find a way to deal with our llvm code cache :)
+21:47 < pm215> yes, but your llvm code needs to handle that anyway because tb_flush is the general way that we say "throw away translated code"
+22:05 < chenwj> pm215: I have to ask my colleague tomorrow. it seems we have trouble to call our llvm_tb_flush in cpu_reset
+22:09 < work-edde> pm215, tb flags are checked when looking up tb's so there shouldn't be a need for tb_flushes just because of reset IIUC
+22:23 < pm215> work-edde: this is only true where the cpu state we bake into the translated code is encoded in tb_flags
+22:23 < pm215> (which is one of the available options but not the only one)
+22:24 < avi> pm215, I think I know
+22:24 < work-edde> yes, but if it isnt encoded you can't use it in the tb generation
+22:24 < avi> oh, not cached translated code
+22:26 < pm215> so, suppose I have a remap option between some flash memory and some real ram, and I've executed code from the flash, so there's cached
+               translated code for it. then I call a memory API mutator function to swap in the RAM. What causes the translated code (now wrong) to be
+               thrown out?
+22:29 < work-edde> pm215, are we are still talking about cpu_reset and not entire system reset?
+22:30 < work-edde> if the state is not in the tb_flags you obviously need to tb_flush somehow
+22:30 < work-edde> I guess, if it's not already done centrally...
+22:30 < chenwj> not every target use tb_flags
+22:30 < pm215> I think entire system reset is uninteresting since it basically consists of "reset the cpus via cpu_reset and the devices via their reset
+               functions"
+22:31 < work-edde> if you don't use tb_flags your code is cpustate generic, no need to worry about cpu_reset
+22:31 < pm215> the flash-vs-ram remap is a separate question (although one of the times when you might end up remapping it would be on reset)
+22:31 < pm215> er, you could not use tb_flags but still use the 'tb_flush when something changed' approach for some bits
+22:32 < pm215> the tb_flags case works over reset without problems
+22:32 < work-edde> ok I see what you mean
+22:32 < work-edde> if you dont use tb_flags and use explicit tb_flush you ofcourse need to flush when your tb dependant state changes
+22:32 < work-edde> I didnt interpret your email in that way
+22:32 < work-edde> sorry for confusion
+22:33 < pm215> well, my email is basically saying "one of the points when tb dependent state changes is on cpu reset and nobody seems to have noticed this"
+22:34 < work-edde> are many archs using explicit tb_flushes??
+22:36 < pm215> appears to be arm and x86 at the moment
+22:36 < pm215> (I had thought it was more widespread than that)
+22:37 < work-edde> I thought it was zero archs :)
+22:37 < work-edde> in any case, reset is not really speed critical so it sounds like a good idea to flush...

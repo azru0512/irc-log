@@ -1,0 +1,24 @@
+13:20 < geckon> Do you know what was original plan for LLVM? (I mean why Low Level *Virtual Machine*)
+13:21 < geckon> Are there some information about project history somewhere?
+13:22 < geckon> If anybody know please hilight me
+13:22 < geckon> I'll read it later. Thanks!
+13:22 < chenwj> geckon: http://llvm.org/pubs/2002-12-LattnerMSThesis.html
+13:23 < chenwj> geckon: I think it's nothing to do with "virtual machine"
+13:24 < chenwj> geckon: you can look the early paper about LLVM to know what it tries to do
+13:24 < geckon> chenwj: That is what I think as well. That's why I am curious about the name :)
+13:25 < geckon> I haven't read the Masters thesis thoroughly but not even there I see anything about VMs
+13:28 < geckon> well anything _significant_ at least
+13:30 < geckon> Is LLVM from the beginning developed to be C/C++ compiler infrastructure?
+13:39 < nicholas> i think the issue is more that VM changed meaning under llvm, rather than llvm changed its goals
+13:39 < nicholas> it's a VM in the classical sense; it's got an instruction set of its own
+13:39 < nicholas> ... and then you run that on real hardware :)
+13:44 < geckon> So VM as in "I have a code in IR which I can transform, optimize (by different ways) and run" is meant?
+13:44 < nicholas> yep
+13:44 < geckon> seems legit :)
+13:45 < nicholas> but also really confusing, it turns out
+13:45 < geckon> yes, kind of
+13:45 < nicholas> we've rebranded the project from 'low-level virtual machine' to simply LLVM as a non-acronym
+13:46 < geckon> I've read about this somewhere. In fact this was the thing that started my curiosity
+13:48 < geckon> Well.. it's morning again (damn!). I think I'll go sleep
+13:48 < nicholas> good night!
+13:49 < geckon> Thanks, good night to you too (when you have night..)

@@ -1,0 +1,47 @@
+10:29 < chenwj> I use Win32DiskImager to write Ubuntu image on the SD card, then boot it with pandaboard
+10:29 < chenwj> but the system hangs on "... booting the kernel"
+10:29 < chenwj> any idea?
+10:30 < ron_frown> image burn failed?
+10:30 < chenwj> seems ok
+10:31 < chenwj> how can I confirm the image burn success or failed?
+10:32 < chenwj> I mean besides booting it
+10:34 < ron_frown> there are probably md5's
+10:34 < ron_frown> I've never had luck wiht any windows disk imaging software
+10:34 < chenwj> too bad
+10:51 < ron_frown> too bad? My stuff works =)
+11:03 < chenwj> I've never had luck wiht any windows disk imaging software <-
+11:06 < ron_frown> just sayin
+11:06 < ron_frown> I wouldnt assume that since it may have appeared to work
+11:07 < ron_frown> it actually worked =)
+11:18 < chenwj> I am lost, do you mean it works for other but not work for you?
+13:46 < _av500_> chenwj: there is nothing on the serial after "booting the kernel"
+13:46 < _av500_> that is normal for ubuntu
+13:49 < chenwj> av500: I mean it stop there, no more progress. or I should give it more time?
+13:52 < dm8tbr> check attached screen...
+13:56 < chenwj> dm8tbr: you mean use screen rather than rs232?
+13:56 < dm8tbr> a) which ubuntu image did you use?
+13:58 < _av500_> yes, screen
+13:58 < _av500_> ubuntu is mute on the serial
+13:58 < ron_frown> wonder why they chose to do that
+13:59 < _av500_> ron_frown: its simple
+13:59 < _av500_> ubutnu is a real distro for real users
+13:59 < _av500_> does your PC output on serial?
+13:59 < _av500_> it does not
+13:59 < dm8tbr> foremost it's not an embedded distro :)
+13:59 < _av500_> its for your mom
+13:59 < ron_frown> heh
+13:59 < ron_frown> god I want to start this project
+14:00 < chenwj> dm8tbr: https://wiki.ubuntu.com/Win32DiskImager
+14:00 < ron_frown> but seems like dev boards ar kind of inbetween atm
+14:00 < chenwj> dm8tbr: I use the image mentioned on the link
+14:00 < ron_frown> to go with panda es, or wait
+14:00 < _av500_> chenwj: the image is probably fine
+14:00 < _av500_> as said, the serial is mute
+14:00 < _av500_> so connect a screen
+14:00 < _av500_> or use ubuntu server image
+14:00 < chenwj> av500: ok
+14:00 < _av500_> that is mute on the screen
+14:01 < _av500_> but talks on serial
+14:01 < chenwj> I'll try it!
+14:01 < _av500_> or use ubuntu hellen-keller.img
+14:01 < _av500_> that is mute on both

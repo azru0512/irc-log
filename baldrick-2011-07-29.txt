@@ -1,0 +1,38 @@
+17:28 < chenwj_> how do I know the gcc is broken? I believe the link is not up-to-date
+17:29 < marko> baldrick: thanks for the link, but I don't see 4.1.3 on the list...
+17:29 <@baldrick> marko: all gcc 4.1's are bad in my experience; in any case you know it is broken because it crashed while compiling code (in this case
+                  while compiling part of LLVM)
+17:30 <@baldrick> the list is probably not up to date, and your compiler should be added to it
+17:30 < chenwj_> baldrick: does a broken gcc affect LLVM `make check` result?
+17:30 <@baldrick> chenwj_: eg: you know it is broken if it crashes while compiling LLVM :)
+17:31 <@baldrick> chenwj_: some of those broken compiles compile LLVM, but compile it wrong.  Usually this shows up by crashes and failures in "make check"
+17:31 <@baldrick> s/broken compiles/broken compilers/
+17:33 < chenwj_> baldrick: is there a good way to see if the gcc is broken? assume the gcc does compile LLVM
+17:33 < chenwj_> baldrick: how can I tell it by reading 'make check' result?
+17:33 <@baldrick> chenwj_: if it can bootstrap LLVM, eg: build LLVM+clang, and the built LLVM+clang can build LLVM+clang and "make check" passes, probably
+                  it is good
+17:34 <@baldrick> chenwj_: you can tell because failures are crashes or make no sense
+17:35 < chenwj_> baldrick: make no sense? what kind of test case failure make no sense?
+17:36 <@baldrick> chenwj_: you will know it when you see it
+17:36 < chenwj_> baldrick: ha
+17:37 <@baldrick> chenwj_: in general it takes careful analysis to determine whether problems are due to wrong LLVM code, or a bad compiler.  In particular
+                  you need to exclude the possibility that LLVM code makes use of undefined behaviour.
+17:38 < chenwj_> maybe I should ask "how to determine the gcc is broken (if the gcc compile LLVM)" on the list
+17:39 <@baldrick> chenwj_: I didn't understand the question
+17:40 < chenwj_> baldrick: if the gcc failed to compile LLVM, then I can say it's broken
+17:40 < chenwj_> right?
+17:40 <@baldrick> chenwj_: correct
+17:41 <@baldrick> crashes when compiling => broken
+17:41 < chenwj_> if the gcc DOES compile LLVM, then the situation becomes complicate
+17:42 <@baldrick> fails to compile valid code => broken, or lacking some feature; may be worth working around in the LLVM code base
+17:42 <@baldrick> chenwj_: exactly
+17:43 < chenwj_> I want to ask what procedure people usually take to determine which one is wrong, the gcc or LLVM
+17:44 < chenwj_> anyone discuss this kind qeustion on the list before?
+17:45 <@baldrick> chenwj_: the procedure: think hard
+17:47 < chenwj_> ?
+17:49 <@baldrick> chenwj_: there is no recipe you can follow mindlessly: it requires careful analysis.  In short it requires you to think hard.
+17:50 < chenwj_> baldrick: you said "if it can bootstrap LLVM, eg: build LLVM+clang"
+17:50 < chenwj_> without building clang is O.K. or not?
+17:50 <@baldrick> chenwj_: this is a good sign that things were not miscompiled
+17:51 <@baldrick> chenwj_: but suppose it fails?  How to determine who is to blame: gcc, LLVM's code, etc?
+17:51 <@baldrick> baldrick's law: all compilers are buggy, but some are more buggy than others :)

@@ -1,0 +1,38 @@
+17:49 <@baldrick> chenwj: dragonegg maintains a map from gcc trees to data (void*), see src/cache.c
+17:49 <@baldrick> chenwj: if the garbage collector garbage collects a gcc tree, then the corresponding map entry (if any) is automatically removed
+17:49 <@baldrick> chenwj: in order for this to work, the garbage collector needs to be informed about this map
+17:50 <@baldrick> chenwj: take a look at this in cache.c:
+18:08 <@baldrick> chenwj: sorry, I was interrupted
+18:08 <@baldrick> static GTY ((if_marked ("tree_llvm_map_marked_p"),
+18:08 <@baldrick>              param_is(struct tree_llvm_map)))
+18:08 <@baldrick>   htab_t llvm_cache;
+18:08 <@baldrick> this is where all the garbage collector markings are
+18:09 <@baldrick> #include "dragonegg/gt-cache.h"
+18:09 <@baldrick> those markings are fed into a gcc tool which generates this ^ include file
+18:10 <@baldrick> chenwj: this part of the Makefile runs the tool (since the header contents essentially never change, it doesn't need to be run on every
+                  build):
+18:10 <@baldrick> # The following target exists for the benefit of the dragonegg maintainers, and
+18:10 <@baldrick> # is not used in a normal build.
+18:10 <@baldrick> GENGTYPE_INPUT=$(SRC_DIR)/cache.c
+18:10 <@baldrick> GENGTYPE_OUTPUT=$(INCLUDE_DIR)/dragonegg/gt-cache.h
+18:10 <@baldrick> gt-cache.h::
+18:10 <@baldrick>         cd $(HOME)/GCC/objects/gcc && ./build/gengtype \
+18:10 <@baldrick>           -P $(GENGTYPE_OUTPUT) $(GCC_PLUGIN_DIR) gtyp-input.list \
+18:10 <@baldrick>             $(GENGTYPE_INPUT)
+18:10 <@baldrick>         sed -i "s/ggc_cache_tab .*\[\]/ggc_cache_tab gt_ggc_rc__gt_cache_h[]/" $(GENGTYPE_OUTPUT)
+18:10 <@baldrick>         sed -i "s/ggc_root_tab .*\[\]/ggc_root_tab gt_pch_rc__gt_cache_h[]/" $(GENGTYPE_OUTPUT)
+18:10 <@baldrick> chenwj: I think the tool arguments etc changed in gcc-4.6
+18:14 < chenwj> baldrick: this is where all the garbage collector markings are <- you mean if_marked?
+18:15 < chenwj> baldrick: generates this ^ include file <- dragonegg/gt-cache.h?
+18:16 <@baldrick> chenwj: "GTY" means this is marking for the garbage collector.  The tool I mentioned looks for GTY, and then reads the various parameters
+                  (like if_marked) and outputs the right stuff
+18:16 <@baldrick> chenwj: yes, gt-cache.h
+18:17 < chenwj> baldrick: but dragonegg/gt-cache.h is there. why you said "generates this ^ include file"
+18:17 <@baldrick> chenwj: that is the version I generated from gcc-4.5
+18:17 < chenwj> see
+18:17 <@baldrick> chenwj: but stuff changed in gcc-4.6
+18:18 < chenwj> baldrick: simply put, you mean existing gt-cache.h is not longer suit for gcc 4.6?
+18:19 < chenwj> baldrick: I think the tool arguments etc changed in gcc-4.6 <- the "gengtype" tool?
+18:20 <@baldrick> chenwj: yes, I think that is the problem (but I didn't look at this in a while so I may be remembering wrong"
+18:20 <@baldrick> chenwj: yes, the gengtype tool
+

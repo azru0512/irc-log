@@ -1,0 +1,62 @@
+02:21 < chenwj> seems www.qemu.org is down
+02:22 < aliguori> it's just taking a little nap, it will wake up soon :-)
+02:24 < aliguori> chenwj, it's back
+02:24 < chenwj> xd
+02:25 < chenwj> anyone familar with QEMU sparc part?
+02:25 < chenwj> I think configure might be wrong
+02:29 < rth> chenwj: sorta, what's the question?
+02:31 < chenwj> rth: in the configure script,   sparc32plus)
+02:31 < chenwj>     TARGET_ARCH=sparc64
+02:31 < chenwj> it's weird to me
+02:32 < rth> that's correct.  sparc32plus is a 64-bit target.
+02:32 < rth> it's the 32-bit abi for sparcv9.
+02:32 < rth> blame Sun for the strange name.
+02:32 < chenwj> *shrug
+02:33 < chenwj> so when I run "qemu-sparc32plus --help", it shows
+02:33 < chenwj> usage: qemu-sparc64 [options] program [arguments...]
+02:34 < chenwj> it's also correct?
+02:34 < rth> well, no, of course not.
+02:34 < rth> but no one's noticed before.
+02:35 < chenwj> linux-user/main use TARGET_ARCH to form the string as the help message
+02:36 < rth> yeah, so it's wrong for all the 64-bit-with-32-bit-abi variants.
+02:37 < chenwj> can you explain what 64-bit-with-32-bit-abi is?
+02:37 < rth> ... which I guess is just ppc64abi32
+02:37 < rth> i mean TARGET_ABI32=y target_phys_bits=64
+02:39 < rth> mipsn32 ought to be one of these, but it's apparently handled a different way.
+02:40 < chenwj> Is 64-bit-with-32-bit-abi just like running x86 binary on x86-64?
+02:40 < pm215> no
+02:40 < rth> no
+02:41 < chenwj> totally different things?
+02:41 < rth> 32-bit mode on x86 does *not* have access to all 64-bits of the registers.  you can't issue an "addq %rax, %ebx", for instance.
+02:42 < rth> but sparc and ppc *can* access all 64-bits, even when passing parameters and dereferencing pointers via the 32-bit abi.
+02:43 < chenwj> then what limit 32-bit abi has? since you say they can access all 64-bits
+02:44 < rth> it can do 64-bit arithmetic.  but addresses are masked to 32-bits by the hardware.
+02:44 < chenwj> rth: means it can only access 32-bit address space?
+02:44 < rth> yes
+02:45 < chenwj> ppc64abi32 also has a name "qemu-ppc64"
+02:45 < rth> yes
+02:45 < chenwj> no better than sparc32plus
+02:47 < chenwj> the "target_phys_bits" in configure script mean guest's phys bits, right?
+02:47 < rth> yes.  in particular for the system mode.
+02:48 < chenwj> then why i386 has target_phys_bits=64?
+02:49 < rth> because with PAE mode it can address > 4G main memory.
+02:49 < chenwj> I see
+02:54 < chenwj> in --sparc_cpu, I see v8plus and v8plusa's cpu is sparc not sparc64
+02:55 < rth> because that's also known as v9.
+02:56 < rth> are you building qemu on a sparc host, trying to emulate a sparc guest, or just browsing?
+02:56 < chenwj> yes
+02:56 < chenwj> I have a linux/sparc machine
+02:57 < chenwj> and trying to emulate a sparc guest
+02:59 < rth> when using sparc as a host, you should use --cpu=sparc64 if at all possible (i.e. you have a 64-bit runtime installed).  the extra address
+             space in the host is critical in efficiently emulating a full 32-bit address space in any guest.
+03:00 < chenwj> you mean --sparc_cpu=v9?
+03:00 < rth> well, i meant --cpu=sparc64.  I'm not sure why that special --sparc_cpu option exists.
+03:01 < chenwj> I don't see --cpu option on the help message
+03:01 < rth> i use --cpu=i386 and --cpu=x86_64 just fine when forcing 32-bit or 64-bit hosting on intel boxes.
+03:01 < rth> that's odd.
+03:02 < rth> i'm sure it used to be there.
+03:04 < chenwj> rth: I think it just doesn't appear on the list but exist
+03:04 < chenwj> too many options though
+03:05 < chenwj> there is --cpu and --sparc_cpu
+03:05 < chenwj> don't know why there are two different options
+

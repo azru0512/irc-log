@@ -1,0 +1,37 @@
+20:10 < chenwj> is it possible to disassemble bios.bin?
+20:13 < CareBear\> of course it is
+20:13 < CareBear\> but it's simpler to read the source
+20:14 < CareBear\> git.seabios.org/seabios.git
+20:15 < chenwj> I am talking about pc-bios/*
+20:15 < chenwj> does bios.bin's source availiable?
+20:18 < CareBear\> git clone git://git.seabios.org/seabios.git
+20:18 < chenwj> really? I don't know bios.bin and seabios are the same :p
+20:19 < CareBear\> does qemu say SeaBIOS when you boot it?
+20:19 < chenwj> oh, yes
+20:19 < CareBear\> git clone git://git.seabios.org/seabios.git
+20:19 < chenwj> but... just curious
+20:20 < CareBear\> yes?
+20:20 < chenwj> can I disassemble bios.bin? maybe use objdump?
+20:21 < CareBear\> what kind of question is that?
+20:21 < CareBear\> if you have a disassembler you can disassemble
+20:22 < CareBear\> objdump can disassemble
+20:22 < CareBear\> you have to pay attention to all the particulars of x86 firmware
+20:22 < chenwj> I$ objdump -D bios.bin`
+20:22 < chenwj> objdump: bios.bin: File format not recognized
+20:24 < chenwj> I am not sure what argument I should give to objdump
+20:25 < CareBear\> so you have to study binutils and you have to study particulars of x86 firmware
+20:25 < CareBear\> it seems you have an xy problem
+20:25 < CareBear\> you want to do x but you are asking about y
+20:25 < CareBear\> that makes it difficult or impossible to help you
+20:25 < CareBear\> please elaborate on why you want to disassemble
+20:26 < CareBear\> (x86 firmware has 30 years of legacy which you will benefit significantly from studying if you want to reverse engineer SeaBIOS or
+                   another BIOS)
+20:27 < CareBear\> if you are new to the subject then estimate two years for studying
+20:27 < agraf_> CareBear\: being in a good mood again today? ;)
+20:29 < chenwj> CareBear\: if you happened to have qemu source at hand, I want to see if I can disassemble pc-bios/bios.bin
+20:37 < CareBear\> agraf_ : not really, no
+20:37 < agraf_> chenwj: you need to tell objdump that it dumps a binary image with x86 instruction set
+20:37 < agraf_> chenwj: beware though, bios.bin mixes 16-bit and 32-bit code and objdump won't know which is which
+20:38 < agraf_> chenwj: so you'll get a lot of garbage :)
+20:38 < agraf_> CareBear\: so, what's up? :)
+20:38 < chenwj> ah, isee

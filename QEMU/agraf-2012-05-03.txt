@@ -1,0 +1,62 @@
+16:20 < abramart> Do you know if it's possible with qemu to set another timezone, with the -rtc option, than the local timezone (or UTC)? I want to set
+                  different tz for different qemu processes, since customer VMs (Windows) uses different tz, but the only way I found was by using the date
+                  command like "-rtc base=$(TZ=CET date +%Y-%m-%dT%T)" - but it doesn't feel like a really good solution.
+16:24 < mjt> rtc does not deal with timezones
+16:24 < mjt> the only options are the ones outlined in the help - local or utc
+16:25 < mjt> just configure guests to use utc as every sane OS does nowadays.
+16:33 < abramart> mjt, I agree with you, though Windows doesn't (at least it doesn't seems to).
+16:33 < agraf_> abramart: -localtime? :)
+16:34 < abramart> localtime solves the issue if the host is using the same tz as the guest, in this case it doesn't.
+16:34 < agraf_> abramart: ah, only reading things properly now, you don't want the host's tz
+16:34 < abramart> agraf_, :)
+16:34 < agraf_> abramart: can't you somehow set a user's timezone offset in linux and then use -localtime? :)
+16:34 < agraf_> abramart: i would've assumed that works, but never tried it myself
+16:35 < abramart> agraf_, by using different users for different qemu processes?
+16:36 < agraf_> abramart: again, never tried it myself, but i would've thought you can throw a user into a non-default tz by exporting a variable
+16:36 < agraf_> abramart: http://www.cyberciti.biz/tips/date-command-set-tz-environment-variable.html
+16:37 < abramart> agraf_, yes I assume that would work - however then we need to run each qemu process as separate users. I don't know if that's "possible"
+                  in the current environment. Thanks for you help though!
+16:38 < agraf_> abramart: huh?
+16:38 < abramart> agraf_, sorry. My bad!
+16:38 < agraf_> abramart: you just need to start it with a different TZ env variable
+16:38 < abramart> I didn't think before typing!
+16:39 < abramart> agraf_, that would of course be the best solution, thanks.
+16:39 < agraf_> abramart: :) good luck!
+16:42 < chenwj> agraf_: so he need export TZ in the guest?
+16:42 < agraf_> chenwj: no :)
+16:42 < agraf_> chenwj: the guest is windows
+16:43 < chenwj> ok, export different TZ on host for each guest?
+16:47 < chenwj> not work for me, my guest is linux :/
+16:51 < ilike> hi all
+16:51 < ilike> i have problem to compile qemu 1.0.1 on linux for windows, i get this error
+16:51 < agraf_> chenwj: it should only work with -localtime
+16:51 < ilike>   File "/home/flixie/Downloads/qemu-1.0.1/scripts/qapi-commands.py", line 376     except getopt.GetoptError, err:
+               ^ SyntaxError: invalid syntax
+16:51 < agraf_> chenwj: otherwise the guest gets UTC time
+16:55 < chenwj> agraf_: -rtc base=localtime <- ?
+16:56 < agraf_> chenwj: probably :)
+16:56 < mathslinux> chenwj: -localtime is enough
+16:59 < abramart> chenwj, in my case we're using UTC on the host and I want to use different tz (such as CET) on Windows guests. Running a command like this
+                  it works "TZ=CET  /usr/bin/qemu-kvm -name test -rtc base=localtime"
+17:39 < chenwj> any idea on which part we can improve system mode performance?
+17:40 < agraf_> chenwj: the most expensive bit in qemu atm are storage misses
+17:40 < agraf_> chenwj: in user and system mode
+17:40 < agraf_> chenwj: in user mode that'd be segfaults
+17:41 < agraf_> chenwj: while in system mode tlb misses / page faults
+17:41 < agraf_> chenwj: if you somehow could get the code to be more transactive, it should be possible to speed up things _a lot_
+17:42 < chenwj> I did a little investigate, the ratio of page fault and tlb_fill is quit small
+17:42 < chenwj> agraf_: like transmeta did?
+17:42 < agraf_> chenwj: not sure if they did that :)
+17:43 < agraf_> chenwj: but modern CPUs do get transactive memory now
+17:43 < agraf_> chenwj: so that might be an interesting approach to the problem
+17:43 < agraf_> chenwj: run each TB in a transactive memory block
+17:43 < agraf_> chenwj: and if you get a miss, abort, retranslate with slow, miss safe code and rerun
+17:43 < chenwj> agraf_: that's one topic we are doing
+17:44 < agraf_> chenwj: ah, cool :)
+17:44 < chenwj> agraf_: the transactive mem you mentioned is for multi-thread, iirc
+17:44 < agraf_> chenwj: well, that's what it's built for, yeah
+17:45 < agraf_> chenwj: but there's no reason not to use it for emulation ;)
+17:45 < chenwj> I just wish we can use current version of qemu, not 0.13
+17:47 < agraf_> well, 0.13 essentially means that whatever you do you're doing mostly for the garbage bin
+17:47  * chenwj shrug
+17:51 < chenwj> anyway, when you say page fault handling could be improved, that make me more confident

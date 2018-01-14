@@ -1,0 +1,20 @@
+18:33 < chenwj> can I exit (logout) the guest OS without rebooting? I tried linux-0.2.img, when I logout Qemu start rebooting.
+18:34 < pm215> cor, the mailing list is being slow today (lists.gnu sat on one of my mails for eight hours last night)
+18:34 < pm215> chenwj: reboot/shutdown/etc is board and guest OS dependent
+18:35 < pm215> when the board being modelled has some sort of 'power off' facility and qemu's model of the board implements it and the guest OS uses it,
+               then telling the guest OS to power down should cause qemu to exit to the host OS command line
+18:37 < chenwj> I mean type "exit" on the promote to logout the guest os
+18:37 < pm215> on the what?
+18:37 < chenwj> $ exit <- like thos
+18:37 < chenwj> this
+18:37 < pm215> yes, type that where?
+18:37 < chenwj> on the guest os
+18:38 < pm215> that will just do whatever the guest OS does when you type exit at a prompt (usually put you back at a guest OS login prompt)
+18:39 < chenwj> pm215: that's what I thought, but linux-0.2.img doesn't behave like that
+18:40 < pm215> well, behaviour of 'exit' is entirely a guest config and setup issue
+18:40 < chenwj> the image I get form http://landley.net/aboriginal/ also does rebooting when I type exit
+18:41 < pm215> if 'shutdown -h now' shuts qemu down and exits, then qemu is doing its part, and it's purely a guest os issue what it does when you type
+               'exit'
+18:43 < chenwj> you mean I can make "exit" rebooting rather than put me back at login prompt when I do make kernel config or something like that?
+18:44 < chenwj> pm215: got to go, byebye
+18:44 < pm215> what 'exit' does is userspace config, not kernel

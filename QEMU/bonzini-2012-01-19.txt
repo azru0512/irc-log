@@ -1,0 +1,6 @@
+17:21 < chenwj> can qemu monitor add "-serial telnet:127.0.0.1:1001,server,nowait,nodelay" to a running vm?
+17:24 < bonzini> mjt: for Xen, scsi cdrom had a lot of other bugs so it hardly worked and disabling it was the easiest path
+17:24 < bonzini> mjt: for KVM, the fix is enough but we never supported scsi cdrom (at least so far) because we only support scsi for usb mass storage
+17:25 < bonzini> chenwj: no, isa devices cannot be hotplugged
+17:25 < mjt> ok thanks
+17:25 < chenwj> bonzini: thanks

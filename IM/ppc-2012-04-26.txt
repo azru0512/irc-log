@@ -1,0 +1,363 @@
+18:39 <ppc52776> 我可以開 realview model 了
+18:48 <ppc52776> 他好像最多只能給 256
+19:43 <chenwj> cool
+19:44 <chenwj> 256...
+19:44 <chenwj> 怎麼跑 spec
+19:45 <chenwj> 你是用 buildroot 嗎?
+19:46 <ppc52776> 我直接從原本 kernel source 編譯的
+19:46 <ppc52776> 但他最多只能開到 256, 不夠跑 spec...
+19:46 <chenwj> 我最快明天試試  coremu 能夠吃怎樣的 model
+19:47 <chenwj> 它預設是跑 realview
+19:47 <chenwj> 你是用哪一個 kernel config?
+19:48 <ppc52776> realview_defconfig
+19:48 <chenwj> 等等 我去洗個臉
+19:54 <chenwj> 我要先抓 kernel source?
+19:54 <ppc52776> 恩
+19:56 <chenwj> 有特定哪一版嗎?
+19:56 <ppc52776> 我目前用的是 3.4.0-rc4
+19:59 <chenwj> 不同 kernel 可以吃同一份 config 嗎?
+20:00 <chenwj> 我解開 tarball 了
+20:01 <chenwj> 要怎麼拿到 realview_defconfig?
+20:01 <ppc52776> 這些 def 的應該都一樣
+20:01 <ppc52776> 再 arch/arm/configs/
+20:02 <chenwj> arm webiste 上的印象中是 realview-smp_defconfig
+20:03 <ppc52776> 恩~不過 ram 是目前大問題, 無法模擬 256 以上..
+20:03 <chenwj> 悲劇
+20:03 <chenwj> 要找一個 model ram 夠大
+20:04 <ppc52776> 吃飯去
+20:42 <chenwj> http://people.cs.nctu.edu.tw/~chenwj/log/QEMU/pm215-2012-04-25.txt
+20:43 <chenwj> 我查了一下 coremu，他們跑 spec 好像也是在 x86_64 guest 上
+20:44 <chenwj> 看來要先試 realview-pb-a8 or realview-pbx-a9
+20:44 <ppc52776> a9 我試過
+20:44 <ppc52776> 就 256M
+20:44 <ppc52776> 用目前的 0.13
+20:45 <ppc52776> 看起來我們應該要用新一點的版本會比較好.
+20:45 <chenwj> shrug
+20:46 <chenwj> 比較麻煩的是 coremu 是 0.13
+20:46 <ppc52776> 是阿
+20:46 <chenwj> 我這邊再試一次 realview-pbx-a9 真不行再改用 1.0
+20:47 <chenwj> 要不然如果我們真要用 0.13 的話
+20:47 <chenwj> 那只能用 x86_64
+20:47 <chenwj> 我想不到其他招了
+20:48 <ppc52776> 恩~或是試試看 0.15
+Day changed to 26  4 2012
+14:37 -!- ppc52776 [ppc52776@ms21.hinet.net] has joined &bitlbee
+15:09 <chenwj> /data/Benchmarks/SPEC/CPU2006_v1.1_arm/bin 是 arm binary
+15:09 -!- ppc52776 is away: Busy (@Office: (無法收檔案，傳檔請寄gmail) Android, Cloud, PandaBoard)
+15:09 <chenwj> 或許可以把它 cp 進 disk
+15:09 <chenwj> 這樣應該就能用 spec 的 tool?
+15:12 <ppc52776> 看起來是 arm 的 binary
+15:51 <chenwj> 我 cp 進去之後，login 下
+15:51 <chenwj> # runspec
+15:51 <chenwj> -sh: runspec: not found
+15:51 <chenwj> :/
+15:56 <ppc52776> 改一下 runspec 裏面的路徑
+15:57 <chenwj> 我看了一下 runspec
+15:57 <chenwj> 它要用到 perl
+15:57 <chenwj> #!/root/cpu2006/bin/specperl
+15:57 <chenwj> #!/root/cpu2006/bin/specperl -d
+15:57 <chenwj> #!/usr/bin/perl
+15:57 <chenwj> 前兩行我改掉了
+15:58 <ppc52776> ㄟ
+15:58 <ppc52776> 不是
+15:58 <ppc52776> 你要先 source shrc
+15:58 <chenwj> 噢噢
+15:58 <ppc52776> 不然不會有 runspec
+16:05 <chenwj> # source shrc
+16:05 <chenwj> You are not allowed to write into /root/cpu2006/config.
+16:06 <chenwj> 我可以 touch config
+16:07 <ppc52776> chmod 644
+16:08 <chenwj> no use :/
+16:08 <chenwj> # ls -ls shrc
+16:08 <chenwj>     11 -rw-r--r--    1 root     root         10649 Apr 26  2012 shrc
+16:09 <ppc52776> shrc 裡面那一行噴出來的
+16:09 <ppc52776> ?
+16:10 <chenwj> source shrc 噴的
+16:12 <chenwj> 還是我要整個 CPU2006_v1.1_arm/ cp 過去
+16:12 <chenwj> 我剛剛只是想試 bin/ 底下能不能跑
+16:15 <ppc52776> 那個錯誤是因為 "touch "$SPEC/config/shrc$$writetest" fail
+16:16 <ppc52776> 修改 config 這個資料夾的權限?
+16:16 <chenwj> # pwd
+16:16 <chenwj> /root/cpu2006
+16:16 <chenwj> # ls
+16:16 <chenwj> bin   shrc
+16:16 <chenwj> 我只有 cp 這兩個
+16:17 <ppc52776> 也就是 touch /root/cpu2006/config/shrc1234writetest 這個檔案 fail
+16:17 <ppc52776> 那請 mkdir config
+16:17 <chenwj> ok
+16:17 <chenwj> cool
+16:18 <chenwj> ok, 可以 source shrc
+16:18 <chenwj> 直接下 runspec 會說找不到 runspec
+16:19 <ppc52776> 因為他是 shrc 裏面定義出來的
+16:19 <chenwj> 恩? 我 source shrc 還不夠?
+16:20 <ppc52776> source 完還是沒有 runspec？
+16:21 <chenwj> 恩
+16:21 <chenwj> 等等
+16:21 <chenwj> 會有 autocomplete
+16:22 <chenwj> 但是打下 runspec 之後會
+16:22 <chenwj> # runspec
+16:22 <chenwj> -sh: runspec: not found
+16:25 <ppc52776> 你可以執行 runspec 上面提到的那幾個 程式嘛
+16:27 <chenwj> ?
+16:28 <ppc52776> specperl
+16:28 <chenwj> 你說 runspec script 裡面下的 command?
+16:29 <ppc52776> 最上面他定義的 specperl
+16:29 <ppc52776> 在 bin/ 禮
+16:30 <chenwj> # ./specperl
+16:30 <chenwj> -sh: ./specperl: not found
+16:33 <ppc52776> 用 /lib/ld-xxxx.so ./specperl 可以執行嘛
+16:33 <ppc52776> ld- 後面的名稱要看一下
+16:33 <chenwj> # /lib/ld-uClibc-0.9.32.1.so specperl
+16:33 <chenwj> Standalone execution is not supported yet
+16:34 <chenwj> 會是 uclibc 的關係??
+16:34 <ppc52776> 上面建議用 glibc 比較好,  uclibc 有些東西會不能跑
+16:34 <chenwj> ok, ....
+16:34 <chenwj> 那我 buildroot 要她改用 glibc?
+16:35 <ppc52776> yes
+16:35 <ppc52776> specperl 我看他當時也是用 glibc compile 的
+16:35 <chenwj> 恩
+16:37 <chenwj> 我在 Toolchain 裡沒看到可選 glibc
+16:38 <chenwj> Toolchain type 改用 cross-tool ng?
+16:38 <ppc52776> yep
+16:39 <chenwj> waiting...
+18:56 <chenwj> # /lib/ld-linux.so.3 specperl
+18:56 <chenwj> specperl: error while loading shared libraries: specperl: cannot open shared object file
+18:58 <ppc52776> /lib or /usr/lib 裡有 libnsl libdl libm 等嘛?
+18:58 <chenwj> 少 .so?
+18:58 <ppc52776> 恩
+18:59 <chenwj> # ldd specperl
+18:59 <chenwj>         libnsl.so.1 => /lib/libnsl.so.1 (0x4019e000)
+18:59 <chenwj>         libdl.so.2 => /lib/libdl.so.2 (0x4003f000)
+18:59 <chenwj>         libm.so.6 => /lib/libm.so.6 (0x401ba000)
+18:59 <chenwj>         libcrypt.so.1 => /lib/libcrypt.so.1 (0x40255000)
+18:59 <chenwj>         libutil.so.1 => /lib/libutil.so.1 (0x4005d000)
+18:59 <chenwj>         libc.so.6 => /lib/libc.so.6 (0x4028d000)
+18:59 <chenwj>         libgcc_s.so.1 => /lib/libgcc_s.so.1 (0x40097000)
+18:59 <chenwj>         /lib/ld-linux.so.3 (0x400f3000)
+18:59 <chenwj> 看起來沒缺?
+19:00 <ppc52776> 可讀 /lib/libnsl.so.1 ?
+19:00 <ppc52776> 阿
+19:00 <ppc52776> 沒事
+19:00 <chenwj> # ls -ls /lib/libnsl.so.1
+19:00 <chenwj>      0 lrwxrwxrwx    1 root     root            13 Apr 26  2012 /lib/libnsl.so.1 -> libnsl-2.9.so
+19:10 <ppc52776> ./specperl 直接執行呢？
+19:11 <chenwj> ./specperl --help 有噴 msg
+19:12 <ppc52776> ?
+19:12 <ppc52776> 什麼 msg?
+19:13 <chenwj> 就是 help msg xd
+19:13 <chenwj> # runspec
+19:13 <chenwj> The  suite version could not be read.  Your distribution is corrupt
+19:13 <chenwj>   or incomplete.
+19:13 <chenwj> 這代表我需要把 SPEC dir 整個 cp 進來?
+19:13 <ppc52776> 那基本上可以執行了~剩下應該是有少 cp 檔案
+19:14 <chenwj> 這代表我需要把 SPEC dir 整個 cp 進來? <--
+19:14 <ppc52776> 恩~
+19:14 <chenwj> ok!
+19:15 <chenwj> 我在想一般的 distrubution 應該也能掛進 spec
+19:15 <chenwj> 用 cdrom 掛 iso
+19:16 <ppc52776> 什麼意思？
+19:16 <ppc52776> qemu -cdrom spec.iso ?
+19:16 <chenwj> 就是俊琛想要 boot 長一點，他想要一般的 distrubution
+19:16 <chenwj> 差不多
+19:17 <ppc52776> 看要不要掛一般的 dist , 然後跑安裝流程？
+19:18 <chenwj> 直接用現成的 disk 不行?
+19:18 <ppc52776> 有的話應該可以
+19:18 <chenwj> 恩恩
+19:19 <ppc52776> 像 ubuntu
+19:19 <chenwj> anyway, 我先把 spec dir 塞進去
+19:19 <ppc52776> 上次那樣跑一次 installer 之類的
+19:19 <ppc52776> 恩
+19:19 <chenwj> arm 好像 installer 都要特別做
+19:20 <ppc52776> 也沒有另外做~只是用最早的 text mode 安裝而已
+19:20 <chenwj> http://lizhiwei.sinaapp.com/2012/02/debianubuntu%E4%B8%AD%E5%AE%89%E8%A3%85arm-cortex-a9-qemu-image/
+19:20 <chenwj> 我是指這種的
+19:23 <ppc52776> 這些動作差不多, 只是被 installer 介面隱藏起來而已
+19:23 <chenwj> 恩恩
+20:02 <chenwj> good, 現在看 runspec 能不能把 spec compile 完
+20:02 <chenwj> orz
+20:02 <chenwj> Part of the tools (bin/runspec) is corrupt!
+20:02 <chenwj> Aborting...
+20:03 <chenwj> 他會檢查 runspec 什麼東西?
+20:37 <ppc52776> 他好像會把檔案都用 md5 檢查,
+20:37 <ppc52776> 可能跑一次完整 spec 安裝流程, 會比較少問題.
+20:38 <chenwj> 所以要把 tarball 丟進去，解開再安裝?
+20:43 <chenwj> 我用 truncate rootfs.ext2 --size xxG 就能把 disk 加大嗎?
+20:44 <chenwj> 還是需要其他 command?
+20:44 <ppc52776> 用 resize2fs rootfs.ext2 xxG
+20:45 <chenwj> 所以要把 tarball 丟進去，解開再安裝?
+20:45 <ppc52776> 也可以解完再丟進去, 可能會快點
+20:45 <chenwj> 恩
+20:46 <ppc52776> 然後他裏面 tools/src 理
+20:46 <ppc52776> 有 buildtools
+20:46 <ppc52776> 可以重新 build 一份 specperl
+20:47 <ppc52776> 不過應該可以先用已經有的看看
+20:47 <chenwj> tools/src ?
+20:47 <ppc52776> 解壓縮後裡面有
+20:47 <chenwj> ok
+20:55 <chenwj> i7, i71, i722 上能幫我裝 resize2fs 嗎?
+20:56 <ppc52776> 在 /sbin/
+20:56 <chenwj> 喔喔
+20:56 <chenwj> 在 /sbin 就容易忽略他
+20:56 <ppc52776> 因為這些指令通常沒有 root 權限也不能用
+21:19 <chenwj> 如果是 cp tarball，應該就不用要求 glibc?
+21:28 <ppc52776> 還是用 glibc 吧, 換 uclibc 可能會 compile 不過?
+21:32 <chenwj> 我改 glibc，好像不能裝 g++ gfortan
+21:33 <ppc52776> 位啥？
+21:33 <chenwj> 應該是說改用 cross-tool ng
+21:34 <chenwj> Toolchain type (Crosstool-NG toolchain) 才能改用 glibc，
+21:35 <chenwj> Package Selection for the target -> Development tools -> 沒出現 gcc
+21:38 <ppc52776> 恩
+21:38 <ppc52776> 可能要自己 build 一份 toolchain
+21:38 <ppc52776> 現成的都不包含 gfortran
+10:57 <chenwj> 慢的跟烏龜一樣
+10:57 <chenwj> tool 到現在還沒 build 好
+10:57 <chenwj> 科科
+10:58 <chenwj> 我看他一直在 config
+11:00 <chenwj> :/
+11:09 <chenwj> 我需要裝 autotool?
+11:10 <ppc52776> 用 cross-compile 吧 @@
+11:10 <ppc52776> 恩
+11:11 <chenwj> 用 cross compile 他不會認 md5?
+11:14 <ppc52776> 他 md5 好像是再產生工具的時候建立的, 應該是可以用 cross compile
+11:24 <chenwj> 看起來 tools/src/perl-5.8.8 有特別的 Cross 目錄給 cross compile
+11:25 <ppc52776> good~
+11:25 <chenwj> 那其他工具怎麼辦? 改 buildtool script?
+11:27 <ppc52776> http://www.spec.org/cpu2006/docs/tools-build.html
+11:29 <chenwj> 動 CFLAGS CXXFLAGS?
+11:29 <chenwj> ㄜ CC
+11:37 <chenwj> Can't locate Exporter.pm in @INC (@INC contains: /usr/share/automake-1.11 /usr/lib/perl5/5.8.8 .) at
+               /usr/share/automake-1.11/Automake/Config.pm line 21.
+11:37 <chenwj> 這是我裝完 autotools 之後，在 vm 上跑 buildtools
+11:38 <chenwj> 缺 perl 某些套件?
+12:08 <ppc52776> 缺 perl exporter
+12:09 <chenwj> 看來缺很大
+12:10 <ppc52776> 恩, perl 蠻麻煩的
+12:10 <chenwj> 你剛剛給我的 link 是?
+12:11 <chenwj> 我在上面沒看到 cross compile 的 instruction
+12:12 <ppc52776> 1.c
+12:12 <ppc52776> ㄜ~好像 perl 無法 cross compile ?
+12:12 <ppc52776> It is generally not possible to do cross-compilation of Perl
+12:13 <chenwj> then?
+12:13 <ppc52776> getting a toolset onto an embedded platform without a native compiler is most likely impossible.
+12:13 <chenwj> 我有看到那一句
+12:13 <chenwj> 但不是很懂他的意思
+12:13 <ppc52776> 就是要直接在 arm 環境裡 native 做
+12:14 <chenwj> = =
+12:14 <chenwj> 就是我們現在做的?
+12:16 <ppc52776> 恩....會跑很久.orz
+12:17 <chenwj> 我寄信問俊琛了
+12:17 <chenwj> 或許他有別的辦法
+12:18 <chenwj> 也可能他是像我們這樣 build
+12:18 <chenwj> shrug
+12:18 <ppc52776> 至少 perl 部份 ~；~
+12:18 <ppc52776> ~"~
+12:19 <chenwj> 哪這樣怎麼裝 perl 缺的東西到 vm 上?
+12:19 <ppc52776> apt-get ?
+12:19 <ppc52776> 阿
+12:19 <ppc52776> 你是 build root
+12:19 <chenwj> 還要網路? hmmmmm....
+12:19 <ppc52776> 他裡面有perl 相關的~不過應該沒很完整...
+12:20 <ppc52776> 用 pandaboard 會比 qemu 快嘛?
+12:20 <chenwj> 我想會
+12:20 <chenwj> 但是 qemu 這邊跑 armv5
+12:20 <chenwj> pandaboard 跑 v7
+12:26 <ppc52776> 那還是只能在 qemu 編譯?
+12:26 <chenwj> not sure
+12:28 <chenwj> hmmm, 我在 try http://people.debian.org/~aurel32/qemu/arm/
+12:30 <ppc52776> 不曉得這個版本 能不能 apt-get
+12:30 <chenwj> 可以
+12:30 <ppc52776> ok
+12:31 <chenwj> 你有 spec iso 嗎?
+12:32 <ppc52776> http://140.109.23.171/download/spec_cpu2006v1.1.iso
+12:33 <chenwj> 也可以用 scp!
+12:33 <ppc52776> ?
+12:33 <chenwj> 我是說他可以用 scp
+12:34 <chenwj> 抓 spec tarball
+12:34 <chenwj> -> eat
+12:34 <chenwj> 他還是 qcow2 黨
+12:34 <chenwj> disk 會自動變大
+12:34 <chenwj> 之前應該要先把 rootfs.ext2 轉成 qcow2
+12:35 <ppc52776> 其實他也是預先配治好 16G
+12:36 <ppc52776> ok
+14:12 <chenwj> 這我到不知道 xd
+14:14 <ppc52776> 原理差不多~只是呈現方式不同,
+14:14 <ppc52776> 還有主要應該是他多了 snapshot 功能
+14:15 <chenwj> 恩恩
+14:15 <chenwj> 等等試試能不能 build spectoos
+14:15 <chenwj> tool
+14:16 <chenwj> buildroot 需要做特別設定讓 image 有網路嗎?
+14:20 <ppc52776> 開完機後, 自己打指令設定吧
+14:21 <ppc52776> 對了, tci 是什麼?
+14:21 <chenwj> interprter
+14:21 <chenwj> tcg 是 jit
+14:32 <chenwj> buildroot 的 cross tool 是放在 output/host/usr/ ?
+14:59 <chenwj> perl 似乎可以 cross build，我在看 perl-5.8.8/INSTALL
+14:59 <chenwj> 但是似乎蠻麻煩的
+14:59 <chenwj> :/
+15:14 <chenwj> 俊琛信裡講的那方案可行嗎?
+15:15 <chenwj> 掛 nfs
+16:18 -!- ppc52776 [ppc52776@ms21.hinet.net] has joined &bitlbee
+17:22 <chenwj> ./makedepend: 1: Syntax error: Unterminated quoted string
+17:22 -!- ppc52776 is away: Busy (@Office: (無法收檔案，傳檔請寄gmail) Android, Cloud, PandaBoard)
+17:27 <chenwj>     */*) finc="-I`echo $file | sed 's#/[^/]*$##`" ;;
+17:27 <chenwj> 好像應該是
+17:27 <chenwj>     */*) finc="-I`echo $file | sed 's#/[^/]*$##'`" ;;
+17:28 <chenwj> sed 那邊少 ' ?
+18:40 <ppc52776> 恩
+18:40 <ppc52776> 有要用 nfs 的方式嘛?
+18:41 <chenwj> 掛上 /data/Benchmarks/SPEC/CPU2006_v1.1_arm/ 能用他的 binary?
+18:42 <ppc52776> glibc 的話可以
+18:42 <chenwj> 也不會有 md5 的問題?
+18:42 <ppc52776> 不要改到就不會
+18:43 <chenwj> 那要想想怎麼掛
+18:43 <ppc52776> 所以要用一樣的路徑 /data/Benchmark....
+18:54 <chenwj> 你那邊有辦法 export 給 qemu 嗎?
+18:56 <ppc52776> 沒有
+18:56 <ppc52776> 給我他的 ip
+18:56 <chenwj> 他是 dhcp 給的 10.0.2.15
+18:56 <chenwj> 這樣也可以?
+18:58 <ppc52776> ㄜ
+18:58 <ppc52776> 有沒有他對應的真實 ip ?
+18:58 <ppc52776> 140.109.xx.xx
+18:58 <ppc52776> 這個 qemu 對應的 ip
+18:59 <chenwj> 這個是 qemu 內部 dhcp 分的 ip
+18:59 <chenwj> 我要問看看
+19:01 <ppc52776> 那他連外看到的 ip 是啥?
+19:01 <chenwj> 怎麼看?
+19:01 <ppc52776> 你 ssh 到 itanium 再 w -f 看看
+19:01 <ppc52776> 如果是你的電腦~那應該是你的 ip
+19:02 <chenwj> ?
+19:02 <chenwj> 我在 i71 上開 vm
+19:02 <ppc52776> 那應該可以直接 mount
+19:02 <ppc52776> i71 ip 我有開
+9:03 <chenwj> mount xxx?
+19:03 <ppc52776> mount 140.109.22.170:/mnt/data /data
+19:04 <chenwj> mount.nfs: access denied by server while mounting 140.109.22.170:/mnt/data
+19:06 <ppc52776> refused mount request from 140.109.22.42 for /mnt/data (/mnt/data): illegal port 42100
+19:06 <ppc52776> -t nfs -o v3 ?
+19:06 <chenwj> # mount -t nfs -o v3 140.109.22.170:/mnt/data /data
+19:06 <chenwj> mount.nfs: access denied by server while mounting 140.109.22.170:/mnt/data
+19:07 <chenwj> 你等等
+19:07 <ppc52776> ip我是已經允許了~只是 port  的問題
+19:08 <chenwj> http://people.cs.nctu.edu.tw/~chenwj/log/QEMU/stefanha-2012-04-27.txt
+19:08 <chenwj> port 的問題?
+19:18 <chenwj> 19:17 < pm215> ok, so you want that ipaddr and you also need to make the nfs server export it to that ipaddr as 'insecure' (ie accept high
+               ports)
+19:19 <ppc52776> 他只接受 insecure @@?
+19:19 <chenwj> pm215 的建議
+19:20 <chenwj> 你說誰只接受 insecure?
+19:20 <ppc52776> 這我不知道怎麼調整@@
+19:20 <chenwj> 怎麼說?
+19:21 <chenwj> http://linux.die.net/man/5/exports
+19:21 <ppc52776> 我看看 invalid port 是什麼意思好了..
+19:21 <chenwj> secure
+19:21 <chenwj> This option requires that requests originate on an Internet port less than IPPORT_RESERVED (1024). This option is on by default. To turn it
+               off, specify insecure
+19:30 <ppc52776> ok
+19:30 <ppc52776> try again
+19:30 <chenwj> nice
+19:51 <chenwj> looks good
+19:51 <ppc52776> nice
+19:51 <ppc52776> 可以直接執行了/
+19:52 <chenwj> 我正在 build
+19:52 <chenwj> 剛剛測 mcf

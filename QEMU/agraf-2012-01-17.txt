@@ -1,0 +1,100 @@
+20:07 < chenwj> one question about tlb_flush (exec.c) itself
+20:08 < chenwj> it doesn't use its second parameter, flush_global
+20:08 < chenwj> the comment says "if flush_global is true, also flush global entries"
+20:08 < agraf_> chenwj: yeah, that's for x86 global tlb entries
+20:08 < agraf_> chenwj: on x86, you can pin tlb entries to always be around
+20:09 < agraf_> chenwj: basically to survive a tlb flush
+20:09 < agraf_> chenwj: that's what this flag is about
+20:09 < chenwj> but it doesn't use that flag
+20:10 < chenwj> it seems tlb_flush clear all tlb entries, I don't know what global entry is.
+20:11 < agraf_> chenwj: yeah, because so far it wasn't a problem to not flush globals ;)
+20:16 < chenwj> agraf_: any (global) entry out there need to be flush if flush_global is set?
+20:17 < chenwj> I thought tlb_flush already flush them all
+20:17 < agraf_> chenwj: the x86 tlb flush instruction has a flag that says "flush globals"
+20:17 < agraf_> chenwj: the parameter models that flag
+20:17 < agraf_> chenwj: just read up the x86 isa :)
+20:20 < chenwj> hugh? tlb_flush in exec.c clear env->tlb_table, does this have anything to do with x86 tlb flush instruction?
+20:20 < agraf_> chenwj: it's modeled after it
+20:21 < chenwj> oh
+20:21 < agraf_> chenwj: a lot of qemu "generic" code takes x86 assumptions
+20:21 < agraf_> host and guest
+20:22 < agraf_> so if you're in doubt why something is done the way it is, it's most likely because x86 does it that way ;)
+20:26 < chenwj> agraf_: curren approach does a global flush or not?
+20:26 < agraf_> chenwj: if it clears everything, it always does a global flush
+20:28 < chenwj> that's why I think the comment is not so accurate
+20:31 < pm215> always global> this is fine for ARM, incidentally, because the architecture doesn't guarantee that a TLB entry remains in the TLB
+20:31 < pm215> (ignoring 'TLB lockdown', which we don't implement in qemu)
+20:32 < chenwj> TLB lockdown?
+20:32 < chenwj> you mean pin tlb entries to always be aroun?
+20:36 < pm215> chenwj: yes
+20:37 < pm215> for ARM TLB lockdown is IMPLEMENTATION DEFINED, ie may vary (or not exist) depending on the CPU
+20:38 < pm215> always global> ...and the intel x86 manual says "Processors that do implement TLBs may invalidate any TLB entry at any time", so flushing
+               more than required is safe, just possibly inefficient
+
+20:40 < chenwj> pm215: maybe we should correct the comment of tlb_flush?
+20:44 < pm215> do we implement anything about x86 global pages at all?
+20:45 < chenwj> donno
+20:46 < chenwj> by global page you mean Global Descriptor Table?
+20:46 < agraf_> no
+20:47 < chenwj> agraf_: to me or pm215? :)
+20:47 < afaerber> :) [or to me, but less likely]
+20:49 < pm215> x86 global pages are the ones marked by setting the global flag in their page table entries
+20:50 < pm215> I'm not hugely convinced that a single 'flush global pages or don't' flag is the right API for core qemu code to expose to target-foo code
+               for implementing target-specific partial TLB flushing...
+20:50 < chenwj> I think page table is leave to guest os, and qemu only maintain tlb
+20:51 < pm215> qemu has to implement the cpu end of knowing what page tables do...
+20:57 < pm215> it needs to be able to walk them to identify what the phys-to-virt mapping it has to set up is, what access permissions are, etc
+20:57 < pm215> (unless you're a powerpc weirdo, which does more of this in software :-))
+20:58 < pm215> see eg get_phys_addr() in target-arm/helper.c which is doing page table walks for arm
+20:59 < chenwj> in x86 case, perhaps tlb should have a field to mark the tlb entry is global or not?
+20:59 < pm215> well, if we're implementing global/not-global at the exec.c level then yeah, something like that
+20:59 < pm215> but I think it would be better to start with a survey of cpus to see what the actual common features you'd want in the tlb are
+21:00 < pm215> eg do enough other cpus have an equivalent of ARM ASIDs to make it worth supporting them?
+21:01 < pm215> incidentally, unless I've misread the code it looks like the ARM 'invalidate whole TLB' cp15 op has been misimplemented to pass
+               flush_globals=0, which doesn't make any difference now but I guess should be corrected
+21:05 < agraf_> chenwj: to you :)
+21:06 < chenwj> agraf_: haha
+21:07 < chenwj> pm215: target-arm/helper.c line 1614?
+21:07 < chenwj>         case 0: /* Invalidate all.  */
+21:07 < chenwj>             tlb_flush(env, 0);
+21:07 < pm215> yep
+21:08 < agraf_> pm215: yeah, what I would actually like to have would be something like tags
+21:08 < agraf_> pm215: so each arch could go in and define what a tag is
+21:08 < agraf_> pm215: and then we'd only have to switch tags between context switches
+21:08 < agraf_> pm215: in fact, i even implemented that once a while back
+21:08 < agraf_> pm215: i might still have my tree around
+21:08 < agraf_> pm215: it didn't work though
+21:08 < pm215> a minor issue
+21:24 < pm215> easy way to inflate my patch statistics :-)
+21:24 < agraf_> pm215: oh and yes, most CPUs have tags these days in one form or another
+21:25 < agraf_> pm215: in fact, I can't think of any platform that doesn't have tagged tlbs
+21:25 < agraf_> pm215: even x86 has them for VMs
+21:25 < pm215> I think API-wise I'd prefer tlb_flush_all(), tlb_flush_something(), tlb_flush_nonglobal(), to one tlb_flush with arguments
+21:26 < agraf_> pm215: and for booke emulation for example, we're spending a _lot_ of time flushing and refilling the tlb
+21:26 < pm215> yeah, there's a reason hardware tlbs have tags :-)
+21:26 < pm215> yeah, there's a reason hardware tlbs have tags :-)
+21:26 < agraf_> pm215: I'd actually prefer a tlb_flush(tag, mask)
+21:26 < agraf_> pm215: so any arch can define whatever it likes
+21:26 < agraf_> pm215: if you have a global identifier in your tag, mask it
+21:27 < pm215> mm
+21:27 < agraf_> pm215: make the whole thing a static inline function in a header file so mask gets optimized
+21:27 < agraf_> pm215: and you should be fast too
+21:27 < pm215> mostly I'd like the really common case of "just flush the whole damn tlb" to be a simple function call
+21:27 < agraf_> pm215: tlb_flush_all() { tlb_flush(0, 0); }
+21:30 < pm215> so that would be 'if ((tlbentry->tag & mask) == tag) { flush it }' ?
+21:30 < agraf_> yeah
+21:30 < agraf_> then you can do ASIDs and a global flag in the same tlb tag
+21:31 < pm215> some of the arm cases would require two calls, I think (eg "flush if matches ASID or if global")
+21:31 < pm215> but I guess that's not a huge problem
+21:31 < agraf_> well, if there are too many calls, just flush the whole damn thing ;)
+21:33 < chenwj> might need to do some benchmarking to see if we can get benifit from it
+21:34 < pm215> would we have a tlb_flush_page(tag, mask, addr) too?
+21:43 < agraf_> for single pages, I don't think we care about the tag
+21:43 < pm215> ARM has an "invalidate by virtual-address-and-ASID" op
+21:45 < agraf_> yay ;)
+21:45 < agraf_> iirc amd does too
+21:46 < agraf_> though it only got introduced very recently
+21:46 < agraf_> so yeah, we could model it, I'm just not sure if it's worth it
+21:46 < pm215> I wonder why target-arm currently implements "invalidate by virtual address, ignoring ASID" as "flush whole tlb"...
+21:46 < agraf_> because it wants to be slow?
+21:46 < agraf_> :)

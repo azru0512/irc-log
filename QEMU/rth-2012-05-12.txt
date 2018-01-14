@@ -1,0 +1,22 @@
+01:39 < chenwj> is it possible to detect host arm ISA version? like armv5, armv6, ...etc?
+01:40 < chenwj> writing code not using `uname -p`
+01:43 < rth> chenwj: atm you have to look through /proc/self/auxv
+01:44 < chenwj> $ file /proc/self/auxv
+01:44 < chenwj> /proc/self/auxv: empty
+01:44 < chenwj> $ cat /proc/self/auxv
+01:44 < chenwj> ����Ͼ��Ͼ��Ͼ
+01:44 < chenwj> I see mess
+01:45 < rth> elf.h, Elf32_auxv_t.
+01:45 < rth> look for AT_HWCAP
+01:46 < rth> it's also at the end of env, if you can check at the beginning of main.
+01:48 < chenwj> rth: actually, I am looking for something similar to what x86 does in http://llvm.org/doxygen/Host_8cpp_source.html
+01:49 < rth> chenwj: nope. the cpu registers that give that info are kernel-only
+01:51 < rth> chenwj: the only other thing you can do is sigill probing.
+01:55 < chenwj> rth: ... the cpu registers that give that info are kernel-only <- you mean for arm that's kernel-only?
+01:55 < rth> yes
+01:55 < rth> likewise for ppc
+01:58 < chenwj> the goal is auto-detect cpu model while invoke the toolchain
+01:58 < rth> look at AT_HWCAP.
+01:58 < rth> it contains that info
+02:09 < chenwj> rth: `readelf -A a.out` shows what in AT_WHCAP, right?
+02:09 < rth> no

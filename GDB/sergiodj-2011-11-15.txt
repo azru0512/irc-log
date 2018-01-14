@@ -1,0 +1,11 @@
+09:49 < chenwj> a dumb queston
+09:49 < sergiodj> shoot
+09:50 < chenwj> what the "a" in "gdb-6.0a.tar.bz2" means?
+09:50 < sergiodj> it generally means that it's a minor version, with tiny modifications on it
+09:51 < sergiodj> but I may be wrong
+09:53 < sergiodj> I remember seeing this on a thread, I'm trying to find it
+09:54 < sergiodj> http://www.cygwin.com/ml/gdb-announce/2011/msg00003.html
+09:55 < sergiodj> chenwj:  ^
+09:55 < chenwj> sergiodj: oh, thanks! :)
+09:56 < sergiodj> np
+

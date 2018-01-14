@@ -1,0 +1,70 @@
+20:44 < pm215> weird, why does 'make clean' do "rm -f .//*.d hw//*.d hw//*.d hw//*.d hw//*.d hw//*.d hw//*.d [continues for five lines]" ?
+20:51 < agraf> pm215: ah, you're back! :)
+20:54 < chenwj> vacation?
+20:58 < pm215> yep, first day back at work today :-)
+20:59 < agraf> awesome :)
+20:59 < agraf> finally someone clever enough to find all those linux-user bugs :)
+20:59 < agraf> java doesn't work btw ;)
+21:00 < chenwj> java?
+21:01 < afaerber> chenwj: we're porting openSUSE to ARM, using qemu-arm for package building
+21:01 < chenwj> cool
+21:01 < murb> afaerber: that seems a high risk stratergy.
+21:02 < murb> afaerber: why not build on native?
+21:02 < chenwj> maybe too slow?
+21:02 < murb> chenwj: I'd be suprised if emulation was much faster.
+21:03 < agraf> murb: security reasons
+21:03 < afaerber> chenwj: I'm working on bringing kernels up on various devices (that's why I work on tegra2), agraf is investigating package build failures
+                  like apparently java
+21:03 < agraf> murb: the public build needs to run in a vm, because anyone can build stuff there
+21:03 < agraf> murb: and we don't have A15s that could do KVM yet ;)
+21:03 < murb> ah :)
+21:03 < agraf> murb: we do have a native build internally though
+21:03 < murb> that sounds more reasonable.
+21:04 < pm215> most java is heavily threaded, user-mode threading doesn't really work
+21:04 < agraf> pm215: well, IIRC it used to work with 1.0
+21:04 < agraf> pm215: I'll have to take another deep look at it though
+21:04 < afaerber> agraf: git-bisect?
+21:05 < agraf> pm215: also, go likes to crash on me a lot :)
+21:05 < agraf> afaerber: git-bisect with ~30 patches on top of upstream?
+21:05 < agraf> afaerber: most of which actually make things work in the first place ;)
+21:05 < afaerber> sounds like fun ;)
+21:08 < chenwj> agraf: so you use user mode to build package?
+21:09 < agraf> chenwj: yes
+21:09 < agraf> chenwj: that's why your project is so interesting :p
+21:09 < agraf> chenwj: too bad you guys don't publish anything
+21:09  * chenwj shrug
+21:09 < chenwj> don't blame me
+21:09 < agraf> chenwj: I don't :)
+21:10 < chenwj> agraf: we publish paper :p
+21:12 < agraf> chenwj: heh :)
+21:12 < agraf> chenwj: i can't run papers :)
+21:12 < chenwj> ;)
+21:13 < chenwj> perhaps someday, or some company urge us to release the code
+21:15 < pm215> you're still based on 0.13, right?
+21:15 < chenwj> sadly, yes
+21:16 < chenwj> the reason my colleague doesn't want to upgrade it to 1.0, is because the multi-thread user mode is kind of broken
+21:17 < pm215> it's broken in 0.13 too
+21:19 < chenwj> at least it works for him and the benchmark we use
+21:19 < chenwj> but seems it get worse at latter version
+21:21 < pm215> chenwj: have you tried 1.1? I think there were maybe some cases that got worse but then were fixed
+21:24 < chenwj> nope
+21:25 < chenwj> afaerber: what I am studying now is based on git head, so not qemu 0.14 :)
+21:25 < afaerber> ah :)
+21:30 < chenwj> I don't understand what Peter said. where should I put  attribute((destructor))?
+21:31 < pm215> personally I would avoid attribute((destructor)), it seems unnecessarily clever for what you want to do
+21:32 < pm215> just solve the problem the same way hw_error does
+21:33 < chenwj> so I write my function foo which prints first_cpu->field in cpus.c, then call foo from vl.c?
+21:34 < pm215> yeah
+21:35 < pm215> well, I assume your function would be "print all the end-of-run stats" rather than "print a single field"
+21:36 < chenwj> print all state?
+21:39 < pm215> chenwj: you said "We add some fields into CPUState and want to print
+21:39 < pm215> their value when the VM is terminated"
+21:39 < chenwj> yap
+21:39 < pm215> so you have just one function that does that
+21:40 < pm215> ideally the target-specific bits live in target-*/ (in the way hw_error() calls cpu_dump_state()) but since you're doing this in a private
+               branch you don't need to do that, you could just throw in a cast in cpus.c
+21:42 < chenwj> throw in a cast in cpus.c? you mean just print it out or something else?
+21:45 < pm215> oh no, no cast required, because it's a CPUArchState which is a #define for the ARM struct
+21:45 < pm215> I'd forgotten this wasn't an actual different type (yet)
+21:49 < chenwj> ok, it works :)
+21:54  * chenwj -> home

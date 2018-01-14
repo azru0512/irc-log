@@ -1,0 +1,511 @@
+11:18 < ChaoRui_> phys_page_find, tlb_set_page, get_phys_addr_v6, ldl_phys
+11:18 < ChaoRui_> 這些屬於 softmmu 嘛?
+13:05 < ChaoRui_> hello~還有一個 helper_sub_cc
+13:06 < ChaoRui_> 這是做什麼的呢？他的使用率也很高
+13:06 < ChaoRui_> @chenwj_ hello
+Day changed to 28  5 2012
+16:57 <@chenwj_> ChaoRui_: phys_page_find, tlb_set_page, get_phys_addr_v6, ldl_phys 應該算 softmmu
+16:57 <@chenwj_> 不過 qemu 很多部分都是共用的
+16:58 <@chenwj_> 不見得只有 softmmu 會貢獻 %
+16:59 < ChaoRui_> 是阿~而且剛剛發現 tlb 有部份 code 會在 code cache 中
+16:59 < ChaoRui_> 不是很容易定義出他真正有執行到的部份
+17:04 <@chenwj_> 掰謝 我禮拜天不在電腦前面
+17:04 <@chenwj_> 沒收到 msg
+17:04 <@chenwj_> 你寄的 log 除了 helper_xxx  之外
+17:04 < ChaoRui_> 哈~難怪~結果今天早上報告爆炸了 xd
+17:05 <@chenwj_> 我猜多少都跟 softmmu 有關
+17:06 <@chenwj_> 至於確切是哪幾個還要再確認
+17:07 < ChaoRui_> 目前得知~關於 softmmu 的部份會分散再很多地方
+17:07 < ChaoRui_> 我要再想看看怎麼去找到他們全部
+17:07 <@chenwj_> yes
+17:07 <@chenwj_> 基本上你可以看 softmmu 裡 call 到那些 func
+17:07 <@chenwj_> 順藤摸瓜
+17:08 <@chenwj_> ChaoRui_: 你可以叫柏葉進來 irc
+17:08 <@chenwj_> 他有看過 softmmu 相關的 flow
+17:08 <@chenwj_> 一起看比較快
+17:09 < ChaoRui_> 好~
+17:09 < ChaoRui_> 對了~irc 怎麼指定要回覆給誰阿?
+17:09 <@chenwj_> username: haha
+17:09 <@chenwj_> zack: !
+17:10 < ChaoRui_> chenwj_: test
+17:10 <@chenwj_> :p
+17:10 < ChaoRui_> 這樣有嘛?
+17:10 <@chenwj_> sure
+17:10 < ChaoRui_> ok
+17:10 < ChaoRui_> thanks
+17:10 <@chenwj_> 17:10 < ChaoRui_> chenwj_: test <-
+17:11 <@chenwj_> 我覺得 same isa 要先完全了解
+17:11 <@chenwj_> 我自己不覺得我完全懂
+17:11 <@chenwj_> 老闆說要我給 qemu tutorial
+17:11 <@chenwj_> 看你跟柏葉什麼時候有空
+17:12 <@chenwj_> 最好禮拜三以後
+17:12 <@chenwj_> 老闆還說要錄影
+17:12 < ChaoRui_> 我 三早, 或四
+17:12 < ChaoRui_> 是喔@@"
+17:12 <@chenwj_> 他說一勞永逸
+17:12 <@chenwj_> 禮拜五不行?
+17:13 < ChaoRui_> 五的話也要早上
+17:14 <@chenwj_> ok
+17:14 <@chenwj_> 看柏彥那邊時間如何
+17:14 < ChaoRui_> 他會用 irc 嘛?
+17:14 < ChaoRui_> 對了~ irc 可以看 log 嘛?
+17:15 <@chenwj_> irssi 可以
+17:15 < ChaoRui_> 沒有上線的時候的 log
+17:15 < ChaoRui_> 有點像 msn 離線訊息那種
+17:16 <@chenwj_> 我都是用 screen 掛著 so
+17:16 < ChaoRui_> ok~
+17:17 <@chenwj_> fufu
+17:19 <@chenwj_> 如果真要 log 的話 我只知道 irssi
+17:21 <@chenwj_> http://www.linux-kvm.org/page/Lists,_IRC
+17:23 <@chenwj_> http://people.cs.nctu.edu.tw/~chenwj/dokuwiki/doku.php?id=kvm
+17:29 < ChaoRui> join #qemu
+17:30 <@chenwj_> ChaoRui: 有看到你了
+17:31 <@chenwj_> 他們 time zone 跟我們有點顛倒
+17:31 <@chenwj_> 晚上出沒
+17:32 < ChaoRui> 了解
+17:32 <@chenwj_> 你可以在那邊出個聲阿 科科
+18:04 <@chenwj_> ChaoRui: 你投影片用的圖是 https://events.linuxfoundation.org/slides/2011/linuxcon-japan/lcj2011_guangrong.pdf cp 出來?
+18:04 <@chenwj_> 那一份是講 kvm
+18:04 <@chenwj_> qemu 稍微不同
+18:06 < ChaoRui> 恩
+18:06 < ChaoRui> 目前想先了解 kvm 怎麼用
+18:07 < ChaoRui> 再看看怎麼跟 qemu 和起來
+18:07 <@chenwj_> 有機器有裝嘛?
+18:07 < ChaoRui> qemu 在 kvm 裏面, 應該只是擔任 device emulation 而已
+18:07 < ChaoRui> 我是在自己電腦上
+18:07 < ChaoRui> 其他機器好像都有人再用
+18:08 <@chenwj_> 以 kvm 的術語來講 他只有 GVA -> GPA -> HPA
+18:08 <@chenwj_> qemu 中間多了 HVA
+18:08 <@chenwj_> GVA -> GPA -> HVA -> HPA
+18:09 < ChaoRui> qemu 多了 HVA 變得有點 confuse
+18:09 <@chenwj_> 這沒辦法
+18:09 <@chenwj_> qemu 是 user program
+18:09 <@chenwj_> 他分配他自己的 virtual memory 給 guest os
+18:09 <@chenwj_> 所以會有那一層
+18:10 <@chenwj_> btw, #qemu 那邊有人跟你打招呼
+18:10 < ChaoRui> 恩阿, 這樣變成多一次, VT 不知道能不能有幫助
+18:11 < ChaoRui> 耶~是喔? 我沒看到
+18:11 <@chenwj_> stefanha
+18:11 <@chenwj_> 他不是用 ChaoRui: xxx
+18:11 < ChaoRui> 我剛剛重開機沒看到@@"
+18:11 <@chenwj_> 科科
+18:11 < ChaoRui> 所以才問有沒有離線訊息功能 xdd
+18:11 < ChaoRui> 他丟什麼給我@@?
+18:12 <@chenwj_> 17:40 < stefanha> welcome ChaoRui
+18:18 <@chenwj_> ChaoRui: irc.oftc.net 上面的 #qemu 才是 official
+18:18 <@chenwj_> freenode 上的比較少人
+18:19 <@chenwj_> 老闆訂禮拜四下午 要我跟他講以前我跟你們講的東西
+18:20 <@chenwj_> 所以看能不能弄在禮拜五早上
+18:43 < ChaoRui> ok
+18:43 < ChaoRui> 五早上 OK
+09:42 <@chenwj_> zack_: !
+09:43 <@chenwj_> zack_: tcg/i386/tcg-target.c
+09:43 < zack_> 恩恩
+09:47 <@chenwj_> zack_: http://people.cs.nctu.edu.tw/~chenwj/dokuwiki/doku.php?id=qemu
+09:48 <@chenwj_> 你要看的是 tcg_out_tlb_load
+09:49 <@chenwj_> 你先看看那一段 code
+09:49 <@chenwj_> 我們再來看看怎麼改
+11:09 -!- chenwj_ changed the topic of #plaslab to: http://itanium.iis.sinica.edu.tw/virtualization/doku.php
+13:43 < zack_> qqq
+13:44 <@chenwj_> tcg/README
+13:45 <@chenwj_> 你也可以自己印 -d in_asm,op,out_asm 觀察
+13:45 <@chenwj_> 只要是 guest 有存取 mem
+13:45 <@chenwj_> 他都會有類似的 pattern
+13:47 < zack_> 為什麼要用 tcg ??
+13:47 < zack_> 不可以用個變數來記嗎?
+13:56 <@chenwj_> zack_: 留個紀錄 給其他人看
+13:57 <@chenwj_> 之前可以在 tlb_fill 那邊用變數來記是因為他這個 C function 在查 page table 的時候會被呼叫到
+13:57 <@chenwj_> 所以你可以插變數進去紀錄
+13:58 <@chenwj_> 可是 tlb_load 它是負責在 qemu_ld 之前產生 tcg ir 去查詢 tlb
+13:58 <@chenwj_> 之後查詢 tlb 的動作不會呼叫到 tlb_load
+13:59 <@chenwj_> 你必須要插 tcg ir 進去紀錄
+14:07 <@chenwj_> ChaoRui: http://lists.gnu.org/archive/html/qemu-devel/2012-01/msg02580.html
+14:55 < zack_> @chenwj_: Hello~
+14:55 < zack_> -d in_asm,op,op,out_asm 產生的東西在哪邊可以看的到..
+14:57 < zack_> 喔喔  看到了..
+15:11 <@chenwj_> -D xxx.log 可以指定 log 的位址
+15:11 <@chenwj_> 預設是在 /tmp/qemu.log
+15:32 < zack_> 我在 tcg 要怎樣才可以宣告一個空間來存變數阿??
+15:33 <@chenwj_> zack_: 我看看
+15:35 <@chenwj_> 目前我想到的辦法是
+15:35 <@chenwj_> 你定義一個 helper function
+15:35 <@chenwj_> 就是一個普通的 C function
+15:35 <@chenwj_> 裡面對一個 global 變數 ++
+15:36 <@chenwj_> 當 tlb hit/miss 的時候，你去 call 那個 helper function
+15:37 <@chenwj_> tcg/README 裡面有提到 helper
+15:38 <@chenwj_> 至少這是我目前想得到的作法，
+15:39 <@chenwj_> http://people.cs.nctu.edu.tw/~chenwj/dokuwiki/doku.php?id=qemu#其它
+15:39 <@chenwj_> 裡面有稍微講一下怎麼訂一個 helper function
+15:40 <@chenwj_> 你可以 checkout hqemu 的 code 下來看
+15:40 <@chenwj_> /data/svn/llvm-qemu/hybrid-qemu/branches/user-mode/
+15:41 <@chenwj_> zack_: 我要先去拿護照給人蓋章
+15:41 < zack_> 恩恩
+15:41 <@chenwj_> zack_: 你先試著訂一個空的 helper function 看 compile 過不過
+15:42 <@chenwj_> 再慢慢加東西
+18:19 < ChaoRui> chemwj_: thanks!!
+Day changed to 30  5 2012
+10:06 <@chenwj_> zack_: 俊琛那邊有開類似 svn 或是 git 的 branch 嘛?
+10:07 < zack_> ?
+10:08 <@chenwj_> 就是說有沒有弄一個大家一起在上面工作的 code base
+10:08 <@chenwj_> 類似 /data/svn/llvm-qemu/hybrid-qemu/branches/user-mode/
+10:10 < zack_> 梅耶
+10:11 <@chenwj_> 那你自己在 github 上 clone 一份 qemu 官方的 git
+10:14 <@chenwj_> 然後我們再來看怎麼改
+10:16 < zack_> 話說  helper function 要怎麼call..
+10:20 <@chenwj_> 你可以在 tcg/i386/tcg-target.c 找 helper 關鍵字
+10:21 <@chenwj_> 其實在 tcg_out_qemu_ld 你就可以看到例子
+10:21 <@chenwj_> tcg_out_calli(s, (tcg_target_long)qemu_ld_helpers[s_bits]);
+10:23 <@chenwj_> 不過你要先拿到 helper function addr
+10:25 < zack_> 喔   我想要找到他的helper  ex:__ldb_mmu 看看他是從哪裡來的..
+10:25 <@chenwj_> 那個你要看 softmmu_xxx
+10:26 <@chenwj_> zack_: 你的 mail 是?
+10:26 < zack_> 然後試圖找到 op_helper 的關西  如果能找到他gen 出來的code  更好
+10:26 < zack_> 結果  無解..
+10:26 < zack_> zaq686@gmail.com
+10:26 <@chenwj_> zack_: 這個不急
+10:27 <@chenwj_> 上面又沒給 training
+10:27 <@chenwj_> 不用急著在一個禮拜把它搞定
+10:27 <@chenwj_> 你慢慢看
+10:28 <@chenwj_> qemu 又不是很容易看的 code
+10:28 < zack_> 喔喔~
+10:28 <@chenwj_> 你慢慢看
+10:28 <@chenwj_> 有問題再問
+10:28 <@chenwj_> 我對它也不是很熟
+10:53 <@chenwj_> zack_: 我昨天講錯了
+10:54 <@chenwj_> 你看到 tcg_out_xxx 這種
+10:54 <@chenwj_> 它是寫 host binary
+10:54 <@chenwj_> 不是寫 tcg ir
+10:54 <@chenwj_> 你看我 wiki 上列的範例
+10:55 <@chenwj_> 你主要要看 tcg op -> qemu_ld8u tmp0,tmp2,$0x0
+10:55 <@chenwj_> qemu_ld/st 這一類
+10:55 <@chenwj_> 就像我昨天講的 在 qemu_ld/st 之前它會先去查 tlb
+10:56 <@chenwj_> 在 0x40000d10:  callq  0x54cf8e                // \_\_ldb_mmu
+10:56 <@chenwj_> 之前那一段基本上就是在查 tlb
+10:59 <@chenwj_> zack_: tcg/README 裡面講的應該是前端產生 TCG IR，tcg_gen_xxx 這一類
+14:30 < zack_> @chenwj_: Hello
+14:30 < zack_> 要量 tlb_miss 的話有哪邊可以比較簡單的量嗎?
+14:31 < zack_> 目前我是想加在 softmmu_template.h 裡
+14:34 < zack_> 還是其實 tcg/i386/tcg-target.c 他有個 /*TLB Miss*/ 的註解
+14:34 < zack_> 下面就包含了所有的TLB miss case ?
+14:37 <@chenwj_> 不能說包含了所有的TLB miss case
+14:37 <@chenwj_> 而是說如果 TLB miss 就改走另一條
+14:37 <@chenwj_> why not work on i71?
+14:41 <@chenwj_> zack_: 另外一種方式，除了 call helper function 之外，你就是要宣告一個 global 變數，然後用 tcg_out_xxx 寫 x86 binary 對它累加
+14:41 <@chenwj_> zack_: helper function 可能相對簡單，我後來想了一下
+14:41 < zack_> 喔喔   這個我剛剛搞出來了XDD
+14:41 < zack_> 只是有點炯..
+14:41 <@chenwj_> 怎麼說?
+14:41 < zack_> 他一下子就overflow了..
+14:42 < zack_> 我還在想怎麼辦= =
+14:42 <@chenwj_> 你給他 uint_64?
+14:42 < zack_> uint_32
+14:42 <@chenwj_> 給他 uint_64
+14:42 <@chenwj_> 你 host 是 64 bit
+14:43 <@chenwj_> 所以你怎麼改?
+14:46 < zack_> 喔喔   我一開始是看到target-arm/translate.c 裡有個 arm_translate_init
+14:47 < zack_> 他會在裡面宣告所有tcg 要用到的global 變數
+14:47 < zack_> (根據 CPUState)
+14:48 < zack_> 所以我就在 CPUState 加了一個 tlb_access
+14:48 <@chenwj_>     cpu_exclusive_addr = tcg_global_mem_new_i32(TCG_AREG0,
+14:48 <@chenwj_>         offsetof(CPUARMState, exclusive_addr), "exclusive_addr");
+14:48 <@chenwj_> ^^^?
+14:48 < zack_> 恩恩
+14:49 <@chenwj_> x86 有類似的 func 嘛?
+14:49 < zack_> 有  都長一樣XD
+14:49 < zack_> 然後就有這個一個global變數可以用了
+14:50 < zack_> 在 tcg 那邊的話
+14:50 <@chenwj_> 我在 target-i386/translate.c 沒看到
+14:51 < zack_> 他是在 optimize_flags_init 這個函式
+14:52 <@chenwj_> 恩恩
+14:52 <@chenwj_> ok，這樣的話你就有一個 global var
+14:52 <@chenwj_> 那 tcg 那邊??
+14:53 <@chenwj_> 記得用 tcg_global_mem_new_i64
+14:53 < zack_> 他在gen code (host binary) 的時候會根據傳入的 TCGContext 提供的資訊來gen
+14:54 <@chenwj_> 恩恩
+14:56 < zack_> 在 tcg/tcg.h -> TCGContext 這個type 裡有寫他會把所有的變數存在 TCGTemp *temps 這個array裡
+14:57 < zack_> (含global 跟 local 變數,  global 在前面, 可以用 TCGContext -> nb_globals 來判別)
+14:58 <@chenwj_> 恩
+14:58 < zack_> 而在 TCGTemp 這個型別裡則會記變數生出來時放的位置
+14:58 <@chenwj_> 變數?
+14:59 < zack_> 之前用 tcg_global_mem_new_xxx 生出來的global 變數
+15:00 <@chenwj_> 它存在哪個欄位?
+15:00 < zack_> TCGContext-> TCGTemp *temps
+15:01 <@chenwj_> 我在看 tcg_global_mem_new_internal
+15:02 <@chenwj_> 是這邊記變數生出來時放的位置嘛?
+15:02 <@chenwj_> 還是 tcg_temp_alloc?
+15:06 < zack_> 應該是這邊 tcg_global_reg_new_internal 吧
+15:06 <@chenwj_>     tcg_temp_alloc(s, s->nb_globals + 1);
+15:06 <@chenwj_>     ts = &s->temps[s->nb_globals];
+15:06 <@chenwj_>     ts->base_type = type;
+15:06 <@chenwj_>     ts->type = type;
+15:06 <@chenwj_>     ts->fixed_reg = 1;
+15:06 <@chenwj_>     ts->reg = reg;
+15:06 <@chenwj_>     ts->name = name;
+15:06 <@chenwj_> ^^^ 這一段?
+15:06 < zack_> 恩恩
+15:07 <@chenwj_> 可是你說位置 我以為是 addr
+15:07 <@chenwj_> 上面那些看起來不像?
+15:08 -!- chenwj_ changed the topic of #plaslab to: Please contribute to http://itanium.iis.sinica.edu.tw/virtualization/doku.php
+15:12 < zack_> ㄝ...   我不太確定是不是實體位置耶
+15:13 < zack_> 就是傳的參數:  reg  裡會有他的mem_base
+15:13 < zack_> offset 則是mem_offset
+15:15 <@chenwj_> 那邊傳的參數?
+15:16 < zack_> tcg_global_mem_new_internal(TCGType type, int reg,  tcg_target_long offset,  const char *name)
+15:17 <@chenwj_> orz
+15:17 <@chenwj_> 我剛剛看到 else
+15:18 <@chenwj_> 難怪沒看到它 assign offset
+15:19 <@chenwj_> zack_: new_global_var = tcg_global_mem_new_i64...
+15:19 <@chenwj_> 我這樣應該可以直接操作 new_global_var?
+15:19 < zack_> 恩恩
+15:20 <@chenwj_> 所以你在 qemu_ld 在的那個檔案 extern new_global_var
+15:20 <@chenwj_> 然後在 tlb miss 的地方對它 ++?
+15:21 < zack_> ㄝ...  tlb miss 我還不知道要放在哪= =
+15:21 <@chenwj_> orz
+15:21 <@chenwj_> 你有弄 git 嘛?
+15:21 < zack_> 另外一個算全部的事放在 tcg_out_tlb_load
+15:22 < zack_> 生 host binary 來加
+15:22 < zack_> 喔喔  我上船一下
+15:22 <@chenwj_> 順便給我 link
+15:22 <@chenwj_> 算全部的事放在 tcg_out_tlb_load?
+15:23 <@chenwj_> 什麼全部的事?
+15:23 <@chenwj_> mem access?
+15:24 < zack_> 全部的tlb_access
+15:24 <@chenwj_> 那就是 mem access
+15:24 <@chenwj_> 因為都會先走 tlb lookup
+15:25 < zack_> git@github.com:ZackClown/QEMU_1.0.1.git
+15:26 <@chenwj_> 你是 fork 它的 git 還是上傳它 release 版?
+15:26 < zack_> release版
+15:27 < zack_> ㄝ..  所以tlb_miss要在哪邊算會比較好...
+15:28 <@chenwj_> 我先看看你的 commit
+15:29 <@chenwj_> qq
+15:29 < zack_> OAO
+15:29 <@chenwj_> 你是不是在 init 的時候多上傳 compile 生的檔案?
+15:30 < zack_> 恩...
+15:30 <@chenwj_> ......
+15:31 <@chenwj_> 一般來說你一次 commit 就只做一件事
+15:31 <@chenwj_> 比如說你要幹掉不該上傳的檔案
+15:31 <@chenwj_> 最好不要跟 tlb 修改混在一起
+15:32 < zack_> 喔喔 ~
+15:32 <@chenwj_> 我 ie 讀你的 commit 讀到掛了
+15:33 < zack_> 我的chrome 也快掛了 = =
+15:33 <@chenwj_> orzorzorz
+15:34 <@chenwj_> 要不然你把你改到的地方 針對 qemu 1.0.1 做 diff
+15:34 <@chenwj_> 不大的話就貼上來
+15:34 <@chenwj_> 大的話就用寄的
+15:43 <@chenwj_> zack_: 寄出之後再跟我說
+15:47 < zack_> @chenwj_: 我記了
+15:48 <@chenwj_> ok
+15:50 <@chenwj_> ㄜ
+15:50 <@chenwj_> 跟我想的不太一樣
+15:50 <@chenwj_> 比如說你改到 cpu-exec.c
+15:50 <@chenwj_> 那就 diff -ruN qemu-1.0.1.orig/cpu-exec.c qemu-1.0.1/cpu-exec.c
+15:51 <@chenwj_> 你是整個 dir 做 diff?
+15:51 <@chenwj_> static TCGv_i32 cpu_tlb_access; 換成
+15:51 <@chenwj_> static TCGv_i64 cpu_tlb_access;
+15:52 < zack_> 喔喔~
+15:52 <@chenwj_> 你可以重寄嘛? 就像我剛才講的那樣
+15:52 <@chenwj_> 我收到的有混到其他東西
+16:01 <@chenwj_> zack_: ..
+16:02 < zack_> 我記了
+16:05 < zack_> 0x40000d15:  movzbl %al,%ebp                // 視狀況擴展。 <- wiki 裡的這個是?
+16:07 <@chenwj_> 我看看
+16:07 <@chenwj_> 其實我都是隨手的
+16:08 <@chenwj_> zack_: 你有空可以把你剛剛講到 TCGContex TCGTemp 記到 http://itanium.iis.sinica.edu.tw/virtualization/doku.php 上嘛?
+16:08 <@chenwj_> 你有看到這個 channel 的 topic 嘛?
+16:08 < zack_> ?
+16:09 <@chenwj_> wait
+16:09 <@chenwj_> 就是聊天室上方
+16:10 <@chenwj_> 有看到 [Please contribute to http://itanium.iis.sinica.edu.tw/virtualization/doku.php]
+16:10 < zack_> 喔喔  有
+16:10 <@chenwj_> 科科
+16:11 <@chenwj_> 一般都會把消息放在 topic
+16:11 <@chenwj_> 我幫你加一下帳號
+16:12 <@chenwj_> zack_: zack/12345
+16:12 <@chenwj_> 你看能不能 login
+16:13 < zack_> 喔喔 可以
+16:13 < muhahaha> 這個是 dokuwiki
+16:13 < muhahaha> 我自己用的也是這種
+16:14 < muhahaha> 應該很容易上手
+16:14 < muhahaha> 比如說你可以開一個 QEMU 的頁面
+16:14 < muhahaha> 然後就在裡面記東西
+16:14 <@chenwj_> muhahaha <- 我分身
+16:15  * muhahaha quit
+16:17 < zack_> 為什麼 tcg_out_qemu_ld 裡的tlb_miss 沒有包含全部的tlb_miss ?
+16:17 <@chenwj_> ???
+16:17 <@chenwj_> tcg_out_qemu_st
+16:17 <@chenwj_> 你還有 store 阿
+16:19 <@chenwj_> 0x40000d15:  movzbl %al,%ebp                // 視狀況擴展 <- 這個我也忘了
+16:19 < zack_> ㄚㄚ XD
+16:21  * chenwj_ shrug
+16:21 <@chenwj_> label 1 應該是處理 tlb miss
+16:21 <@chenwj_> lable 2 是 tlb hit
+16:22 < Poki> hi
+16:22 <@chenwj_> 你可以看到 label 2 那邊會呼叫 tcg_out_qemu_ld_direct
+16:22 <@chenwj_> Poki: yo
+16:22 <@chenwj_> Poki: 打中文 測試一下
+16:22 < Poki> 測試測試
+16:23 <@chenwj_> 看得到 topic 嘛?
+16:23 <@chenwj_> 聊天室上方
+16:23 < Poki> 看到 Status 跟 #plaslab
+16:24 <@chenwj_> Please contribute to http://itanium.iis.sinica.edu.tw/virtualization/doku.php
+16:24 <@chenwj_> 有看到那一行嘛?
+16:24 < Poki> 喔喔 有
+16:25 <@chenwj_> 長草的 wiki
+16:25 < Poki> 長草 - -
+16:25 <@chenwj_> zack_: 你可以這樣試
+16:26 <@chenwj_> 你設三個變數 tlb_lookup, tlb_hit, tlb_miss
+16:26 <@chenwj_> 在 tlb lookup 之前對 tlb_lookup++
+16:26 <@chenwj_> label 1 對 tlb_miss++
+16:26 <@chenwj_> label 2 對 tlb_hit++
+16:26 <@chenwj_> 應該 tlb_lookup = tlb_hit + tlb_miss
+16:28 <@chenwj_> Poki: 你 hqemu 看得怎樣?
+16:31 < Poki> 我正在改成llvm 2.9 3.0測試
+16:31 < Poki> 有些發現 正在整理
+16:32 < Poki> 打成word 在劑給大家看看
+16:33 <@chenwj_> 什麼樣的發現?
+16:33 < Poki> 簡單的說 llvm 2.8 與 llvm 2.9 情況一樣
+16:33 < Poki> 但是llvm 3.0 就OK
+16:34 < Poki> 看到要看到哦
+16:34 < Poki> 的
+16:34 < Poki> 但是時間還是比較慢
+16:34 <@chenwj_> 看到要看到哦???
+16:34 < Poki> 就是 addps %xmm0,%xmm1
+16:35 <@chenwj_> 所以是 llvm be 的問題
+16:35 < Poki> 而不是addps xxx(%esp), %xmm0
+16:35 <@chenwj_> nice
+16:35 <@chenwj_> 意思是針對 all vector 的 case 你不用再做 state mapping?
+16:37 < Poki> 那天討論之後是目前 vector 與vector , scalar 與 scalar  有做state mapping
+16:37 <@chenwj_> 恩
+16:37 < Poki> 但是 vector 與 scalar 混用
+16:37 < Poki> 就沒有
+16:37 <@chenwj_> ChaoRui: there?
+16:37 < Poki> 所以這邊可以再修改成混用也可以
+16:38 <@chenwj_> 你確定可以如期畢業? xd
+16:38 < Poki> 不太確定 - _ -
+16:38 <@chenwj_> vector 與 scalar 混用的話，你要改 hqemu
+16:38 <@chenwj_> xd
+16:38 < Poki> 嗯啊
+16:39 < Poki> 所以那天才再問run pass
+16:39 < Poki> 看怎麼跑
+16:39 <@chenwj_> 不過還比較慢 這個你要先解決
+16:39 < Poki> 對
+16:39 < Poki> 我就是打算先把這個解決
+16:40 <@chenwj_> 它 code pattern 怎樣?
+16:40 -!- chenwj_ changed the topic of #plaslab to: Please contribute to http://itanium.iis.sinica.edu.tw/virtualization/doku.php | Paste code on
+          http://paste.ubuntu.com/
+16:41 <@chenwj_> zack_: load_tlb 那邊 ++tlb_lookup
+16:41 <@chenwj_> qemu_ld/qemu_st 做 ++tlb_hit ++tlb_miss
+16:42 < zack_> 恩恩
+16:43 <@chenwj_> miss 你在底下之前 ++_tlb_miss
+16:43 <@chenwj_>     tcg_out_movi(s, TCG_TYPE_I32, tcg_target_call_iarg_regs[arg_idx],
+16:43 <@chenwj_>                  mem_index);
+16:43 <@chenwj_>     tcg_out_calli(s, (tcg_target_long)qemu_ld_helpers[s_bits]);
+16:44 <@chenwj_> qemu_st 那邊也一樣
+16:45 <@chenwj_> tlb_hit 你在 tcg_out_qemu_ld/st_direct ++
+16:45 <@chenwj_> 最後用 qemu monitor 印出來看是不是 tlb_lookup = tlb_miss + tlb_hit
+16:58 <@chenwj_> zack_: 科科
+17:07 -!- mode/#plaslab [-n] by chenwj_
+17:08 -GitHub133:#plaslab- [linux-0.12] azru0512 pushed 1 new commit to master:
+          https://github.com/azru0512/linux-0.12/commit/a3b714868b1f5431737973cf50dcb280685959b1
+17:08 -GitHub133:#plaslab- [linux-0.12/master] Rename README - Chen Wei-Ren
+17:09 <@chenwj_> nice!
+17:09 <@chenwj_> zack_: 你可以把你的 git 選 Admin -> service hooks -> irc
+17:09 <@chenwj_> 做些設定
+17:09 <@chenwj_> 這樣你以後 commit 這邊都會收到
+17:16 < zack_> 有點奇怪...
+17:17 <@chenwj_> 怎麼說?
+17:17 < zack_> miss rate 正常都是多少啊?
+17:17 <@chenwj_> tlb miss rate 應該會蠻高的
+17:17 < zack_> 我的tlb_miss 完全不會被加到..
+17:17 <@chenwj_> ?
+17:18 <@chenwj_> zack_: 我 clone 下來看看
+17:19 <@chenwj_> zack_: 那其他兩個數字多少?
+17:19 <@chenwj_> ㄜ... 你還沒 push 上去對不對?
+17:20 <@chenwj_> zack_: 你給我 git diff
+17:30 <@chenwj_> zack_: ~~
+19:10 < ChaoRui> A15 support virtualization @@?
+19:17 <@chenwj_> ChaoRui: http://www.arm.com/products/processors/cortex-a/cortex-a15.php
+19:20 <@chenwj_> ChaoRui: 聽起來是有
+19:21 < ChaoRui> 他剛剛說的 IIUC 是什麼?
+19:21 < ChaoRui> 我只有看到他寫 support hw virt.
+19:21 < ChaoRui> 沒細節@@
+19:24 < ChaoRui> IIUC ??  "If I Understand corrently" ?
+19:26 <@chenwj_> y
+19:27 <@chenwj_> 19:14 < ChaoRui> Does A15 support memory virtualization ?
+19:27 <@chenwj_> 19:14 < chenwj> I guess so (theoretically)
+19:27 <@chenwj_> 19:14 < chenwj> ChaoRui: he
+19:27 <@chenwj_> 19:14 < ChaoRui> chenwj: hi
+19:27 <@chenwj_> 19:17 < agraf> chenwj: yeah - availablity isn't really great
+19:27 <@chenwj_> 19:17 < agraf> ChaoRui: IIUC yes :)
+19:27 <@chenwj_> 所以聽起來是有支援
+19:27 < ChaoRui> 許老師的話果然成真了
+19:28 <@chenwj_> ?
+19:28 < ChaoRui> 徐
+19:28 < ChaoRui> 徐慰中老師
+19:28 < ChaoRui> 打錯
+19:28 <@chenwj_> 我是指他什麼話
+19:28 < ChaoRui> 他說ARM也會有 hardware MMU
+19:29 < ChaoRui> 沒想到真的已經有了
+19:29 <@chenwj_> 這必然
+19:29 <@chenwj_> 你應該是要說 hw virtualization?
+19:29 <@chenwj_> hw mmu 本來就有捏
+19:29 < ChaoRui> 恩~針對 Vitr. 的 MMU
+19:30 <@chenwj_> 如果要支援 virtualization 他 cpu mem io 整套都要做下去啊 xd
+19:30 < ChaoRui> 可是 x86 剛開始的時候並沒有耶
+19:30 < ChaoRui> 後來才加入的
+19:31 <@chenwj_> 我覺得 arm 後進者應該會學到經驗
+19:32 <@chenwj_> ChaoRui: 公用筆電開機就會接上網路嘛?
+19:32 < ChaoRui> 這麼說是有道理的
+19:32 < ChaoRui> 恩
+19:32 <@chenwj_> ChaoRui: 明天下午你會在?
+19:32 < ChaoRui> chenwj_: 會
+19:33 <@chenwj_> 好
+19:33 < ChaoRui> 老師說要錄影
+19:33 <@chenwj_> xddd
+19:33 <@chenwj_> >//<
+19:33 < ChaoRui> 你過程中會用白板嘛?
+19:33 <@chenwj_> 會阿
+19:33 < ChaoRui> 哈 >"<
+19:33 <@chenwj_> 所以我比較喜歡圖書館那一間
+19:33 < ChaoRui> 我在想要用螢幕錄影的方式還是現場錄影@@
+19:33 <@chenwj_> 螢幕跟白板分開
+19:34 < ChaoRui> 用手寫版會好點嘛?
+19:34 <@chenwj_> 手寫板寫在螢幕上?
+19:34 < ChaoRui> ya
+19:35 <@chenwj_> 那他背景是會先清空
+19:35 <@chenwj_> 再寫?
+19:35 <@chenwj_> 我覺得明天可以試試
+19:35 < ChaoRui> 恩
+19:36 < ChaoRui> 你ok明天就用這樣方式紀錄摟?
+19:36 < ChaoRui> 錄音 + 手寫版
+19:36 < ChaoRui> 錄音+錄螢幕(含手寫)
+19:36 <@chenwj_> 恩
+19:36 <@chenwj_> 先 try 看看
+19:37 <@chenwj_> 我是覺得錄影效果應該會普普
+19:37 < ChaoRui> 恩~差別在於可以看到主角 @@"
+19:37 <@chenwj_> 當面講比較彈性
+19:37 < ChaoRui> 恩
+19:38 <@chenwj_> 我之前貼給你 ml 那個 link 就是之前有人問過類似的問題
+19:39 < ChaoRui> 有~我有看到
+19:39 < ChaoRui> 不過沒下文
+19:39 <@chenwj_> y
+19:39 < ChaoRui> lol
+19:39 <@chenwj_> 後來我想想
+19:39 <@chenwj_> 他講的 gCR3 跟 hCR3 應該都是從 VMCS 載入到硬體 cr3
+19:40 < ChaoRui> 恩阿
+19:40 < ChaoRui> kvm 好像主要是 gpv -> hpa 的樣子
+19:41 <@chenwj_> 一開始 guest cr3 存的是 guest page table 的 gpa
+19:42 <@chenwj_> 這個 gpa 會透過 hCR3 指到的 extended page table 拿到 hpa
+19:42 <@chenwj_> 這個 hpa 才是可以存取的 guest page directory table
+19:43 < ChaoRui> 那直接給 hpa 好像會有問題?
+19:44 < ChaoRui> 因為目前 qemu 是設計成 hva
+19:48 <@chenwj_> qemu 跟一般跑在 vmm 上的 guest os 有不同
+19:49 <@chenwj_> qemu 又多了一層
+19:49 <@chenwj_> guest os -> qemu -> host os
+19:49 <@chenwj_> guest os -> host os
+19:49 < ChaoRui> yes
+19:55 <@chenwj_> ChaoRui: 我在想應該可以在 server 上用一個 bot 透過 irssi 連進來
+19:55 <@chenwj_> 它可以記 log
+19:56 < ChaoRui> good idea
+19:57 < ChaoRui> 放在 pc 上, 當機就沒紀錄到@@"
+20:01 <@chenwj_> server 就要這樣用啊

@@ -1,0 +1,29 @@
+18:03 < chapuni64> baldrick: evening! does fortran+dragonegg work?
+18:03 <@baldrick> chapuni64: yes, it works very well
+18:03 <@baldrick> in fact this is one of the main uses of dragonegg
+18:04 < chapuni64> thx! l4m6da has asked me that
+18:04 < chapuni64> I told him to ask you
+18:04 < chenwj_> baldrick: prehaps it can be used to compile kernel code which user global register?
+18:05 <@baldrick> chenwj_: dragonegg uses LLVM as you know, so things that are hard or impossible to represent in LLVM won't magically work perfectly just
+                  by using dragonegg
+18:06 <@baldrick> chenwj_: that said, I have compiled the linux kernel using dragonegg
+18:06 <@baldrick> it compiles, but I didn't try to boot it
+18:06 < chenwj_>  didn't try??
+18:06 < chenwj_> ah, global register need LLVM support?
+18:07 < chapuni64> which host or language needs global registers?
+18:08 < d0k> it's a gcc extension
+18:09 < chapuni64> it could be if llvm codegen could accept additional attributes?
+18:09 <@baldrick> chapuni64: sabre already explained a better plan in one of his notes IIRC
+18:10 < chapuni64> heh, seeking
+18:10  * chapuni64 has seen Chris' new portrait :D
+18:11 <@baldrick> ?
+18:11 < chapuni64> nondot.org/~sabre/
+18:12 < chapuni64> he wore glasses when I saw his site last
+18:12 < chenwj_> make him handsome?
+18:13 < chapuni64> I like regardless w/e glasses 8)
+18:17 < d0k> the old one is in our "outdated portrait gallery" http://llvm.org/developers.cgi
+18:18 < chapuni64> it was same as the one, that I saw
+18:20 < chenwj_> baldrick: so you mean even the gcc frontend handle the global register, the codegen could be wrong since LLVM doesn't support it?
+18:20 < chapuni64> chenwj_: it still should be
+18:21 <@baldrick> chenwj_: yeah, there's some kind of unreliable emulation now IIRC
+18:23  * chapuni64 didn't know llvm-ld was dropped :D

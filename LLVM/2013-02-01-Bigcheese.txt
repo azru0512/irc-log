@@ -1,0 +1,13 @@
+11:32 < chenwj> anyone faimliar with mc layer here? I am not what's the difference between MCObjectStreamer and MCObjectWriter
+11:32 < chenwj> wouldn't both of them write object file out?
+11:38 < Bigcheese> chenwj: MCObjectStreamer is called as the asm is parsed.
+11:38 < Bigcheese> It handles object file specific stuff.
+11:39 < Bigcheese> The writer actually writes it out.
+11:40 < chenwj> Bigcheese: thanks, but could you explain a little more about what object file specific stuff?
+11:42 < chenwj> I see MCObjectStreamer has member functions like EmitXXX, that make me think it write thing out
+11:43 < Bigcheese> For example, it converts .type sym,@function into the STT_FUNC flag.
+11:45 < chenwj> hrm, so you mean MCObjectStreamer prepare things to be written by MCObjectWriter?
+11:45 < Bigcheese> yeah
+11:46 < chenwj> MCAsmStreamer does similar thing as MCObjectStreamer?
+11:50 < Bigcheese> chenwj: yes
+11:50 < Bigcheese> Same interface.

@@ -1,0 +1,165 @@
+On Mon, Aug 06, 2012 at 08:09:28AM +0000, 看卡 wrote:
+> 陈先生:
+>             您好,我是一名大陆研究生,最近在看qemu代码，进度有点缓慢，并且遇到了
+> 很多问题，在网上看了您的文章，您对qemu有很深的理解，有些问题希望请教您一下：
+> 1.qemu针对了不同的设备进行了虚拟，并且提供了各设备的读写函数，这些虚拟设备什么
+> 时候被使用？是在gust代码被翻译成host代码后使用吗？这块代码在那个文件中？
+> 希望能得到您的回复，谢谢
+
+  如果您英文还不错的话，可以试试在 QEMU 的邮件清单发问，那边厉害的人比较多。
+  http://lists.nongnu.org/mailman/listinfo/qemu-devel
+
+  我这里就我粗浅的理解说一下的 QEMU 如何存取虚拟设备，"不保证完全和正确"。
+以 x86 (qemu-1.1.1) 为例，它有端口 IO 和 MMIO。基本上最近的 QEMU 设计出新
+的介面 (memory API) 用来整合端口 IO 和 MMIO 跟 QEMU 注册 IO 埠/内存区块跟
+回调函数，你可以阅读底下档案:
+
+  - docs/memory.txt
+  - memory.c、memory.h
+  - ioport.c、ioport.h
+
+以 x86 PIC 为例，你可以看到它在初始化 PIC 的时候跟 QEMU 注册 IO 埠跟回调
+函数，这里是使用新版的 memory API:
+
+以 x86 PIC 为例，你可以看到它在初始化 PIC 的时候跟 QEMU 注册 IO 埠跟回调
+函数，这里是使用新版的 memory API:
+
+  - memory_region_init_io
+
+// hw/i8259.c
+static const MemoryRegionOps pic_base_ioport_ops = {
+    .read = pic_ioport_read,
+    .write = pic_ioport_write,
+    .impl = {
+        .min_access_size = 1,
+        .max_access_size = 1,
+    },
+};
+
+static void pic_init(PICCommonState *s)
+{
+    // 注册 IO 埠跟回调函数
+    memory_region_init_io(&s->base_io, &pic_base_ioport_ops, s, "pic", 2);
+    memory_region_init_io(&s->elcr_io, &pic_elcr_ioport_ops, s, "elcr", 1);
+
+    qdev_init_gpio_out(&s->dev.qdev, s->int_out, ARRAY_SIZE(s->int_out));
+    qdev_init_gpio_in(&s->dev.qdev, pic_set_irq, 8);
+}
+
+以 x86 e1000 网卡为例，你可以看到 QEMU 用同一个 memory API 注册 IO 埠/内存区
+块跟回调函数:
+
+// hw/e1000.c
+static void
+e1000_mmio_setup(E1000State *d)
+{
+    int i;
+    const uint32_t excluded_regs[] = {
+        E1000_MDIC, E1000_ICR, E1000_ICS, E1000_IMS,
+        E1000_IMC, E1000_TCTL, E1000_TDT, PNPMMIO_SIZE
+    };
+
+    memory_region_init_io(&d->mmio, &e1000_mmio_ops, d, "e1000-mmio",
+                          PNPMMIO_SIZE);
+    memory_region_add_coalescing(&d->mmio, 0, excluded_regs[0]);
+    for (i = 0; excluded_regs[i] != PNPMMIO_SIZE; i++)
+        memory_region_add_coalescing(&d->mmio, excluded_regs[i] + 4,
+                                     excluded_regs[i+1] - excluded_regs[i] - 4);
+    memory_region_init_io(&d->io, &e1000_io_ops, d, "e1000-io", IOPORT_SIZE);
+}
+
+
+// memory.c
+void memory_region_init_io(MemoryRegion *mr,
+                           const MemoryRegionOps *ops,
+                           void *opaque,
+                           const char *name,
+                           uint64_t size)
+{
+    memory_region_init(mr, name, size);
+    mr->ops = ops;
+    mr->opaque = opaque;
+    mr->terminates = true;
+    mr->destructor = memory_region_destructor_iomem;
+    mr->ram_addr = ~(ram_addr_t)0;
+}
+
+以上是各个虚拟装置跟 QEMU 注册回调函数的范例。基本上在 QEMU 有两处会呼叫到
+虚拟装置的回调函数:
+
+ - Port IO: 在 target-i386/translate.c 你会看到:
+
+static target_ulong disas_insn(DisasContext *s, target_ulong pc_start)
+{
+    ... snip ...
+
+    case 0x6e: /* outsS */
+    case 0x6f:
+        if ((b & 1) == 0)
+            ot = OT_BYTE;
+        else
+            ot = dflag ? OT_LONG : OT_WORD;
+        gen_op_mov_TN_reg(OT_WORD, 0, R_EDX);
+        gen_op_andl_T0_ffff();
+        gen_check_io(s, ot, pc_start - s->cs_base,
+                     svm_is_rep(prefixes) | 4);
+        if (prefixes & (PREFIX_REPZ | PREFIX_REPNZ)) {
+            gen_repz_outs(s, ot, pc_start - s->cs_base, s->pc - s->cs_base);
+        } else {
+            gen_outs(s, ot); <---
+            if (use_icount) {
+                gen_jmp(s, s->pc - s->cs_base);
+            }
+        }
+        break;
+
+   ... snip ...
+
+}
+
+static inline void gen_outs(DisasContext *s, int ot)
+{
+    ... snip ...
+
+    gen_helper_out_func(ot, cpu_tmp2_i32, cpu_tmp3_i32); <--- 呼叫对应 IO 埠的回调函数
+
+    ... snip ...
+}
+
+至于 MMIO 的部分，这是和存取客户机内存的函数写在一起的:
+
+// softmmu_template.h
+DATA_TYPE
+glue(glue(glue(HELPER_PREFIX, ld), SUFFIX), MMUSUFFIX)(ENV_PARAM
+                                                       target_ulong addr,
+                                                       int mmu_idx)
+{
+    DATA_TYPE res;
+    int index;
+    target_ulong tlb_addr;
+    target_phys_addr_t ioaddr;
+    uintptr_t retaddr;
+
+    index = (addr >> TARGET_PAGE_BITS) & (CPU_TLB_SIZE - 1);
+ redo:
+    tlb_addr = env->tlb_table[mmu_idx][index].ADDR_READ;
+    if ((addr & TARGET_PAGE_MASK) == (tlb_addr & (TARGET_PAGE_MASK | TLB_INVALID_MASK))) {
+        if (tlb_addr & ~TARGET_PAGE_MASK) {
+            // 此为 MMIO 位址
+            if ((addr & (DATA_SIZE - 1)) != 0)
+                goto do_unaligned_access;
+            retaddr = GETPC();
+            ioaddr = env->iotlb[mmu_idx][index];
+            // 执行 MMIO 对应的回调函数
+            res = glue(io_read, SUFFIX)(ENV_VAR ioaddr, addr, retaddr);
+
+   ... snip ...
+
+}
+
+  注意！这部分并非我的专长，你可以把上面这些资料当作你的起始点下去研读，但不需要
+把它视作完全正确/完整。还是老话一句，如果您英文还不错的话，可以试试在 QEMU 的邮
+件清单发问。祝好运。
+
+
+韦任

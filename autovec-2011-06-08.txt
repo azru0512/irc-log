@@ -1,0 +1,54 @@
+17:29 < chenwj> nicholas: yes, given a frontend with vectors. <- I don't follow you
+17:30 < nicholas> chenwj: a frontend for a language with vectors in the language
+17:30 < nicholas> chenwj: then a backend which supports vectors
+17:30 < nicholas> chenwj: no need for autovectorization
+17:30 < chenwj> nicholas: not C, right?
+17:30 < nicholas> chenwj: not standard C.
+17:31 <@baldrick> chenwj: you can write vector code directly in GCC C
+17:31 <@baldrick> using GCC extensions
+17:32 < chenwj> what I want to ask is,
+17:32 < chenwj> in gerneral, without auto-vectorization in the middle
+17:32 < chenwj> backend with vector instruction would be useless
+17:32 < chenwj> is that right?
+17:32 <@baldrick> chenwj: no, it is wrong as we have been explaining
+17:33 < nicholas> chenwj: "in general" you mean, "for standard C"?
+17:33 < chenwj> not considering language support vecotr or GCC extension
+17:33 < chenwj> yes
+17:33 < nicholas> or clang extension or OpenCL or Renderscript
+17:33 < nicholas> then yes
+17:34 < chenwj> see
+17:34 < nicholas> or permitting the possibility of developing an autovectorizer in the future
+17:35 <@baldrick> chenwj: it sounds like you are asking: "if you ignore everything which can produce vector IR except for an auto-vectorizer, is it the case
+                  that vector IR is only needed for an auto-vectorizer"?
+17:35 < chenwj> polly is already doing this
+17:35 < chenwj> right?
+17:36 <@baldrick> that is a pretty close to a logical tautology
+17:36 <@baldrick> so presumably that's not what you are trying to ask...
+17:36 < chenwj> baldrick: if you ignore everything which can produce vector IR except for an auto-vectorizer <- yes, I means for standard C
+17:37 < nicholas> iiuc, polly is working on providing a layer from llvm ir to their auto-vectorizer and back to llvm ir.
+17:37 < chenwj> baldrick: and with a target machine with vector instruction
+17:38 <@baldrick> i.e. if you ignore all languages and language extensions that result in vector IR, then indeed frontends do not produce vector IR
+17:38 < chenwj> baldrick: without something like auto-vec, those vector instructions would be useless
+17:38 <@baldrick> chenwj: what is the point of your remarks?
+17:39 <@baldrick> you seem to be noting that if you take a language with no vector support, and you suppose that no optimizers or other compiler stuff
+                  produces vectors, then the backend doesn't need to support vectors
+17:39 <@baldrick> this is true but not interesting...
+17:43 < chenwj> baldrick: maybe llvm backend can somehow select target vector instruction?
+17:44 < nicholas> no, there's no autovectorizer hidden in the backend either :)
+17:44 <@baldrick> chenwj: this is just auto-vectorization in disguise
+17:45 < chenwj> baldrick: joke?
+17:46 <@baldrick> chenwj: generating vector code for a scalar operation is a weak form of auto-vectorization
+17:46 <@baldrick> the dragonegg front-end implements the rsqrtf GCC builtin in this way for example
+17:47 <@baldrick> converts the scalar to a vector, performs a vector operation, then extracts the scalar result out of it
+17:47 <@baldrick> auto-vectorization = converting scalar code to use vector instructions
+17:48 <@baldrick> and that's exactly what dragonegg does for rsqrtf, thus it is auto-vectorization :)
+17:50 <@baldrick> I guess there is some confusion here between auto-vectorization and auto-parallelization
+17:53 < chenwj> ok, let me rephrase my problem
+17:53 <@baldrick> rdivacky: intel has an auto-vectorizer it seems
+17:53 < chenwj> standard C, with current LLVM
+17:54 < chenwj> would target with vector instruction be useful?
+17:55 <@baldrick> chenwj: dragonegg can produce vector IR from standard C, because the GCC auto-vectorizer creates vector instructions
+17:56 < chenwj> baldrick: but current LLVM cannot do the job, right?
+17:57 <@baldrick> chenwj: with dragonegg it doesn't have to, because the vector instructions are already in the initial IR.  However, excluding the case
+                  where the initial IR contains vector instructions, LLVM never creates vector operations as far as I know.
+17:58 < chenwj> see

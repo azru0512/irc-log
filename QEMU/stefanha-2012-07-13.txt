@@ -1,0 +1,10 @@
+16:39 < chenwj> where should I put "test-by: Wei-Ren Chen" in other's patch?
+16:41 < stefanha> Tested-by: ...
+16:41 < stefanha> Just reply to the email thread if it's on the list.
+16:41 < stefanha> You don't need to include their patch.
+16:42 < chenwj> on the top of mail body?
+16:42 < stefanha> chenwj: Yes, just an email with Tested-by: ... is fine.
+16:42 < stefanha> Search the mailing list archive if you want to check how others do it.. :)
+16:42 < chenwj> thanks :)
+16:43 < Jia> Tested-by: Jia Liu is fine.
+16:44 < Jia> Tested-by: Wei-Ren Chen

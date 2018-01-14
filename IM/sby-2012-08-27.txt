@@ -1,0 +1,120 @@
+17:56 <@chenwj> sby: hello
+17:57 <+sby> chenwj: hi
+17:57 <@chenwj> sby: 你知道有什麼辦法可以修改 page table entry 嗎?
+17:57 <@chenwj> sby: 在 user space
+17:57 <@chenwj> sby: http://stackoverflow.com/questions/12138171/how-to-add-an-entry-into-current-process-page-table#comment16238488_12138171
+17:57 <@chenwj> sby: 他說用 mmap?
+17:59 <+sby> chenwj: 你想改什麼? permission or physical address?
+18:00 <@chenwj> sby: 自己塞 entry 進去
+18:00 <@chenwj> sby: 就上次講的那個
+18:00 <@chenwj> sby: qemu 移到 4g 以上，4g 以下給 guest
+18:01 <+sby> chenwj: user space 沒辦法改
+18:02 <@chenwj> sby: hmmmmm....
+18:03 <@chenwj> sby: 連把 kernel 處理 page 的 function 放出來給 user space 也不行?
+18:03 <+sby> chenwj: 放出來是什麼意思?
+18:04 <@chenwj> sby: ㄜ... 比如果 function_xxx 是 kernel 處理 page 的 function，把它用 syscall 或是其他方法 讓 user space 可以 call 它
+18:05 <+sby> chenwj: 喔, 你想這樣搞當然可以, 只是會有 security 問題就是了
+18:05 <@chenwj> sby: xd
+18:06 <@chenwj> sby: 你有聽過 /dev/mem 嗎?
+18:08 <+sby> chenwj: 有
+18:08 <@chenwj> sby: 沒辦法透過他去改?
+18:09 <+sby> chenwj: root 才可能有辦法
+18:09 <@chenwj> sby: 好 假設是 root
+18:09 <@chenwj> sby: 我只知道他會 dump page table 的內容
+18:09 <+sby> chenwj: 那是 root 的話就什麼都可以做了
+18:10 <@chenwj> sby: 你是說 su 的那個 root?
+18:10 <+sby> chenwj: 你也不需要考慮 security, 剛剛那個 syscall 的方法也行
+18:10 <+sby> chenwj: 反正已經是 root
+18:10 <@chenwj> sby: su 的那個 root?
+18:10 <+sby> chenwj: 嗯
+18:11 <+sby> chenwj: 要有 root permission
+18:11 <@chenwj> sby: 假設一開始 4g 以下是空的
+18:11 <@chenwj> sby: 我可以用一個 4g 以下的 addr 查 /dev/mem
+18:11 <@chenwj> sby: 固定到我要寫的 entry?
+18:12 <@chenwj> sby: x86_64 上有 4 層 page table
+18:12 <+sby> chenwj: /dev/mem 是 physical, physical 不可能是空的, virtual 才有辦法假設是空的
+18:12 <@chenwj> sby: 中間那些 page table 應該還沒 allocate 吧?
+18:13 <+sby> chenwj: 嗯, 沒用到的 page table 不會 allocate
+18:16 <@chenwj> sby: 比如說 gva 會查到 pml4 entry 1 -> pdpt entry 2 -> pd entry 3 -> pt entry 4，但是因為一開始 4g 以下是空的，所以 entry 2 3 4 所在的 page
+                應該都還沒被 kernel allocate?
+18:17 <+sby> chenwj: yup, 理論上是這樣
+18:19 <+sby> chenwj: 不過實際上也是要看 kernel 怎麼 implement, 他想要先 allocate 也沒人說不可以 XD
+18:19 <@chenwj> sby: :~
+18:20 <+sby> chenwj: /dev/mem 是 physical address 會有什麼問題?
+18:20 <+sby> chenwj: 跟 page table 完全沒關係
+18:20 <@chenwj> sby: ?
+18:20 <+sby> chenwj: ?
+18:20 <@chenwj> sby: 我在想為什麼沒關係 xd
+18:23 <@chenwj> sby: 那我用 vaddr 去查 /dev/mem 我應該要寫在哪一個 page table entry，直接寫進去我想要的內容就好，不用擔心中間的 table 還沒被 allocate?
+18:25 <+sby> chenwj: 用 vaddr 去查 /dev/mem 是什麼意思?
+18:26 <@chenwj> sby: 就是先拿到 cr3 的值，然後再拿 virtual addr 去查 /dev/mem
+18:27 <@chenwj> sby: 這樣可以找到 virtual addr 對應的 phys addr
+18:27 <+sby> chenwj: 不懂, /dev/mem 不是 physical addresss space 嗎
+18:28 <@chenwj> sby: cr3 存的是最上層 page table 的 phys addr
+18:28 <@chenwj> sby: void *ptr = &a; ptr 會拿到 virtual addr
+18:29 <+sby> chenwj: 那你應該說透過 cr3 拿到 page table 的 phys addr 然後去 /dev/mem 找 page table 然後拿 vaddr 去 page table 查?
+18:29 <@chenwj> sby: 對
+18:29 <@chenwj> sby: 之前是 int a; void *ptr = &a; 拿一個變數的 address
+18:29 <+sby> chenwj: 恩, 你要講清楚點, 剛剛那樣說跳過太多東西了= =
+18:30 <@chenwj> sby: sorry
+18:30 <+sby> chenwj: 查完後你要幹嘛?
+18:30 <@chenwj> sby: 所以中間 page table 都會在，我們才查的到
+18:31 <@chenwj> sby: 現在是我們拿到 qemu 裡面的 guest，gva -> gpa -> hva 這個 mapping
+18:31 <@chenwj> sby: 然後透過 cr3 + /dev/mem 先去查 hva 對應的 hpa
+18:32 <@chenwj> sby: 我們打算再把 gva -> hpa 寫進 qemu 的 page table
+18:32 <+sby> chenwj: hmm
+18:32 <@chenwj> sby: 但是一開始 qemu 是在 4g 以上
+18:33 <@chenwj> sby: 4g 以下相關的 page table 應該不會被 allocate 出來
+18:33 <+sby> chenwj: hmm
+18:32 <@chenwj> sby: 但是一開始 qemu 是在 4g 以上
+18:33 <@chenwj> sby: 4g 以下相關的 page table 應該不會被 allocate 出來
+18:33 <+sby> chenwj: hmm
+18:33 <+sby> chenwj: 那你就 allocate 就好啦
+18:34 <@chenwj> sby: 應該要用 kernel function? 還是 user space 就能做?
+18:34 <+sby> chenwj: mmap 就能做了
+18:34 <@chenwj> sby: 怎麼說?
+18:35 <+sby> chenwj: 就在 4G 以下 mmap 出一塊你要的空間就好啦
+18:36 <@chenwj> sby: 你是說 mmap 4g 以下的空間，這樣 4g 以下相關的 page table 都會在，然後我們再去寫 /dev/mem?
+18:36 <+sby> chenwj: yup XD
+18:36 <@chenwj> sby: 可以要整個 4g 嗎?
+18:37 <+sby> chenwj: not sure
+18:37 <+sby> chenwj: 0 這個 address 肯定不行
+18:37 <+sby> chenwj: 4 開始也許可以
+18:37 <+sby> chenwj: 4K 開始
+18:37 <@chenwj> sby: 恩 那 mmio 要不要考慮?
+18:37 <+sby> chenwj: mmap 要 page align
+18:38 <+sby> chenwj: mmio 跟 virtual 沒關係
+18:41 <@chenwj> sby: 我不是很清楚 mmio，mmio 是對一個 virtual addr 做一般 mem 存取，然後 device 再去這塊 mem read/write?
+18:44 <+sby> chenwj: 一般 device 的 mmio 都是在 physical address space 上
+18:44 <+sby> chenwj: 跟 virtual 沒關係
+18:45 <+sby> chenwj: virtual 的 mmio 通常是透過 mmap 去 map 到一個 file, 然後透過 virtual address 去對這個 file 做 read/write
+18:50 <@chenwj> sby: 那要怎麼對 devie 做 mmio? 你說它只 map 到 phys addr，可以一般程式不是只能看到 virtual addr?
+18:50 <+sby> chenwj: 是阿, 所以一般程式沒辦法做 mmio
+18:51 <+sby> chenwj: 一般 user 沒辦法直接 access device, 都要透過 syscall
+18:51 <+sby> chenwj: 通常要做的話都是 kernel 在做
+18:52 <+sby> chenwj: 不然 root 要透過 /dev/mem 做也是可以
+18:52 <@chenwj> sby: 所以 kernel 那邊直接 access physical addr?
+18:52 <@chenwj> sby: 印象中 /dev/mem 本來是拿來做 mmio
+18:54 <+sby> chenwj: 嗯, kernel 剛開機的時候還沒進入 protection mode 就是直接 access mmio 的 physical addr, 進入 protection mode 後 kernel 可以把要 mmio
+             的那段 address map 到自己的 kernel address space
+18:54 <+sby> chenwj: 這樣 user 就沒辦法 access 到
+18:57 <@chenwj> sby: oh, 就是把 mmio phys addr space map 到 3g 以上 kernel 的 virtual memory space
+18:57 <+sby> chenwj: hmm
+18:58 <@chenwj> sby: ok! 先去吃飯 xd
+18:58 <+sby> chenwj: bye XD
+18:59 <@chenwj> sby: 再等一下下
+18:59 <@chenwj> sby: mmap 要 page align <- ?
+18:59 <+sby> chenwj: yup
+19:00 <@chenwj> sby: 是以我的情況才要這樣嗎? 一般 mmap 沒聽說要 page align
+19:00 <+sby> chenwj: 有, 你看 mmap 的 man page 有說
+19:00 <+sby> chenwj: 沒有 align 結果不保證
+19:00 <+sby> chenwj: 就是有可能會出錯
+19:01 <@chenwj> sby: why
+19:02 <+sby> chenwj: mmap 就是幫你去要 page table 阿, 沒有 page align 的話那他怎麼知道某一塊要不要, 大概是避免會混淆
+19:02 <+sby> chenwj: 這是 posix 規定的吧
+19:03 <@chenwj> sby: 恩恩
+19:03 <+sby> chenwj: 我猜的, 你看 man page 我記得有寫
+19:03 <@chenwj> sby: 好
+19:03 <@chenwj> sby: 81
+19:03 <@chenwj> sby: xd
+19:04 <+sby> chenwj: bye

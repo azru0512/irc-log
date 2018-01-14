@@ -1,0 +1,23 @@
+00:51 < chenwj> pm215: why I can use "qemu-system-arm -M versatilepb -m 2048M" in git head but not qemu 0.13?
+00:51 < aliguori> pm215 is saying it's too much boiler plate code
+00:52 < pm215> chenwj: I'm surprised that works in git head!
+00:52 < pbrook> I'd expect that medium tem they'd go away anyway.
+00:52 < chenwj> pm215: it shouldn't?
+00:52 < chenwj> pm215: does arm board limit the memory size?
+00:53 < pm215> the hardware has a max limit of 128 or 256M, I forget which
+00:53 < chenwj> pm215: so that I can't use "-m xxM"
+00:53 < pm215> this is imposed by the physical memory map of the system
+00:53 < pm215> qemu doesn't do any sanity check that you haven't asked for more RAM than the board supports, so if you try it it will just crash in some
+               unhelpful way
+00:54 < chenwj> pm215: you means versatilepb shouldn't have that much memory in theory?
+00:54 < pbrook> The versatile/pb only has a 256Mb address window for RAM. as pm215 says, bad thing will happen if you exceed that.
+00:55 < chenwj> well, it works (at least it boot)
+00:55 < pm215> chenwj: yes. "-M versatilepb -m 2048M" is a user error
+00:55 < pbrook> You could in theory put additional ram elsewhere, but at that point you're no longer emulating a Versatile/PB.
+00:55  * chenwj faint
+00:55 < pm215> this is pure fluke . we might make it actually give a proper error in some future version
+00:55 < chenwj> pm215: so it's a bug then
+00:56 < pm215> I tried to submit a patch ages ago that made boards define their max memory amount, but it got shot down
+00:56 < pm215> but anyway, if you want more than 256M ram don't use versatilepb
+00:56 < chenwj> actually, we want to run spec on it
+00:57 < pbrook> I wouldn't bother.

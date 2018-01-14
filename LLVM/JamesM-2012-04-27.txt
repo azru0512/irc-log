@@ -1,0 +1,25 @@
+21:09 < Submarine> j# clang
+21:09 < Submarine> Hi there.
+21:10 < Submarine> I'm trying to get clang to cross-compile, with no success.
+21:10 < Submarine> I want to target ARM but clang runs on x86
+21:10 < Submarine> clang -arch arm -emit-llvm -c does not work
+21:10 < Submarine> clang: warning: argument unused during compilation: '-arch arm'
+21:11 < Submarine> yet $ llvm-config --targets-built
+21:11 < Submarine> x86 sparc powerpc alpha arm mips cellspu xcore msp430 systemz blackfin cbackend cppbackend mblaze ptx
+21:23 < llvmbb> build #2872 of llvm-i686-debian is complete: Failure [failed test-llvm]  Build details are at
+                http://lab.llvm.org:8011/builders/llvm-i686-debian/builds/2872  blamelist: d0k
+21:23 < Submarine> ok -ccc-host-triple
+21:28 < chenwj> Submarine: $ clang -ccc-host-triple armv7-none-linux-gnueabi -c hello.c -emit-llvm -o hello.bc
+21:28 < chenwj> $ llc -O3 -o hello.s -march=arm hello.bc
+21:28 < chenwj> $ arm-unknown-linux-gnueabi-gcc hello.s -static -O3 -o hello
+21:45 < JamesM_> Submarine: you have several options:
+21:45 < JamesM_> Submarine: first, get Clang to emit code for ARM. Do this with the "-target" flag which used to be the rather cryptic "-ccc-host-triple"
+21:45 < JamesM_> clang -target armv7 foo.c
+21:46 < llvmbb> build #2846 of clang-x86_64-debian-selfhost-rel is complete: Failure [failed test-llvm test-llvm_1]  Build details are at
+                http://lab.llvm.org:8011/builders/clang-x86_64-debian-selfhost-rel/builds/2846  blamelist: d0k
+21:46 < JamesM_> now, the integrated assembler is still beta for ARM so isn't enabled by default, but is *pretty much* release quality
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+21:46 < JamesM_> enable it with "-integrated-as": clang -target armv7 -integrated-as foo.c -c -o foo.o
+21:47 < JamesM_> if you don't want the integrated assembler, then tell clang to output assembly with the "-S" switch and run it through codesourcery GCC or
+                 AS
+21:48 < chenwj> JamesM_: -integrated-as build by default?

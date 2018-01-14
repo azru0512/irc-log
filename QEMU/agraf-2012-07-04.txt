@@ -1,0 +1,29 @@
+21:08 < chenwj> I know we have to switch guest mode to enable ept/npt (hw MMU virtualization), but how about shadow page table? Do we need to switch mode to
+                use it?
+21:09 < agraf> I'm not sure the question makes sense
+21:09 < agraf> if you control CR3 and access to the page fault handler, you can implement a shadow mmu
+21:13 < chenwj> hmmm, I guess kvm has control of cr3 and can access the page fault handler?
+23:16 < agraf> chenwj: yes, because it lives in the kernel :)
+23:16 < agraf> chenwj: in fact, with pr kvm on ppc we run the guest 100% in CPL 3 (called PR on ppc)
+23:16 < chenwj> I have to study how this can be done
+23:16 < chenwj> I mean control cr3
+23:16 < agraf> chenwj: and the shadow mmu there is easy, because we can switch mmu contexts and have full control over the page fault handler
+23:17 < agraf> chenwj: well, you write a value inside? :)
+23:17 < agraf> s/inside/to it/
+23:17 < chenwj> I have to find to spot
+23:17 < chenwj> find the spot
+23:17 < chenwj> pr kvm?
+23:17 < agraf> chenwj: in x86 kvm, it's changed in the guest's vmcb
+23:17 < agraf> chenwj: so that when the world switch happens, cr3 automatically changes to the shadow mmu cr3
+23:18 < chenwj> yes
+23:18 < agraf> chenwj: ppc kvm has 2 modes, one that uses hv extensions and one that doesn't
+23:18 < agraf> chenwj: pr kvm is the one that doesn't
+23:19 < chenwj> x86 kvm also has two mode, shadow page table and ept/npt. are they (compare to ppc) the same thing?
+23:20 < agraf> chenwj: ppc doesn't have anything like npt
+23:20 < agraf> chenwj: well, server ppc doesn't
+23:20 < agraf> chenwj: embedded ppc gets LRATs now, which are basically like a second TLB
+23:20 < agraf> chenwj: so it's similar to npt
+23:21 < agraf> chenwj: but server ppc basically does the same as xen
+23:21 < agraf> chenwj: the guest sends hypercalls whenever it wants to modify the page table
+23:22 < chenwj> sounds like how shadow page table is donw in x86 kvm?
+23:23 < chenwj> I mean kvm has to sync guest page table with shadow page table when guest wants to modify its page table

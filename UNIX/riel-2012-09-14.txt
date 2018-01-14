@@ -1,0 +1,16 @@
+18:13 < chenwj> is there document talk about how kernel free page/page table when a process terminated?
+18:14 < riel> no, but you can read the source code
+18:15 < riel> start reading at exit_mm()
+18:15 < walken> hey rik
+18:21 < chenwj> yes, I am reading it now. :)
+18:22 < chenwj> does free_pgtables do free process' page table?
+18:24 < chenwj> I am reading exit_mmap (mm/mmap.c). what relation between unmap_vmas and free_pgtables?
+18:24 < riel> one unmaps the vmas, the other frees the page tables
+18:25 < chenwj> unmaps the vmas? unmap what?
+18:25 < riel> the pages
+18:25 < riel> and the vmas themselves
+18:27 < chenwj> hmmm, does free_pgtables also free phys pages which are not page tables?
+18:28 < peterz> no, unmap_vmas() does that, as rik just said
+18:30 < chenwj> ok, so unmape_vmas free phys pages which are not page tables, and free_pgtables free those are. right?
+18:32 < riel> just read the code
+18:33 < chenwj> ok, I'll try :)

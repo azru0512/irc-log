@@ -1,0 +1,159 @@
+20:24 < chenwj> JamesM_: have time?
+20:39 < nbjoerg> it does appear in the ELF symbol table
+20:49 < JamesM_> chenwj: yeah
+20:50 < JamesM_> nbjoerg: I'm really not following you, I'm afraid
+20:50 < chenwj> JamesM_: http://permalink.gmane.org/gmane.comp.compilers.clang.devel/20824
+20:50 < nbjoerg> *blink*
+20:50 < nbjoerg> someone wants to build iOS apps and prevent tivolization ?!
+20:50 < chenwj> JamesM_: I don't know what the straightforward solution is
+20:51 < nbjoerg> JamesM_: that the name of the source file appears in the symbol table is normal behavior
+20:51 < nbjoerg> JamesM_: the question is, can that symbol be accessed by anything else?
+20:51 < chenwj> do you think adding triple and move test case around is O.K.?
+20:51 < JamesM_> nbjoerg: debug information, and wouldn't __FILE__ access it?
+20:51 < nbjoerg> __FILE__ is expanded at preprocessing time
+20:52 < JamesM_> indeed, my bad
+20:52 < JamesM_> but debug info?
+20:52 < JamesM_> chenwj: which test case in particular are you referring to?
+20:52  * JamesM_ brb
+20:53 < chenwj> JamesM_: 1 and 2
+20:53 < chenwj> JamesM_: I mean in http://permalink.gmane.org/gmane.comp.compilers.clang.devel/20824
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+21:04  * JamesM_ back
+21:05 < JamesM_> chenwj: for 1. Look at all the tests, and see if the FileCheck command is failing because of ABI differences that aren't being explicitly
+                 tested
+21:05 < JamesM_> if so, fix the test to not care about the ABI difference. If that thing is actaully under test (i.e. the test is checking some x86-specific
+                 thing), add the triple
+21:08 < nbjoerg> JamesM_: so .file entries can map file names to numbers > 0
+21:08 < nbjoerg> JamesM_: whcih in turn can be referenced by .loc
+21:15 < myeisha> espindola: no
+21:19 < chenwj> JamesM_: by "fix the test", you mean moditify something like "// CHECK: [[LVALUE:%[a-z0-9.]+]] = alloca" in the test case?
+21:20 < JamesM_> indeed
+21:20 < JamesM_> if the test is being too specific, you fix the test by making it less specific in areas it shoudn't care about
+21:21 < chenwj> I think adding triple is the right soolution for x86-64-abi-sret-vs-2word-struct-param.cpp
+21:24 < nbjoerg> interesting
+21:24 < nbjoerg> so as is not unifying the .file entries
+21:24 < JamesM_> I haven't looked at each individually
+21:26 < bb-chapuni> build #916 of cmake-clang-i686-msys is complete: Failure [failed test_clang]  Build details are at
+                    http://bb.pgr.jp/builders/cmake-clang-i686-msys/builds/916  blamelist: Eli Bendersky <eli.bendersky@intel.com>, Duncan Sands
+                    <baldrick@free.fr>
+21:27 -!- mode/#llvm [+o baldrick1] by ChanServ
+21:27 -!- baldrick1 is now known as baldrick
+21:33 < chenwj> I use "clang -cc1 -internal-isystem /nfs_home/chenwj/llvm-3.1/rc1/Phase3/Release/llvmCore-3.1-rc1.obj/Release/bin/../lib/clang/3.1/include
+                -emit-llvm -triple x86_64-none-linux-gnu x86-64-abi-sret-vs-2word-struct-param.cpp -o - | FileCheck
+                x86-64-abi-sret-vs-2word-struct-param.cpp", the test pass
+21:34 < chenwj> and I modify x86-64-abi-sret-vs-2word-struct-param.cpp so that it has this line,
+21:34 < chenwj>   // RUN: %clang_cc1 -triple x86_64-none-linux-gnu -emit-llvm %s -o - | FileCheck %s
+21:34 < chenwj> then I use `llvm-lit x86-64-abi-sret-vs-2word-struct-param.cpp`, but it fail
+21:35 < chenwj> any idea on what I might miss?
+21:41 < JamesM_> no, looks about right to me
+21:42 < chenwj> :/
+21:42 < chenwj> where the x86 c++ abi? I found arm's
+21:43 < d0k> http://sourcery.mentor.com/public/cxx-abi/abi.html
+21:44 < JamesM_> the answer for that test is to change the triple, not fiddle with the test. It even has x86 in the name...
+21:44 < ville_h> what is the current released clang version? why doesn't the website habe this information on the front page?
+21:45 < chenwj> JamesM_: ya, that's what I think
+21:45 < chenwj> d0k: Itanium?
+21:45 <@baldrick> ville_h: 3.0.  On llvm.org you will find top-right "Latest LLVM Release!"
+21:45 < chenwj> d0k: I was googling "x86 c++ abi"...
+21:46 < d0k> chenwj: it's the abi gcc and clang use on x86(_64)
+21:46 < chenwj> d0k: ah, I used to wrong word ;)
+21:46 < ville_h> baldrick: http://clang.llvm.org/ makes no mention of it as far as I can see.
+21:46 < chenwj> the
+21:46 <@baldrick> ville_h: 3.1 is currently being tested
+21:46 < d0k> don't know why it's called itanium, probably historical reasons
+21:46 <@baldrick> ville_h: yes, that seems rather silly
+21:47 <@baldrick> ville_h: want to open a bug report about it?
+21:48 < ville_h> Probably would have to have a login to report it. I don't really develop clang or llvm so bit too much effort for this sort of thing.
+21:50 <@baldrick> OK, fair enough
+21:50 <@baldrick> maybe one of the clangers here will pick up on it
+21:50 < JamesM_> d0k: because it was created for the IA64? ;)
+21:50 < JamesM_> ville_h: what's the bugreport?
+21:51  * JamesM_ is not a clanger per se, but is more of a jack of all trades master of none
+21:51 < ville_h> JamesM_: http://clang.llvm.org/ should possibly list the current release of clang on the front page
+21:51 < JamesM_> ah right.
+21:52 < chenwj> well, it's my first time to look at the c++ abi standard, kind of lost...
+21:53 < chenwj> Take clang/test/CodeGenCXX/compound-literals.cpp as an example, it fail at "// CHECK-NEXT: call void @_ZN1XC1EPKc({{.*}}[[X]]"
+21:54 < d0k> the differences between the itanium and arm c++ abis are really small
+21:54 < chenwj> kind of like ctor difference?
+21:54 < d0k> what does it emit on arm?
+21:55 < chenwj> let me see
+21:55 < TNorthover> The constructor will return a pointer to "this" (via some type).
+21:56 < chenwj> %4 = call %struct.X* @_ZN1XC1EPKc(%struct.X* %3, i8* getelementptr inbounds ([10 x i8]* @.str, i32 0, i32 0))
+21:56 < chenwj> void is expected, but clang generate "%struct.X*" on arm
+21:58 < chenwj> TNorthover: where do you read that from c++ abi, I am complete lost?
+21:59 < JamesM_> chenwj: I quoted taht to you on Friday
+21:59 < JamesM_> or Thursday.
+22:00  * chenwj faint
+22:00 < JamesM_> This ABI requires C1 and C2 constructors to return this (instead of being void functions) so that a C3 constructor
+22:00 < JamesM_> can tail call the C1 constructor and the C1 constructor can tail call C2.
+22:00 < JamesM_> ^ Direct quote ^
+22:00 < JamesM_> ARM C++ ABI supplement, 3.1
+22:01 < chenwj> ohoh
+22:02 < JamesM_> http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.ihi0041c/index.html
+22:02 < chenwj> ok
+22:04 < chenwj> reading...
+22:28 < chenwj> test/CodeGenCXX/virt-call-offsets.cpp, x86 gives "@x = global { i64, i64 } { i64 1, i64 0 }"
+22:28 < chenwj> arm gives "@x = global { i32, i32 } { i32 0, i32 1 }, align 4"
+22:53 < TNorthover> That's also an expected change. It's in the same document as before and a combination of two changes: ARM has 32-bit pointers; ARM
+                    actually uses all bits of the pointer part of the pair so the is-virtual bit has to be moved to the adjustment field.
+22:53 < JamesM_> Thanks Tim, that avoided me having to look it up myself ;)
+22:55 < chenwj> TNorthover: ok, which means both correct?
+22:55 < chenwj> JamesM_: I plan to submit ctor abi difference patch first
+22:58  * baldrick ponders that somehow life gets easier for dragonegg with every gcc release, because gcc is converging towards LLVM internally
+22:59 < chenwj> really?
+22:59 < kmacy_> chenwj: they're doing everything they can to make it more modular
+22:59 < TNorthover> chenwj: I believe so (regarding member function pointers).
+22:59 < kmacy_> chenwj: to prevent the continued migration
+23:00 < chenwj> kmacy_: that's a good news
+23:00 < kmacy_> only if you're a gcc user
+23:00 < kmacy_> :D
+23:00 < chenwj> I like both
+23:01 < espindola> baldrick, what have they fixed for 4.7?
+23:01 <@baldrick> espindola: aliases are more regular for example
+23:02 <@baldrick> an alias of function type that aliases a function gets its own cgraph node now
+23:02 <@baldrick> likewise for an alias of a non-function type that aliases a global variable (gets a varpool node)
+23:02 < espindola> that is nice
+23:02 <@baldrick> unfortunately if (eg) a variable aliases a function then they can't represent that yet
+23:03 <@baldrick> there's no general mechanism for knowing what globals are using others (like there is in LLVM)
+23:03 <@baldrick> but at least for the most common cases there is a special mechanism for it now
+23:04 < d0k> those who don't want to use llvm are doomed to reimplement it ;)
+23:04 < espindola> :-)
+23:04 < erikjv> 'evening all
+23:05 < erikjv> (or whatever is appropriate to your timezone)
+23:05 <@baldrick> d0k: it does feel like that
+23:06 < andersca> dgregor!
+23:06 -!- andreagelati is now known as andreagelati|away
+23:08 < dgregor> andersca!
+23:21 -!- dgregor_ is now known as dgregor
+23:25 -!- mode/#llvm [+v DannyB] by ChanServ
+23:40 < emenezes> :)
+23:43 < chenwj> :-)
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+23:49 < d0k> :--)
+23:49 < myeisha> d0k: why the long face?
+23:50 < chenwj> big nose?
+23:50 < d0k> I'm trying to match the pattern
+23:50 < erikjv> Is that healthy?
+23:51 < chenwj> :v)
+23:51 < myeisha> would ":=)" not also match the pattern?
+23:52 < nbjoerg> that would like like you ran into a street lamp
+23:52 < chenwj> TNorthover: may I quote what you said about member function pointers?
+23:58 < jyasskin_> If I have a member function X::swap(X&), and it calls swap(y1, y1) say, in a noexcept expression, does name lookup find X::swap(X) and
+                   stop, or does it keep looking for a 2-argument swap?
+Day changed to 01  5 2012
+00:00 < TNorthover> chenwj: You can, but sections from the document would be more authoritative than "some bloke I met on IRC". It's 2.3 in the generic ABI
+                    (the waffle about "ptrdiff_t") and 3.2.1 in the ARM-specific document
+00:00 < pyknite> Hi!
+00:00 < myeisha> jyasskin_: you want X::swap(X) to match swap(y1, y1)?
+00:01 < dgregor> jyasskin_: it finds X::swap and stops looking
+00:01 < andersca> weinig!
+00:01 < weinig> andersca!
+00:02 < jyasskin_> dgregor: Thanks. libstdc++-4.7 has a bug then.
+00:02 < chenwj> TNorthover: thanks! :)
+00:02 < jyasskin_> Efficiency bug too, since std::pair::swap() can only call std::swap, not any ADL-found swaps provided by its member types. Whee.
+00:02 < jyasskin_> libc++ does this right, from a quick look.
+00:03 < dgregor> jyasskin_: IIRC, we had to fix libc++ when we made this do the right thing in Clang
+00:03 < dgregor> jyasskin_: std::pair::swap should have "using std::swap;" and then call swap() unqualified, and that'll work fine
+00:03 < dgregor> but the noexcept clause has to go through a trait of some sort to get the right answer
+00:05 < jyasskin_> So "using std::swap" makes adl find non-std swaps despite the member function?
+00:05 < jyasskin_> C++ name lookup is so weird.

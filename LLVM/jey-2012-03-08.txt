@@ -1,0 +1,25 @@
+22:02 < chenwj> definitly off the topic, what "There are those of us who used Mathematica before we could grow facial hair" means?
+22:02 < chenwj> I am reading http://julialang.org/blog/2012/02/why-we-created-julia/
+22:05 <@baldrick> chenwj: I guess it means that there are no women on their team
+22:05 < Nikola> baldrick: lol
+22:05 < chenwj> There are those who still can’t grow facial hair <-
+22:06 < chenwj> does it?
+22:08 < jey_> chenwj: it means they used Mathematica when they were young
+22:08 < jey_> chenwj: before they could grow a beard!
+22:08 < chenwj> I see!
+22:08 < jey_> baldrick: can I PM you something quickly?
+22:08 < chenwj> "C is our desert island programming language" <- means C is terrible?
+22:09 < jey_> chenwj: means if they were on a desert island, they would use C
+22:09 < jey_> chenwj: so means C is good!
+22:09 < chenwj> really?
+22:09 < nbjoerg> well, flexible
+22:09 < jey_> because they'd pick it over everything else
+22:09 <@baldrick> jey_: I would like to answer you but unfortunately I don't know what PM is :)
+22:09 < jey_> baldrick: private message
+22:10 <@baldrick> jey_: why private?  Is it something shocking? :-D
+22:10 < jey_> yes.. kinda!
+22:10  * chapuni64 suspects kinda marriage proposal
+22:11 < chenwj> oops
+22:11 < jey_> chapuni64: how did you know! hehe
+22:12 < chenwj> jey_: so, you're not joking, right? They mean C is their most favorite lang?
+22:12 < jey_> chenwj: something like that.

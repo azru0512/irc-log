@@ -1,0 +1,12 @@
+19:30 < chenwj> is it possible to measure how much time QEMU spend on IO emulation?
+19:34 < pm215> you might be able to get some plausible results with the aid of a profiler, since the IO emulation is basically all C code
+19:35 < chenwj> like gprof?
+19:36 < pm215> gprof's pretty old these days
+19:37 < chenwj> that's reasonable. for CPU stuff, we cannot use usual profiling way since the execution is in the code cache not function calls
+19:39 < chenwj> any idea on what C functions I should look into?
+19:41 < pm215> not offhand. you basically want to identify the point in the slowpath that corresponds to 'we need to do an IO emulation call', and then try
+               to capture time spent in that and all of its callees
+19:42 < pm215> easiest way to do this might be to do a run under callgrind and then starting at something that's definitely a device work up the call-graph
+               representation until you find something plausible to use as a start point
+19:42 < chenwj> is there only IO thread in QEMU?
+19:42 < chenwj> stefanha: ^^^

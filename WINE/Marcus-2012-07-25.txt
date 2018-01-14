@@ -1,0 +1,30 @@
+16:51 < chenwj> when I run `wine64 notepad.exe`, the execution flow is "wine64 -> wine64_preloader -> wine64 -> notepad.exe"?
+16:57 <@_Marcus_> basically yes
+16:57 <@_Marcus_> wine64 loads notepad.exe into itself
+16:57 <@_Marcus_> and renames itself to "notepad.exe"
+16:58 < chenwj> ok, so the main function in loader/main.c will be executed twice?
+16:59 < chenwj> first one is the first wine64 above. the second one is after wine64_preloader, back to wine64
+17:00 < chenwj> because I see wine64_preloader call _start, then wld_start
+17:01 < chenwj> seems wld_start will load wine64 and elf interpreter
+17:01 < chenwj> not sure I am reading it right...
+17:05 <@_Marcus_> the "preloader" is our dynamic loader actually, which will load wine64 and start it
+17:10 < chenwj> then is "wine64 -> wine64_preloader -> wine64" correct? I am a bit confused by the wine64 show twice
+17:11 <@_Marcus_> wine64 ... execs wine64_preloader, which loads wine64 ... its all the same process inside
+17:14 < chenwj> ok, after wld_start, it load wine64 *again* and execute wine64 main function, is that right?
+17:14 <@_Marcus_> yes.
+17:14 < chenwj> wow
+17:14 <@_Marcus_> (not exactly on the details, but i suspect so ;)
+17:15 < chenwj> very very interesting
+17:15 <@_Marcus_> it sets WINELOADERNOEXEC=1   to notify it on the second call it should not do the reexec
+17:15 <@_Marcus_> its basically a trick to get the right address layout
+17:15 < chenwj> wine64_preloader sets WINELOADERNOEXEC=1?
+17:15 <@_Marcus_> loader/main.c::main()
+17:16 < chenwj> _Marcus_: ya, thanks
+17:16 < chenwj> pretty cool
+17:17 < chenwj> I read some old wine document, it mention there is wine-kthread or something
+17:18 < chenwj> but I don't see it right now, does wine-kthread be merged into somewhere?
+17:21  * chenwj afk
+17:21 <@_Marcus_> this -thread subspecifics were onbsoletes
+17:21 <@_Marcus_> obsoleted
+17:24 < chenwj> so not used anymore, it's gone?
+17:36 <@_Marcus_> yes

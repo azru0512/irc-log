@@ -1,0 +1,80 @@
+17:00 < stefanha> harshpb: I have replied
+17:01 < harshpb> stefanha, yeh i see, thanks, just one last question
+17:01 < harshpb> when we have a local struct, and use it for byte-by-byte reading/writing, how do we know if any padding was involved ?
+17:03 < stefanha> harshpb: There are two things: padding between fields of a struct and alignment of the start of the struct.
+17:03 < harshpb> though I have kept members in decreasing size order, still last 2 args are 4 byte (size, reserved)
+17:03 < harshpb> stefanha, i am worried about padding between fields
+17:03 < harshpb> isnt it possible for last 2 4-byte members to take 8 byte each ?
+17:04 < stefanha> harshpb: If you want to be explicit about packing you can use __attribute__((packed))
+17:05 < stefanha> The host's ABI defines how primitives types need to be aligned -> what padding you get in structs.
+17:05 < stefanha> On all host platforms that I know you will never have an issue here.
+17:05 < stefanha> Because it's weird for a type to require more alignment than its size.
+17:05 < stefanha> uint32_t == 4 bytes, why would it need to be aligned to 8 bytes?
+17:06 < stefanha> So either you can leave it or if you want to be 100% sure you can use __attribute__((packed))
+17:06 < harshpb> ok, i wasnt clear, i had an understanding that the largest size member can influence alignment of other members too,
+17:07 < harshpb> but i recall, its only when largest member is placed after shorter sized members.
+17:07 < stefanha> It isn't affecting their alignment,
+17:07 < stefanha> it's simply:
+17:07 < stefanha> uint32_t a;
+17:07 < stefanha> uint64_t b;
+17:08 < stefanha> If the ABI says uint64_t must be 8-byte aligned, then you will need 4 bytes padding after a.
+17:08 < harshpb> yes, i meant that.
+17:08 < stefanha> b is not influencing a.  a can always be 4-byte aligne.d
+17:09 < harshpb> ok, yes, but if we had struct that way, it would not work writing records byte-by-byte on global buffer ..
+17:10 < harshpb> anyway, thanks, will send updated patches in a while ..
+17:10 < stefanha> harshpb: Yes, if you mix packed (byte array) and host ABI padded (struct) layouts, then there can be trouble.
+17:10 < stefanha> ok
+17:12 < pm215> __attribute__((packed)): I think this should never be used in QEMU outside of the definition of QEMU_PACKED
+17:15 < stefanha> pm215: good point, QEMU has a macro that can be used instead.
+17:16 < pm215> in particular if you don't use the macro you'll probably break win32
+17:18 < pm215> somebody has just pointed out to me that the github mirror of qemu is now 8 months out of date
+17:18 < pm215> maybe we should just remove the link to it from the wiki...
+17:19 < chenwj> I think there is only one updated git repo now? -> git://git.qemu.org/qemu.git
+17:20 < pm215> yes, that's the master one. periodically somebody creates a mirror on github or sourceforge or whereever, and then it stops syncing and we
+               end up with an out of date mirror which is worse than useless
+17:21 < chenwj> pm215: either the creator should update those mirror, or we just remove them from the wiki
+17:23 < chenwj> stefanha: about IO, what position the main thread (vl.c) is? Does it do select in a while loop to see if the worker threads complete the IO?
+17:23 < chenwj> or the main thread itself also does IO?
+17:26 < stefanha> chenwj: If a thread does blocking I/O then it cannot do anything else until the operation completes.
+17:27 < stefanha> chenwj: So the event loop should not do blocking operations.
+17:27 < stefanha> It can either use aio APIs or it can hand it to a worker thread.
+17:27 < stefanha> The event loop does select(2), which means file descriptor read/write handlers, timers, and BHs.
+17:29 < chenwj> aio API is aio_thread, and worker thread is vnc_worker_thread for example?
+17:31  * chenwj afk
+17:36 < stefanha> chenwj: There are a bunch of asynchronous APIs available that work nicely with select(2)/qemu_set_fd_handler().  For example the VNC
+                  server uses non-blocking sockets.
+20:33 < chenwj> stefanha: so if there is some fd is ready, qemu_iohandler_poll (main-loop.c) will invoke corresponding callback?
+20:36 < stefanha> chenwj: If that fd has been registered with qemu_set_fd_handler()
+20:37 < chenwj> the aio api you mentioned, I think they are all in qemu-aio.h/aio.c?
+20:39 < stefanha> chenwj: Yes, the file descriptor related functions are in qemu-aio.h.
+20:51 < chenwj> and the second way to do IO is leaving it to a worker thread. you mentioned posix-aio-compat.c is one example of worker thread, and said
+                QEMU will place aio request in a queue. Is what qemu_paio_submit (posix-aio-compat.c) doing? It seems qemu_paio_submit place the request
+                into request_list, then aio_thread dequeue request_list.
+20:52 < stefanha> Yes because there can be many worker threads,
+20:52 < stefanha> they take a work item off the queue and process it.
+20:54 < chenwj> ok, why there are two ways to do aio, one is aio api and the other is worker thread? I thought it should be only one way to do this ...
+20:57 < stefanha> chenwj: Because some host OS APIs are synchronous only,
+20:57 < stefanha> so to avoid blocking the current thread you perform the operation in a worker thread.
+20:58 < chenwj> wait a minute. if we use aio api, then it's main thread (event loop) does the job?
+21:00 < stefanha> chenwj: Well take a look at non-blocking sockets or Linux AIO
+21:01 < stefanha> You'll see that these APIs allow the application to continue doing work while the I/O happens.
+21:01 < stefanha> (there are different ways of implementing an aio API so there's not really one answer)
+21:03 < chenwj> mind point me which file I should look?
+21:04 < stefanha> chenwj: Search the web or read man pages
+21:04 < chenwj> ok
+21:04 < stefanha> It's not necessarily in QEMU code,
+21:04 < chenwj> hmmm...
+21:04 < stefanha> I'm just trying to show that there are different ways to provide an async API that applications can use without blocking their thread.
+21:04 < chenwj> I see
+21:05 < stefanha> Non-blocking sockets work by returning -EAGAIN if no data is available.  This is usually combined with select(2) to find out when more
+                  data has been received.
+21:05 < stefanha> Linux AIO is different, you ask the kernel to perform some I/O for you.  It takes care of it and ideally doesn't block your thread.
+21:07 < chenwj> linux-aio.c <-
+21:08 < stefanha> chenwj: Yes, that's where QEMU uses the Linux AIO API.
+21:08 < chenwj> good :)
+21:12 < chenwj> don't know if you're familiar with tcg part. in qemu_tcg_cpu_thread_fn (cpus.c) which is executed by vcpu thread, there is a while loop
+21:12 < chenwj> while (1) {
+21:12 < chenwj>   tcg_exec_all();
+21:12 < chenwj>   qemu_tcg_wait_io_event();
+21:12 < chenwj> }
+21:13 < chenwj> does qemu_tcg_wait_io_event wait for some IO be done?

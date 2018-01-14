@@ -1,0 +1,18 @@
+20:06 < chenwj> any arm board support by qemu has enough ram to run spec cpu?
+20:06 < pm215> I dunno, how much ram does spec need?
+20:07 < chenwj> at least 1G, I guess
+20:08 < pm215> the qemu arm board with the largest max memory size is vexpress-a15, at 2GB
+20:09 < chenwj> I hate to ask this, are you talking about qemu 1.0?
+20:09 < pm215> yes
+20:09 < chenwj> our project still use 0.13 :/
+20:09 < pm215> I strongly advise against using anything less than 0.15 at the earliest for ARM qemu work
+20:10 < chenwj> pm215: not my decision
+20:11 < chenwj> my colleague think 0.13 works fine, and don't want to move their work to new verison qemu
+20:12 < pm215> anything you do on 0.13 is basically useless to the rest of the world IMHO
+20:12 < chenwj> pm215: work for them is enough
+20:13 < pm215> you might be able to get 1GB of RAM in the realview-pb-a8 and realview-pbx-a9 models
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+20:13 < chenwj> yap, that's what I am trying to do
+20:14 < chenwj> how about ARM11MPCore?
+20:14 < pm215> on 0.13 you're going to be weirdly limited because you can't usefully compile code targeting neon, for instance
+20:14 < pm215> realview-eb-mpcore is only 256MB I think

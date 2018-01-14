@@ -1,0 +1,36 @@
+21:24 < chenwj> does any application have self-modifying code?
+21:25 < pm215> qemu does :-)
+21:25 < chenwj> besides qemu?
+21:25 < pm215> firefox
+21:26 < pm215> valgrind
+21:26 < chenwj> really?
+21:26 < pm215> javascript engine
+21:26 < chenwj> you mean the javascript engine in firefox?
+21:27 < pm215> yes
+21:27 < chenwj> btw, can I ran a qemu on another qemu?
+21:28 < chenwj> I tried, but it's failed
+21:28 < pm215> it should in theory be possible. in practice there might be bugs
+21:28 < pm215> you're probably more likely to have success with qemu in a system-emulation qemu
+21:28 < chenwj> qemu (user mode) in a system-emulation qemu, right?
+21:29 < pm215> yes. or system-emu in system-emu.
+21:29 < chenwj> don't know if anyone try it before
+21:33 < chenwj> javascript engine like JIT, so it's kind of self-modifying code, right?
+21:33 < agraf_> yes
+21:33 < agraf_> java too
+21:33 < agraf_> and mono
+21:33 < agraf_> the linux kernel too
+21:34 < pm215> firefox under user-mode qemu worked (more or less) last time I tried it
+21:36 < chenwj> I am working on a modified qemu which has the original code cache for basic block and a code cache for trace (a lot of basic blocks)
+21:36 < chenwj> I have to find a way to handle self-modifying code properly
+21:38 < pm215> can't you just flush your trace cache everywhere we flush the code cache?
+21:38 < pm215> or is the problem identifying which bits of trace cache correspond to flushes for particular areas of memory?
+21:39 < chenwj> if we find a trace begin with a basic block, we link the block to the trace
+21:40 < chenwj> so when qemu jump to that block, it jump to the trace
+21:41 < chenwj> block unchaining is handled by qemu, and I have to break the link between block and trace
+21:42 < chenwj> so I have to find all entry points handle self-modifying code
+21:44 < chenwj> and test if my approach work on applications have self-modifying code
+21:45 < chenwj> that's why I ask if there is smc applicaton
+21:55 < chenwj> is it O.K. to post this kind of qeuestion on the ML?
+22:05 < pm215> yes
+22:06 < chenwj> I have to think how to describe my problem, then. :)
+22:07 < pm215> that would probably help :-)

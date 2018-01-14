@@ -1,0 +1,27 @@
+20:42 < chenwj> is it possible to debug a problematic codegen from the kernel panic message?
+20:43 < pm215> sometimes
+20:44 < pm215> if the panic is "we got an UNDEF exception in kernel mode" there's usually enough in the panic message to identify the instruction
+20:44 < pm215> if it's merely that something's gone wrong at some point and eventually you've hit the panic, that's harder...
+20:46 < chenwj> hmmmm... what I got is eip, registers' content, stack, call trace
+20:47 < chenwj> are they fit your first case?
+20:48 < pm215> you get that kind of thing for any panic. The question is "why did we panic", which is typically somewhere near the top
+20:49 < chenwj> need find a way to scoll tightvnc' screen up
+20:50 < soren_> vnc has no concept of scrolling.
+20:51 < soren_> It's like saying you want your monitor to scroll up. It hasn't a clue. It just shows you some pixels.
+20:56 < chenwj> soren_: "shift + pageup" will do
+20:56 < chenwj> pm215: something like "unable to handle kernel page request at virtual address xxx"?
+21:02 < pm215> yes. if you're vaguely familiar with kernel panic mesasges then you can put that together with the rest of the info to figure out what the
+               kernel was doing at the immediate point of the problem
+21:05 < chenwj> I guess qemu also put cross page constriant on "direct jump", right?
+21:07 < chenwj> currenly, the differences between no-panic and panic one might be the direct jump (I guess)
+22:20 < mjt> chenwj: shift+pageup is a guest feature not vnc. and in case of linux guest that works as long as no panic occured. if it occured linux
+             disables all interrupts including keyboard so anything you hit on keyboard has no effect whatsoever.
+22:20 < mjt> chenwj: the easiest way to see linux kernel panic message is to enable serial console
+22:21 < chenwj> mjt: i see
+22:35 < soren_> chenwj: Uh, no. shift+pageup tells Linux's console driver to scroll up. Not VNC. VNC hasn't a clue that it's scrolling anything.
+22:35 < soren_> chenwj: And if you're trying to scroll to see a more info in a kernel crash, it's probably not going to work.
+22:36 < mjt> soren: i just told him exactly that :)
+22:36 < soren> mjt: Oh. So you did :)
+22:37 < chenwj> mjt, soren thanks ;)
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+22:38 < soren> chenwj: np :)

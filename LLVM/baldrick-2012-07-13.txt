@@ -1,0 +1,38 @@
+16:48 < chenwj> baldrick: do postdominator pass had been removed?
+16:48 <@baldrick> chenwj: I think so, yes
+16:48 < chenwj> s/do/so
+16:49 <@baldrick> chenwj: chandlerc knows
+16:49 < chenwj> I'll send doc update patch
+16:49 < chenwj> chandlerc: ^^
+16:57 < chandlerc> ?
+16:58 <@baldrick> chandlerc: was the postdominator pass removed?
+16:59 < chenwj> is PostOrder Dominator Frontiers and postdominator the same thing?
+16:59 < nicholas> i think postdomtree is still around, but pdf is gone?
+16:59 < chenwj> If so, 3.0 release note confirm it's gone
+17:00 < chenwj> nicholas: so they are different thing?
+17:01 < chenwj> baldrick: lib/Analysis/PostDominators.cpp still exist in trunk
+17:02 < Jia> lib/Target/PTX is still there, anyone remove it?
+17:04 < chandlerc> post domtree is still around
+17:04 < chandlerc> and it won't likely go away, even though it isn't to be used in normal passes
+17:04 < chandlerc> that is, those destined for the real compilation pipeline
+17:04 < chandlerc> post dom *frontiers*, i don't know anything about
+17:05 < chandlerc> i would anticipate domfrontiers of all forms going awy
+17:26 < chandlerc> sort | uniq -c | sort -n is my friend
+17:48 < chandlerc> welll, there's your bug...
+17:51  * d0k hands chandlerc a fly swatter
+18:02 < chandlerc> d0k: so, LiveVariables walks all BBs in DF order
+18:02 < chandlerc> then for each BB it walks all instrs
+18:02 < chandlerc> then for each instr it walks each use of a register
+18:03 < chandlerc> then if the use is of a virtual register, it walks all preds of the BB recursively
+18:03 < chandlerc> OOPS
+18:03 < chandlerc> =[
+18:03 < d0k> :S
+18:03 < chandlerc> yea
+18:03 < chandlerc> whats the DFS number relationship for is_pred?
+18:04 < chandlerc> i almost always get thiswrong
+18:11 < chandlerc> bleh, this is annoying
+18:16 < chandlerc> ok, sleep time...
+18:16 < chenwj> anyone mind to commit this patch? http://lists.cs.uiuc.edu/pipermail/llvm-commits/Week-of-Mon-20120709/146389.html
+18:17 < chandlerc> chenwj: baldrick just did....
+18:17 < chenwj> baldrick: thanks
+18:18 < chenwj> chandlerc: thank you, too :)

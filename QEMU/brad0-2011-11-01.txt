@@ -1,0 +1,24 @@
+20:11 < chenwj> is glib2.0 not optional anymore?
+20:15 < brad0> not optional anymore.
+20:18 < chenwj> why?
+20:19 < chenwj> I see diable-user-agent doesn't need glib2.0 in QEMU 0.15
+20:19 < brad0> with 0.15 it was optional.
+20:19 < brad0> with HEAD code and what will be 1.0 its no longer optional.
+20:20 < chenwj> any reason why they decide glib2.0 is no longer optional?
+20:21 < brad0> with 0.15 it was only used a little bit by the agent code. with HEAD glib is use is more pervasive with QEMU.
+20:22 < chenwj> hmmm, on my linux/sparc there is no glib package
+20:22 < brad0> then you'll have to install it.
+20:22 < chenwj> I'll try
+20:22 < chenwj> thanks
+20:42 < stefanha> chenwj: All of QEMU uses g_malloc() now so it's not optional anymore
+20:42 < stefanha> glib provides a lot of portable, tested infrastructure which QEMU can take advantage of.
+20:42 < chenwj> ok
+20:46 < chenwj> how do I pass the path of glib I build while configuring QEMU?
+20:46 < chenwj> --extra-cflags or ?
+20:46 < stefanha> chenwj: Yes
+20:47 < stefanha> Why is glib not available in your normal compiler search paths?
+20:49 < chenwj> I am on a Linux/Sparc machine
+20:49 < chenwj> it's package does not have glib
+20:49 < chenwj> I have download the source and build it myself
+20:50 < malc> chenwj: if you are using gcc you can just set CPATH and LIBRARY_PATH environment variables
+20:57 < chenwj> seems there is a reason why the package doesn't have glib

@@ -1,0 +1,56 @@
+[17:10] <chenwj> corinna: could you help me to check my cygwin.cygport? http://tny.cz/36d1b50f
+[17:12] <corinna> chenwj, the name should be only "hidapi".  You're building the same package under the same name on both platforms
+[17:13] <corinna> otherwise, if you don't need anything special in the build or install phase, it looks ok
+[17:14] <corinna> on Fedora the package is split into hidapi and hidapi-devel
+[17:15] <chenwj> I once refer to http://sourceforge.net/p/cygwin-ports/libusb1.0/ci/master/tree/libusb1.0.cygport
+[17:15] <chenwj> what's the difference to user?
+[17:16] <corinna> hidapi contains the runtime only, hidapi-devel the headers and link libs
+[17:16] <corinna> user doesn't need hidapi-devel, only developer
+[17:16] <chenwj> see
+[17:17] <chenwj> I make both then :)
+[17:17] <corinna> cool
+[17:21] <yselkowitz> actually, it should be hidapi, libhidapi[N], and libhidapi-devel
+[17:26] <chenwj> corinna: http://tny.cz/80e28307 <--- looks good?
+[17:26] <chenwj> yselkowitz: o.0?
+[17:26] <yselkowitz> chenwj, no
+[17:27] <yselkowitz> PKG_NAMES="libhidapi0 libhidapi-devel"
+[17:27] <yselkowitz> libhidapi0_CONTENTS="usr/bin/cyghidapi-0.dll usr/share/doc/"
+[17:27] <yselkowitz> libhidapi_devel_CONTENTS="usr/include/ usr/lib/libhidapi.dll.a usr/lib/pkgconfig/"
+[17:27] <chenwj> should I change NAME? or just change PKG_NAMES?
+[17:28] <yselkowitz> not NAME
+[17:28] <chenwj> how about CATEGORY?
+[17:28] <yselkowitz> Libs
+[17:33] <corinna> hmm, right
+[17:33] <corinna> hidapi would only contain the sources then
+[17:34] <chenwj> do I need to make i686 and x86_64, just like what I did for mingw port?
+[17:34] <chenwj> or just one for cygwin?
+[17:34] <corinna> both
+[17:34] <corinna> you can't link 32 to 64 bit and vice versa
+[17:36] <chenwj> so how can I do that in one cygport?
+[17:44] <chenwj> maybe I can use TOOLCHAIN_TARGET="i686-pc-cygwin" ...
+[17:44] <yselkowitz> no
+[17:46] <chenwj> no?
+[17:46] <chenwj> I refer to this setup.hint
+[17:47] <chenwj> http://mirrors.mit.edu/cygwin/x86_64/release/cygwin32-pkg-config/
+[17:47] <yselkowitz> no
+[17:48] <corinna> chenwj, you just compile the package on 32 bit and on 64 bit and then you have two package sets from the same cygport file, one for 32 bit one for 64 bit
+[17:49] <chenwj> you mean I need install setup-x86.exe  and setup-x86_64.exe ?
+[17:49] <corinna> and the package sets have the same name and version, just as desired
+[17:49] <chenwj> to get two cygwin envrioment?
+[17:49] <corinna> for development and testing that makes sense
+[17:50] <chenwj> okay.
+[17:51] <corinna> When I build one of my packages like gawk or so, I build it in parallel in both environments from the same cygport file
+[17:51] <corinna> cygport will create distinct build directories so you can even run the build from the same dir
+[17:52] <corinna> it's pretty simple and convenient
+[17:53] <chenwj> from the same dir? I thought cygwin should have different dir for x86 and x86_64, say C:\cygwin and C:\cygwin64
+[17:53] <yselkowitz> exactly
+[17:54] <chenwj> run the build from the same dir <- I don't get the point then...
+[17:54] <corinna> mkdir -p /cygdrive/c/build/hidapi
+[17:55] <corinna> cd /cygdrive/c/build/hidapi
+[17:55] <corinna> vi hidapi.cygport
+[17:55] <chenwj> oh, that make sense :D
+[17:55] <corinna> cygport hidapi.cygport all
+[19:14] <chenwj> yselkowitz: should I also split mingw pkg into libhidapi0 and libhidapi-devel, too?
+[19:14] <yselkowitz> no
+[19:16] <chenwj> so only cygwin need to be split?
+[19:18] <yselkowitz> yes

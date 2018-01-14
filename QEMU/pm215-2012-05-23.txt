@@ -1,0 +1,35 @@
+21:33 < chenwj> any comment on this -> http://www.mail-archive.com/qemu-devel@nongnu.org/msg112750.html ?
+21:35 < aliguori> chenwj, you're testing with kvm or with tcg?
+21:35 < chenwj> with tcg
+21:35 < aliguori> i don't know of a reliable time source when using tcg unfortunately
+21:37 < chenwj> I read http://lists.gnu.org/archive/html/qemu-devel/2007-04/msg00394.html and found similar conclusion
+21:40 < chenwj> should I use `time` or `ssh date` in the guest vm to measure the timing? or it just complete meaningless to do the measuring?
+21:41 < pm215_> if this is arm you might be able to use the SYS_CLOCK or SYS_TIME semihosting commands to get host time
+21:42 < chenwj> pm215_: I think you can on a arm host? or guest?
+21:42 < pm215_> arm gues
+21:42 < chenwj> s/can/mean
+21:44 < chenwj> the coremu guys told me rdtsc has the same effect
+21:44 < pm215_> yes, but your arm guest isn't able to execute rdtsc...
+21:45 < chenwj> they say rdtsc instruction emulation call rdtsc on the host machine directly
+21:45 < pm215_> ...and ARM doesn't have an RDTSC instruction
+21:46 < chenwj> ya, I mean SYS_CLOCK emulation call whatever instruction on the host directly, so that it can get hos real time
+21:47 < pm215_> SYS_CLOCK returns the result of calling the host clock() libc function. SYS_TIME returns results from time(). Neither has anything to do
+                with rdtsc
+21:47 < chenwj> I see
+21:58 < chenwj> what makes time measuring so hard in qemu system mode?
+21:59 < chenwj> at least from the answer I got, it seems not so trivial
+21:59 < aliguori> measuring time is hard
+21:59 < aliguori> in general
+22:00 < armbru> afaerber, object_property_add_child() is in master, even.  I can link/child *objects* together just like I want them: I want to *link* from
+                qdev isa-fdc to *qdev* fdd, and set up things with -device.  does that work already?
+22:00 < aliguori> a modern computer is not a single system, it's a bunch of independent entities that communicate with each other.  many need fast access to
+                  very precise time and building very precise, fast-to-access, synchronized time sources is extremely hard
+22:01 < armbru> if not -device, then something else command line, monitor, qmp, I'm not picky :)
+22:01 < chenwj> aliguori: uh, in general means in qemu system mode or even on a host os?
+22:02 < aliguori> chenwj, yes
+22:02 < aliguori> afaerber, it doesn't look like you've picked up paolo's series yet in qom-next
+22:02 < aliguori> armbru, that is what you need (paolo's Push, push series)
+22:02 < chenwj> aliguori: I suppose you mean both? :)
+22:02 < aliguori> chenwj, yes, it's hard in both
+22:03 < aliguori> it's hard in the host os, and then virtualization/emulation adds an additional layer of complexity
+22:03 < chenwj> so how people measure the performance of a vm?

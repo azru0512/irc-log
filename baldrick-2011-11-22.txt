@@ -1,0 +1,13 @@
+19:30 < chenwj> baldrick: hi!
+19:30 <@baldrick> yo chenwj!
+19:30 < chenwj> XD
+19:30 <@baldrick> chenwj: did your trip back go OK?
+19:30 < chenwj> yup
+19:31 < chenwj> but it's a loooong trip
+19:31 < chenwj> takes 1x hours on the plane
+19:32 <@baldrick> chenwj: my trip back was long too - I started to have dark thoughts about the LLVM meeting, wondering if it was worth it, after about 10
+                  hours :)
+19:33 < chenwj> really?
+19:33 < chenwj> I think it's worth for me, at least I see you face to face. XD
+19:34 <@baldrick> :)
+19:35 <@baldrick> yes, it's great to be able to put faces to names

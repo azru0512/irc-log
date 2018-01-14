@@ -1,0 +1,83 @@
+22:32 < chenwj> when windows app call CreateProcess, how wineserver implement it? by using fork?
+22:34 < vpovirk> wineserver's role in the process is mostly just to store the STARTUPINFO as I understand it
+22:34 < vpovirk> the calling process forks the new one
+22:40 < chenwj> vpovirk: ^^ the calling process? which means the windows app call CreateProcess?
+22:41 < vpovirk> yes
+22:42 < chenwj> I thought wineserver does the job, seems I am wrong
+22:44 < chenwj> how about CreatFile or other windows API call? does also the calling process do the real job?
+00:52 <@_Marcus_> chenwj: createfile ... mostly done by the process itself, but as it has name/object management, the wineserver is involved (and it also
+                  keeps the fd)
+00:55 <@_Marcus_> chenwj: wineserver manages things that need to be at global state, stuff that processes can share or query from each other
+01:05 < chenwj> _Marcus_: I need read more code... but I thought CreateFile eventually makes open (2) call to get fd, is that right?
+01:07 <@_Marcus_> somewhere very deep into it, yes
+01:10 < chenwj> ok, then what role the wineserver plays here? it doesn't make open(2) call... or (just guess) the calling process hand the fd it got to the
+                wineserver?
+02:33 < Andre_H> stefand: ich bekomm dann:
+02:33 < Andre_H> fixme:d3d:wined3d_guess_card No card selector available for GL vendor 0x4 and card vendor 0000 (using GL_RENDERER "Gallium 0.4 on llvmpipe
+                 (LLVM 0x300)").
+02:33 < Andre_H> LLVM ERROR: Not supported instr: %R0<def> = LEApcrel <cp#1>, pred:14, pred:%noreg
+02:37 < chenwj> wine use llvm?
+02:43 < stefand> Andre_H: the first one is harmless
+02:43 < stefand> it only matters if a game doesn't like our fallback GPU. And since they don't run on your CPU to begin with that doesn't matter
+02:43 < stefand> the 2nd one I guess means that llvmpipe doesn't work on arm
+02:43 < Andre_H> damn
+02:43 < stefand> file a bug and/or try softpipe
+02:43 < Andre_H> softpipe?
+02:44 < stefand> a slower software renderer, not aimed at producing playable framerates
+02:44 < Andre_H> NOTE: that mesa llvm stuff is a blackbox to me, or even better it's black magic
+02:44 < stefand> (the goal of llvm is to have a software renderer that runs low-quality graphics at playable framerates)
+02:44 < stefand> there's a simple environment variable I think. I'll look it up
+02:44 < kevlarman> stefand: and llvmpip is? :P
+02:45 < stefand> kevlarman: er, llvmpipe
+02:45 < stefand> well, llvmpipe runs tuxracer at 800x600 at I think 40 fps on my core 2 duo
+02:45 < kevlarman> stefand: even an i7 should fall flat on its face in the presence of the most trivial fragment shader
+02:45 < stefand> maybe
+02:46 < stefand> I guess it can run 3D desktops though
+02:46 < kevlarman> stefand: even better, it runs idtech3 at 1024x768 at 30 fps on my old core2duo
+02:48 < stefand> Andre_H: try LIBGL_ALWAYS_SOFTWARE=1
+02:48 < stefand> even better: GALLIUM_DRIVER=softpipe
+02:54 < Andre_H> GALLIUM_DRIVER=softpipe seems to work like a charm, thank you!
+02:54 < Andre_H> i'll rerun the testsuite later
+03:01 < stefand> Andre_H: nice :-)
+03:01 < austin_laptop> chenwj, in what way? it can be compiled with clang/llvm, if that's what you mean
+03:01 < austin_laptop> chenwj, though Andre_H / stefand are referring to mesa on arm, for use by wine(d3d)
+03:04 < ehoover> julliard: Is there something you'd like done differently with wine-patches 88354 and 88355?
+03:04 <@julliard> there's lot of ugliness in there
+03:11 < ehoover> Hmm, I actually thought I was doing a pretty good job of making that clean...  The second one I could make a structure so that a non-const
+                 copy of the string can hang around, but I'm not sure what you'd like differently in the first one - merging two HH_WINTYPE structures is a
+                 bit of a pain.
+03:45 < Andre_H> guys, maybe i'm braindead right now, but the C shift operators (<< and >>) are shifting, not rotating right?
+03:50 < ehoover> Andre_H: depends on the compiler
+03:53 < Mystral> well, no, it is defined as a shift, not a rotation
+03:53 < KittyCat> I don't think I've ever run into a case where they're rotating
+03:53 < KittyCat> GCC will complain if you try to shift a 32-bit integer by 32 bits or more in either direction
+03:54 < Mystral> shifting by a negative amount or right shifting a negative number is undefined, but other than that
+03:54 < Mystral> and what KittyCat says
+03:56 < KittyCat> right-shifting a negative number is defined well-enough, I think. though technically undefined, Windows relies on shifting to
+                  retain/expand the sign bit for signed integers
+03:57 < KittyCat> as far as I know
+03:57 < Andre_H> KittyCat: didn't see GCC complaining, but at least you're confirming my theory more or less. See this one:
+                 http://source.winehq.org/patches/data/88454
+03:58 < KittyCat> is HighPart signed or unsigned?
+03:59 < kevlarman> Andre_H: most likely it's sign extension
+03:59 < KittyCat> if it's signed, then the original code works to give the state of the sign bit
+03:59 < kevlarman> Andre_H: i believe that's up to the compiler whether it sign extends on >>
+03:59 < Mystral> I think that's actually implementation dependant, but yeah, that's the "usual" behavior
+03:59 < KittyCat> Andre_H, though your change does make some sense, too
+04:00 < KittyCat> but I'm not really familiar with that bit of code
+04:00 < Andre_H> kevlarman: HighPart is LONG (LowPart is DWORD), so what has sign extension to do with shifting a 32-bit one by 35?
+04:01 < kevlarman> you'd get -1 with sign extention
+04:01 < Mystral> yeah, that's a bad idea in any case
+04:02 < kevlarman> i%32 makes the most sense to me
+04:02 < kevlarman> i-32 looks really iffy
+04:03 < KittyCat> I'd prefer (i-32). it's clear that it's offsetting the index by 32, to account for reading HighPart over LowPart
+04:03 < Andre_H> i-32 is faster to read, i thought about 1 seconds when reading i%32, but maybe only some milliseconds for i-32
+04:04 < Andre_H> i should benchmark myself ;)
+04:04 < KittyCat> i%32 is also marginally slower, since it needs a division
+04:04 < KittyCat> i&31 would be faster than i%32
+04:07 < Andre_H> code should be readable, the compiler should optimise
+04:10 < Andre_H> Ruslan just mailed a good explanation to wine-devel
+04:34 <@_Marcus_> chenwj: wineserver manages the filedescriptor ... and the "name" of the file object basically
+05:18 <@stringfellow> depends on the hardware are well, though I suppose the compiler could go out of its way to force a certain behaviour if it really
+                      wanted to
+10:29 < chenwj> austin_laptop: someone use clang/llvm to cross compile, others might use llvm jit ;)

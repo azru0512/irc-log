@@ -1,0 +1,29 @@
+15:05 < chenwj> I see a lot of stub in dlls/ntdll/ntdll.spec, does it mean those function are not implemented?
+15:06 < nsivov> yes
+15:07 < chenwj> hmmm... this implies windows app usually don't use this kind of function?
+15:09 < nsivov> I think average windows application doesn't use ntdll directly at all
+15:09 < nsivov> some do of course
+15:14 < chenwj> does unix has something simliar to windows lpc (local procedure call)?
+15:18 < Jhime> sounds a lot like a unix domain socket
+15:41 < chenwj> when doing api emulation, does wine do any optimiztion or trick to speed up performance?
+15:41 < Gentle> that question is weird
+15:41 < ohsix> wine isn't an emulator
+15:41 < Gentle> "no, wine tries desperately to slow down things wherever possible"?
+15:42 < ohsix> and many funtions are stubs, which would do less than the real thing, but that's not always acceptable to the application, there aren't
+               really many places where you can do tricks as i think you mean
+15:42 < ohsix> because where there are, windows would do them to
+15:42 < chenwj> hrm, I think I use the wrong term, let me say implementing WinAPI?
+15:44 < Gentle> do you have any specific questions? As mentioned before, "does X do any optimizations" is not making much sense
+15:49 < chenwj> I think ohsix somewhat answer my question. iiuc, wine implement lots of functions in kernel.dll ntdll.dll. and whemever possible, wine only
+                implement upper function if it doen't change the functionality from applicaiton pov
+15:50 < Gentle> no, that's not the reason
+15:50 < chenwj> ?
+15:51 < Gentle> there is no specification you could follow, so in the beginning, everything is a stub, and you implement those functions where it crashed
+                until it doesn't crash anymore, and you repeat that for every program or crash you encounter
+15:51 < Gentle> the stubs are not to speed up stuff, they are there because, most of the time, nobody knows exactly what this function should do
+15:52 < chenwj> beacuse it's undoumented?
+15:53 < Gentle> some are entirely undocumented, for the rest there is only a "this function takes X and returns Y" specification
+15:54 < chenwj> ohsix: so I musunderstand what you said? :)
+15:54 < Gentle> ohsix: and please correct me if anything is not correct, I don't want to spread half-wrong information
+15:55 < Gentle> I think what he said was that technically, all those stubs might make wine faster than windows in some parts, but that comes with the price
+                of simply not doing the right thing there

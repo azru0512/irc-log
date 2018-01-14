@@ -1,0 +1,77 @@
+17:26 < zwu> chenwj: why do you search qemu?
+17:27 < chenwj> zwu: ?
+17:27 < zwu> chenwj: sorry, s/search/research/g
+17:28 < chenwj> zwu: you can see qemu ml to get a little taste :)
+17:28 < zwu> chenwj: it can save a lot of time if you can tell me directly:)
+17:29 < zwu> chenwj: llvm?
+17:30 < chenwj> zwu: http://www.mail-archive.com/qemu-devel@nongnu.org/msg116404.html
+17:34 < zwu> chenwj: It seems that you are playing with arm
+17:35 < chenwj> ya
+17:35 < chenwj> current;y
+17:37 < zwu> why to play with arm guest OS on x86 host?
+17:37 < zwu> I thought that you want to do some works about KVM on arm.
+17:38 < chenwj> playing kvm on arm should have virtualization support arm board, right?
+17:39 < zwu> Yeah
+17:41 < ldesnogu> chenwj: did you try YeongKyoon Lee patch to see the speed improvements for the fast path load/store?
+17:41 < ldesnogu> I'm disappointed no one on the list gave it a try
+17:41 < chenwj> ldesnogu: I only see the cover letter
+17:41 < chenwj> ldesnogu: who are you? :)
+17:42 < Jia> who is him?
+17:42 < ldesnogu> I'm working in a CPU design team at ARM and used QEMU to help design ARMv8 and do functional benchmarking
+17:43 < chenwj> ldesnogu: I see
+17:44 < chenwj> as I said, I only see YeongKyoon's cover letter
+17:44 < zwu> ldesnogu: which ARM version has virtualization support?
+17:44 < ldesnogu> zwu: Cortex-A7 and Cortex-A15
+17:44 < zwu> ldesnogu: ok, thanks
+17:46 < ldesnogu> chenwj: indeed... I still have the patches in my mailbox, I'll see if I can find some mailing list archive that still has them
+17:47 < chenwj> cool
+17:47 < chenwj> ldesnogu: any comment on http://www.mail-archive.com/qemu-devel@nongnu.org/msg116404.html ? :)
+17:49 < ldesnogu> http://lists.nongnu.org/archive/html/qemu-devel/2012-01/msg00026.html
+17:50 < ldesnogu> chenwj: I don't know anything about the way KVM works
+17:50 < ldesnogu> but I have a hard time believing you could use x86 MMU to help with memory translation
+17:51 < chenwj> ha
+17:51 < ldesnogu> unless you mean you'd first translate by hand the PTE and then somehow feed them into the x86 MMU hardware
+17:51 < ldesnogu> is that what you want to do?
+17:52 < chenwj> we are still studying if using hw mmu can be used to help cross ISA memory translation
+17:53 < chenwj> you say first lookup guest page table, get gpa, then feed gpa -> hpa into x86 ept?
+17:54 < zwu> chenwj: It seems that you recently try to get help from Xiao?
+17:54 < chenwj> Xiao Guangrong? ya, he is kvm mmu expert
+17:54 < chenwj> hope I don't disrupt him too much
+17:54 < zwu> chenwj: i saw your mail
+17:54 < zwu> :)
+17:55 < ldesnogu> Cheng: yes:  simulate the guest page table walk and then create appropriate host entry
+17:55 < chenwj> didn't he only cc to weiyang?
+17:56 < chenwj> ldesnogu: ok, I know you're talking to me
+17:56 < ldesnogu> oops sorry :)
+17:56 < ldesnogu> I'm not sure that approach would easily work
+17:57 < zwu> chenwj: This is a secret.:)
+17:57 < ldesnogu> you'd either have to recompute all the entries in case there's a TLB flush on the guest
+17:57 < ldesnogu> or clear all your host entries, let the host abort and readd them one by one
+17:58 < chenwj> if it's a easy work, then it already done by others ;)
+18:02 < ldesnogu> I am more concerned about the potential speed up
+18:03 < ldesnogu> it's not obvious you'd get any depending on how the guest OS behaves
+18:03 < ldesnogu> that's why I think speeding up the existing code is an interesting thing to check first
+18:03 < chenwj> I saw arm page table walking is quite easy
+18:04 < chenwj> that's why I said I worry about we cannot get much sppedup in the mail
+18:04 < ldesnogu> you won't be doing many PTW given the TLB hit rate
+18:05 < chenwj> PTW ?
+18:06 < ldesnogu> page table walk
+18:08 < chenwj> that implies?
+18:09 < ldesnogu> a page table walk occurs only if you miss in QEMU TLB
+18:09 < ldesnogu> and given that you don't miss that much, improving the speed of that PTW won't bring a significant speedup
+18:12 < chenwj> ok... that's not a good news
+18:13 < chenwj> then any idea on why system mode is roughly 2x slower than user mode?
+18:16 < ldesnogu> because that fast path (TLB hit rate) is slow
+18:16 < ldesnogu> and that's why I pointed you to the patch posted lasted Jan
+18:18 < chenwj> I remember we can also avoid save CPUState if TLB hit
+18:18 < chenwj> not always save CPUState from the very beginning
+18:20 < ldesnogu> yes
+18:20 < ldesnogu> that'd go beyond the posted patch
+18:20 < ldesnogu> but that would be an interesting thing to do
+18:20 < chenwj> anyone work on that?
+18:20 < ldesnogu> I don't think so
+18:20 < ldesnogu> or it's not public :)
+18:21 < chenwj> wowo
+18:21 < ldesnogu> perhaps try to get in touch with YeongKyoon Lee
+18:21 < chenwj> sure
+18:22 < chenwj> ldesnogu: have to eat. ;)

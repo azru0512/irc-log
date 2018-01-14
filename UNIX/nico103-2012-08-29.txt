@@ -1,0 +1,18 @@
+10:49 < chenwj_> anyone here would like to help me understand linux /dev/mem?
+11:11 < DucBlangis> chenwj_ what about it?
+11:12 < DucBlangis> generally provides access to the system's physical memory.
+11:12 < chenwj_> when I do this,
+11:12 < chenwj_> unsigned char *map_base = mmap(NULL, 0xff, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0x20000); // fd is /dev/mem
+11:12 < chenwj_> it means I can write phys addr 0x20000 - 0x200ff through map_base, right?
+11:14 < DucBlangis> yea
+11:14 < DucBlangis> just so you know there is also a bash channel that is pretty active
+11:14 < DucBlangis> are you trying to cleanup?
+11:15 < chenwj_> no, I am trying to read/write phys mem through /dev/mem. What's bash channel?
+11:19 < DucBlangis> it is #bash
+11:23 < eightyeight> that looks like C to me
+11:23 < eightyeight> chenwj_: i think you would be better server with ##C here on freenode
+11:24 < chenwj_> ok
+12:24 < nico103> chenwj_: yes
+12:25 < nico103> so to address 0x20001 you'd add one to map_base and dereference: *((char *)map_base + 1)
+13:06 < brianpWins> eightyeight, Snader_LB: got nginx upgraded it solved my long response issue !
+14:08 < chenwj_> nico103: thanks

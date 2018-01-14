@@ -1,0 +1,81 @@
+21:25  * zwu qcow2 code is too awe-inspiring; Does anyone have some stuff about its internal?
+21:26 < swiftos> Hi, i've added a default config for armeb-softmmu, compile and it's ok. But if I try qemu-system-armeb with a board it's doing strange
+                 things and crash. Can someone help me to understand which part is endianess dependent in a board ?
+21:28 < stefanha> zwu: There are a couple of concepts in the file format (header, L1/L2 tables, refcount blocks, snapshots, extensions) and a couple of
+                  concepts in the implementation (request metadata struct, cache, coroutines/waiting on other requests) that are important to understand.
+21:28 < stefanha> zwu: It's best to ask specific questions if something is unclear
+21:28 < pm215> swiftos: all the boards we currently have are little endian. in theory you could run one in an armeb-softmmu setup but you'd need to write
+               some system software which could cope with that
+21:28 < pm215> (also probably the devices don't correctly mark themselves as little-endian so you'd get something weird anyway)
+21:30 < kwolf> zwu: Anything specific you're stuck with?
+21:31 < zwu> stefanha: Yeah, before read the code, i leant qcow2 spec again recently, but when i read the code today, i found that i can not understand some
+             places in the code.
+21:31 < stefanha> Speaking of image formats, I'm just reviewing Dong Xu Wang's v8 add-cow patches
+21:31 < stefanha> Other reviewers welcome :)
+21:32 < stefanha> zwu: Which place in the code?
+21:32 < zwu> kwolf: Yeah, a lot of anything:), i will send one mail to you and stefanha for consulting:)
+21:32 < swiftos> pm215: do you mean by little endian board all hardware related code like interrupt,adress ?
+21:33 < stefanha> zwu: Do you think it would be helpful to have documentation about the file format concepts (header, L1/L2 tables, refcount blocks,
+                  snapshots, extensions)?
+21:33 < kwolf> stefanha: I'm planning to review it, but the qcow2 corruption has priority
+21:33 < zwu> stefanha: a lot of places in the code. i have log them in one doc. after i completed reading, i will send them to you:)
+21:33 < stefanha> When looking at qcow2 you shouldn't be reading the code to learn how the file format works.
+21:33 < stefanha> It's best if you already understand how it needs to work
+21:33 < stefanha> and the code just shows you how it's implemented.
+21:34 < zwu> stefanha: i think that i can understand those concepts...
+21:35 < stefanha> zwu: okay.  Then I'll wait for your email.
+21:35 < pm215> swiftos: mostly I mean how the devices handle byte accesses; they're modelling hardware that was not designed to run with a big-endian mode
+               CPU, so (a) the h/w behaviour with a BE32 cpu might not always be intuitive (and in particular you can't just say compile linux for be32 and
+               have it work) and (b) we probably don't get the wrong-endian case right anyway
+21:35 < zwu> stefanha: kwolf: thanks both guys.
+21:36 < pm215> swiftos: ideally you should start with some simple code which you know runs in bigendian mode on the target you want, and then get that to
+               work on qemu
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+21:37 < chenwj> zwu: will be posted on ml?
+21:37 < kwolf> Hm, I think a .png file isn't supposed to start in the middle of an XML tag...
+21:39 < zwu> chenwj: no, it is one internal communication mail. confidential:), if you would like to get it, i will CCed you
+21:39 < stefanha> zwu: Sounds like others on the mailing list might be interested
+21:40 < chenwj> definitely
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+21:40 < chenwj> :p
+21:41 < swiftos> pm215: thank you for answer. I'll write simple code and try to write a board too...I'm always lost im qemu sources so I think it will take
+                 me some times
+21:41 < zwu> stefanha: Do you think it is good for me to send this type of mail to ML?
+21:41 < stefanha> zwu: Yes
+21:42 < zwu> stefanha: OK
+21:45 < kwolf> stefanha: When you re-reviewed the alloc_cluster_offset changes, did you have a closer look at COW with unaligned requests?
+21:45 < kwolf> stefanha: When I did, I got a bit confused at first, but in the end thought it was okay. But now that there still seems to be corruption, but
+               the image metadata is clean, this looks very much like the COW
+21:46 < stefanha> No, the control flow made sense to me but I don't remember special cases that seemed weird.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+21:47 < stefanha> kwolf: Have you tried using blkverify?
+21:47 < stefanha> I combine blkverify with bdrv_aio_readv()/bdrv_aio_writev() tracing
+21:47 < kwolf> stefanha: Never used that. How does it work? Does it stop the VM when an error occurs?
+21:47 < stefanha> So I know all <sector, length> I/Os in the image file
+21:48 < stefanha> (i.e. I have a log containing both guest I/O and image file I/O operations)
+21:48 < kwolf> Sounds like a good approach
+21:48 < stefanha> blkverify aborts qemu (or you could print a warning)
+21:48 < stefanha> It tells you which guest request is corrupt (read back data that is different from the raw image).
+21:48 < stefanha> So then what I do is that the offset that blkverify reported
+21:48 < stefanha> and I search backwards through the tracing logs to see
+21:49 < stefanha> what caused that place in the image file to get overwritten.#
+21:49 < stefanha> That usually makes it possible to track down the operation that corrupted the data.
+21:49 < stefanha> But it can be hard to sift through the data.
+21:49 < stefanha> And blkverify affects the timing of QEMU.  If a race condition is involved it may not work.
+21:49 < kwolf> I can imagine. Especially if you need a whole installation in order to trigger the bug.
+21:50 < stefanha> kwolf: Yeah, that's a lot
+21:50 < kwolf> Well, I don't know if it happens early or late
+21:50 < stefanha> I still think blkverify might be a good start
+21:50 < kwolf> I might be lucky and the first corruption might happen rather early
+21:50 < kwolf> I agree
+21:51 < stefanha> You can set a breakpoint on blkverify_err() in order to inspect the process at the point where the first corrupt read request happens.
+21:53 < stefanha> There is a Python script for finding bdrv_aio_writev() calls that touched a particular <BlockDriverState*, int64_t sector, int nb_sectors>
+                  region:
+21:53 < stefanha> http://blog.vmsplice.net/2011/03/how-to-write-trace-analysis-scripts-for.html
+21:53 < stefanha> Bottom of that post.
+21:53 < kwolf> Hm, maybe if the problem occurs during installation, it may never read back the corrupted data
+21:54 < kwolf> I might need to change blkverify to read it back itself in order to verify
+21:54 < stefanha> kwolf: That's true but QEMU will still report the error when you reboot the VM.
+21:54 < stefanha> It's just that the corrupting write may not have happened in the same QEMU session.
+21:54 < stefanha> (remember blkverify detects that a guest read gets mismatching data from .raw and .qcow2)
+21:55 < kwolf> Yes, I was just hoping to find the bug at the end of the trace instead of somewhere in the middle of a huge file

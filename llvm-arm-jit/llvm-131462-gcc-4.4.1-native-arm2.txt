@@ -1,0 +1,756 @@
+llvm[0]: Running test suite
+make[1]: Entering directory `/nfs_home/chenwj/test/native-build/arm2/test'
+Making a new site.exp file...
+Making LLVM 'lit.site.cfg' file...
+Making LLVM unittest 'lit.site.cfg' file...
+( ulimit -t 600 ; ulimit -d 512000 ; ulimit -m 512000 ; ulimit -v 1024000 ; \
+	  /nfs_home/chenwj/test/llvm-131462/utils/lit/lit.py -s -v . )
+-- Testing: 6030 tests, 4 threads --
+Testing: 0 .
+FAIL: LLVM :: CodeGen/ARM/2009-08-31-LSDA-Name.ll (435 of 6030)
+******************** TEST 'LLVM :: CodeGen/ARM/2009-08-31-LSDA-Name.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/ARM/2009-08-31-LSDA-Name.ll -mtriple=arm-apple-darwin9 -march=arm | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/ARM/2009-08-31-LSDA-Name.ll
+--
+Exit Code: 1
+Command Output (stderr):
+--
+0   0x016a86b0  + 1339596
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -mtriple=arm-apple-darwin9 -march=arm 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'ARM Instruction Selection' on function '@"\01-[MyFunction Name:]"'
+FileCheck error: '-' is empty.
+--
+
+********************
+Testing: 0 ..
+FAIL: LLVM :: CodeGen/ARM/2010-07-26-GlobalMerge.ll (484 of 6030)
+******************** TEST 'LLVM :: CodeGen/ARM/2010-07-26-GlobalMerge.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -enable-correct-eh-support < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/ARM/2010-07-26-GlobalMerge.ll
+--
+Exit Code: 139
+Command Output (stderr):
+--
+0   0x016ab068  + 1350276
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -enable-correct-eh-support 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'ARM Instruction Selection' on function '@main'
+/nfs_home/chenwj/test/native-build/arm2/test/CodeGen/ARM/Output/2010-07-26-GlobalMerge.ll.script: line 2: 11198 Segmentation fault      '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc' '-enable-correct-eh-support' < '/nfs_home/chenwj/test/llvm-131462/test/CodeGen/ARM/2010-07-26-GlobalMerge.ll'
+--
+
+********************
+Testing: 0 ..
+FAIL: LLVM :: CodeGen/ARM/2011-05-04-MultipleLandingPadSuccs.ll (512 of 6030)
+******************** TEST 'LLVM :: CodeGen/ARM/2011-05-04-MultipleLandingPadSuccs.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/ARM/2011-05-04-MultipleLandingPadSuccs.ll -verify-machineinstrs
+--
+Exit Code: 139
+Command Output (stderr):
+--
+0   0x016a8538  + 1339220
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -verify-machineinstrs 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'ARM Instruction Selection' on function '@func'
+/nfs_home/chenwj/test/native-build/arm2/test/CodeGen/ARM/Output/2011-05-04-MultipleLandingPadSuccs.ll.script: line 2: 11290 Segmentation fault      '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc' '-verify-machineinstrs' < '/nfs_home/chenwj/test/llvm-131462/test/CodeGen/ARM/2011-05-04-MultipleLandingPadSuccs.ll'
+--
+
+********************
+Testing: 0 .. 10..
+FAIL: LLVM :: CodeGen/ARM/tail-opts.ll (1148 of 6030)
+******************** TEST 'LLVM :: CodeGen/ARM/tail-opts.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/ARM/tail-opts.ll -mtriple=arm-apple-darwin -mcpu=cortex-a8 -asm-verbose=false | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/ARM/tail-opts.ll
+--
+Exit Code: 1
+Command Output (stderr):
+--
+FileCheck error: '-' is empty.
+--
+
+********************
+Testing: 0 .. 10..
+FAIL: LLVM :: CodeGen/ARM/indirectbr.ll (1194 of 6030)
+******************** TEST 'LLVM :: CodeGen/ARM/indirectbr.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/ARM/indirectbr.ll -relocation-model=pic -mtriple=arm-apple-darwin | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/ARM/indirectbr.ll -check-prefix=ARM
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/ARM/indirectbr.ll -relocation-model=pic -mtriple=thumb-apple-darwin | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/ARM/indirectbr.ll -check-prefix=THUMB
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/ARM/indirectbr.ll -relocation-model=static -mtriple=thumbv7-apple-darwin | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/ARM/indirectbr.ll -check-prefix=THUMB2
+--
+Exit Code: 1
+Command Output (stderr):
+--
+FileCheck error: '-' is empty.
+--
+
+********************
+Testing: 0 .. 10..
+FAIL: LLVM :: CodeGen/Generic/addr-label.ll (1195 of 6030)
+******************** TEST 'LLVM :: CodeGen/Generic/addr-label.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc /nfs_home/chenwj/test/llvm-131462/test/CodeGen/Generic/addr-label.ll -o -
+--
+Exit Code: 137
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/native-build/arm2/test/CodeGen/Generic/Output/addr-label.ll.script: line 2: 13841 Killed                  '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc' '/nfs_home/chenwj/test/llvm-131462/test/CodeGen/Generic/addr-label.ll' '-o' '-'
+--
+
+********************
+Testing: 0 .. 10.. 
+FAIL: LLVM :: CodeGen/MBlaze/brind.ll (1234 of 6030)
+******************** TEST 'LLVM :: CodeGen/MBlaze/brind.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/MBlaze/brind.ll -march=mblaze -mattr=+mul,+fpu,+barrel | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/MBlaze/brind.ll
+--
+Exit Code: 1
+Command Output (stderr):
+--
+FileCheck error: '-' is empty.
+--
+
+********************
+Testing: 0 .. 10.. 20
+FAIL: LLVM :: CodeGen/PowerPC/2007-11-16-landingpad-split.ll (1328 of 6030)
+******************** TEST 'LLVM :: CodeGen/PowerPC/2007-11-16-landingpad-split.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/PowerPC/2007-11-16-landingpad-split.ll
+--
+Exit Code: 139
+Command Output (stderr):
+--
+0   0x016a7368  + 1334660
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'PowerPC DAG->DAG Pattern Instruction Selection' on function '@Bork'
+/nfs_home/chenwj/test/native-build/arm2/test/CodeGen/PowerPC/Output/2007-11-16-landingpad-split.ll.script: line 2: 14920 Segmentation fault      '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc' < '/nfs_home/chenwj/test/llvm-131462/test/CodeGen/PowerPC/2007-11-16-landingpad-split.ll'
+--
+
+********************
+Testing: 0 .. 10.. 20
+FAIL: LLVM :: CodeGen/MSP430/indirectbr.ll (1433 of 6030)
+******************** TEST 'LLVM :: CodeGen/MSP430/indirectbr.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -march=msp430 < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/MSP430/indirectbr.ll
+--
+Exit Code: 137
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/native-build/arm2/test/CodeGen/MSP430/Output/indirectbr.ll.script: line 2: 14382 Killed                  '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc' '-march=msp430' < '/nfs_home/chenwj/test/llvm-131462/test/CodeGen/MSP430/indirectbr.ll'
+--
+
+********************
+Testing: 0 .. 10.. 20
+FAIL: LLVM :: CodeGen/MSP430/indirectbr2.ll (1566 of 6030)
+******************** TEST 'LLVM :: CodeGen/MSP430/indirectbr2.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -march=msp430 < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/MSP430/indirectbr2.ll | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/MSP430/indirectbr2.ll
+--
+Exit Code: 1
+Command Output (stderr):
+--
+FileCheck error: '-' is empty.
+--
+
+********************
+Testing: 0 .. 10.. 20.
+FAIL: LLVM :: CodeGen/Thumb/select.ll (1642 of 6030)
+******************** TEST 'LLVM :: CodeGen/Thumb/select.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/Thumb/select.ll -march=thumb | grep beq | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/count 1
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/Thumb/select.ll -march=thumb | grep bgt | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/count 1
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/Thumb/select.ll -march=thumb | grep blt | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/count 3
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/Thumb/select.ll -march=thumb | grep ble | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/count 1
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/Thumb/select.ll -march=thumb | grep bls | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/count 1
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/Thumb/select.ll -march=thumb | grep bhi | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/count 1
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/Thumb/select.ll -mtriple=thumb-apple-darwin | grep __ltdf2
+--
+Exit Code: 1
+Command Output (stderr):
+--
+Expected 3 lines, got 1.
+--
+
+********************
+Testing: 0 .. 10.. 20.. 
+FAIL: LLVM :: CodeGen/X86/2007-05-05-Personality.ll (1875 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/2007-05-05-Personality.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2007-05-05-Personality.ll -mtriple=i686-pc-linux-gnu -o - | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2007-05-05-Personality.ll
+--
+Exit Code: 1
+Command Output (stderr):
+--
+0   0x016acb88  + 1357220
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -mtriple=i686-pc-linux-gnu -o - 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'X86 DAG->DAG Instruction Selection' on function '@_ada_x'
+FileCheck error: '-' is empty.
+--
+
+********************
+Testing: 0 .. 10.. 20.. 
+FAIL: LLVM :: CodeGen/X86/2007-05-07-InvokeSRet.ll (1877 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/2007-05-07-InvokeSRet.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2007-05-07-InvokeSRet.ll -mtriple=i686-pc-linux-gnu -disable-fp-elim | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/not grep {addl .12, %esp}
+--
+Exit Code: 139
+Command Output (stderr):
+--
+0   0x016ab7e8  + 1352196
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -mtriple=i686-pc-linux-gnu -disable-fp-elim 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'X86 DAG->DAG Instruction Selection' on function '@invoker'
+/nfs_home/chenwj/test/native-build/arm2/test/CodeGen/X86/Output/2007-05-07-InvokeSRet.ll.script: line 3: 17581 Segmentation fault      '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc' '-mtriple=i686-pc-linux-gnu' '-disable-fp-elim' < '/nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2007-05-07-InvokeSRet.ll'
+     17582 Done                    | '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/not' 'grep' 'addl .12, %esp'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 
+FAIL: LLVM :: CodeGen/X86/2007-06-04-tailmerge4.ll (1882 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/2007-06-04-tailmerge4.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2007-06-04-tailmerge4.ll -asm-verbose | grep invcont131
+--
+Exit Code: 1
+Command Output (stderr):
+--
+0   0x016bebe8  + 1431044
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -asm-verbose 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'X86 DAG->DAG Instruction Selection' on function '@report__result'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 
+FAIL: LLVM :: CodeGen/Mips/blockaddr.ll (1921 of 6030)
+******************** TEST 'LLVM :: CodeGen/Mips/blockaddr.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -march=mipsel -relocation-model=pic < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/Mips/blockaddr.ll | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/Mips/blockaddr.ll -check-prefix=CHECK-PIC
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -march=mipsel -relocation-model=static < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/Mips/blockaddr.ll | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/Mips/blockaddr.ll -check-prefix=CHECK-STATIC
+--
+Exit Code: 1
+Command Output (stderr):
+--
+FileCheck error: '-' is empty.
+--
+
+********************
+Testing: 0 .. 10.. 20.. 
+FAIL: LLVM :: CodeGen/X86/2007-12-11-FoldImpDefSpill.ll (1923 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/2007-12-11-FoldImpDefSpill.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2007-12-11-FoldImpDefSpill.ll -mtriple=i686-apple-darwin | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/not grep IMPLICIT_DEF
+--
+Exit Code: 139
+Command Output (stderr):
+--
+0   0x016bc0e0  + 1420028
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -mtriple=i686-apple-darwin 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'X86 DAG->DAG Instruction Selection' on function '@_ZN7mrScene4ReadERSi'
+/nfs_home/chenwj/test/native-build/arm2/test/CodeGen/X86/Output/2007-12-11-FoldImpDefSpill.ll.script: line 3: 17740 Segmentation fault      '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc' '-mtriple=i686-apple-darwin' < '/nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2007-12-11-FoldImpDefSpill.ll'
+     17741 Done                    | '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/not' 'grep' 'IMPLICIT_DEF'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30
+FAIL: LLVM :: CodeGen/X86/2008-04-17-CoalescerBug.ll (1962 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/2008-04-17-CoalescerBug.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2008-04-17-CoalescerBug.ll -mtriple=i386-apple-darwin | grep xorl | grep {%e}
+--
+Exit Code: 1
+Command Output (stderr):
+--
+0   0x016b1198  + 1375156
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -mtriple=i386-apple-darwin 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'X86 DAG->DAG Instruction Selection' on function '@_ZNK10wxDateTime6FormatEPKwRKNS_8TimeZoneE'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30
+FAIL: LLVM :: CodeGen/X86/2009-01-29-LocalRegAllocBug.ll (2050 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/2009-01-29-LocalRegAllocBug.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2009-01-29-LocalRegAllocBug.ll -mtriple=i386-apple-darwin9.6 -regalloc=fast -disable-fp-elim
+--
+Exit Code: 139
+Command Output (stderr):
+--
+0   0x016ad658  + 1359988
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -mtriple=i386-apple-darwin9.6 -regalloc=fast -disable-fp-elim 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'X86 DAG->DAG Instruction Selection' on function '@main'
+/nfs_home/chenwj/test/native-build/arm2/test/CodeGen/X86/Output/2009-01-29-LocalRegAllocBug.ll.script: line 2: 18189 Segmentation fault      '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc' '-mtriple=i386-apple-darwin9.6' '-regalloc=fast' '-disable-fp-elim' < '/nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2009-01-29-LocalRegAllocBug.ll'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30
+FAIL: LLVM :: CodeGen/X86/2009-03-13-PHIElimBug.ll (2076 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/2009-03-13-PHIElimBug.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2009-03-13-PHIElimBug.ll -mtriple=i686-linux | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2009-03-13-PHIElimBug.ll
+--
+Exit Code: 1
+Command Output (stderr):
+--
+0   0x016ab860  + 1352316
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -mtriple=i686-linux 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'X86 DAG->DAG Instruction Selection' on function '@phi'
+FileCheck error: '-' is empty.
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30
+FAIL: LLVM :: CodeGen/X86/2009-03-16-PHIElimInLPad.ll (2077 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/2009-03-16-PHIElimInLPad.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2009-03-16-PHIElimInLPad.ll -mtriple=i686-linux -asm-verbose | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2009-03-16-PHIElimInLPad.ll
+--
+Exit Code: 1
+Command Output (stderr):
+--
+0   0x016ab7a8  + 1352132
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -mtriple=i686-linux -asm-verbose 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'X86 DAG->DAG Instruction Selection' on function '@phi'
+FileCheck error: '-' is empty.
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30
+FAIL: LLVM :: CodeGen/X86/2009-09-10-LoadFoldingBug.ll (2141 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/2009-09-10-LoadFoldingBug.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2009-09-10-LoadFoldingBug.ll -mtriple=x86_64-apple-darwin10.0 -relocation-model=pic -disable-fp-elim | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2009-09-10-LoadFoldingBug.ll
+--
+Exit Code: 1
+Command Output (stderr):
+--
+0   0x016ad488  + 1359524
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -mtriple=x86_64-apple-darwin10.0 -relocation-model=pic -disable-fp-elim 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'X86 DAG->DAG Instruction Selection' on function '@t'
+FileCheck error: '-' is empty.
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30
+FAIL: LLVM :: CodeGen/X86/2009-11-25-ImpDefBug.ll (2160 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/2009-11-25-ImpDefBug.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2009-11-25-ImpDefBug.ll -mtriple=x86_64-unknown-linux-gnu
+--
+Exit Code: 139
+Command Output (stderr):
+--
+0   0x016af320  + 1367356
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -mtriple=x86_64-unknown-linux-gnu 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'X86 DAG->DAG Instruction Selection' on function '@_ZN8ASN1Unit4loadER8xmstreamjm18ASN1LengthEncoding'
+/nfs_home/chenwj/test/native-build/arm2/test/CodeGen/X86/Output/2009-11-25-ImpDefBug.ll.script: line 2: 18518 Segmentation fault      '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc' '-mtriple=x86_64-unknown-linux-gnu' < '/nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2009-11-25-ImpDefBug.ll'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.
+FAIL: LLVM :: CodeGen/X86/2010-04-06-SSEDomainFixCrash.ll (2189 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/2010-04-06-SSEDomainFixCrash.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2010-04-06-SSEDomainFixCrash.ll -O3 -relocation-model=pic -disable-fp-elim -mcpu=nocona
+--
+Exit Code: 139
+Command Output (stderr):
+--
+0   0x016adee8  + 1362180
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -O3 -relocation-model=pic -disable-fp-elim -mcpu=nocona 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'X86 DAG->DAG Instruction Selection' on function '@_ZN17btSoftBodyHelpers4DrawEP10btSoftBodyP12btIDebugDrawi'
+/nfs_home/chenwj/test/native-build/arm2/test/CodeGen/X86/Output/2010-04-06-SSEDomainFixCrash.ll.script: line 2: 18589 Segmentation fault      '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc' '-O3' '-relocation-model=pic' '-disable-fp-elim' '-mcpu=nocona' < '/nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2010-04-06-SSEDomainFixCrash.ll'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.
+FAIL: LLVM :: CodeGen/X86/2010-04-30-LocalAlloc-LandingPad.ll (2196 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/2010-04-30-LocalAlloc-LandingPad.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2010-04-30-LocalAlloc-LandingPad.ll -O0 -regalloc=fast -relocation-model=pic -disable-fp-elim | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/2010-04-30-LocalAlloc-LandingPad.ll
+--
+Exit Code: 1
+Command Output (stderr):
+--
+0   0x016ad6d0  + 1360108
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -O0 -regalloc=fast -relocation-model=pic -disable-fp-elim 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'X86 DAG->DAG Instruction Selection' on function '@_Z4test1SiS_'
+FileCheck error: '-' is empty.
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.
+FAIL: LLVM :: CodeGen/PowerPC/indirectbr.ll (2280 of 6030)
+******************** TEST 'LLVM :: CodeGen/PowerPC/indirectbr.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/PowerPC/indirectbr.ll -relocation-model=pic -march=ppc32 -mtriple=powerpc-apple-darwin | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/PowerPC/indirectbr.ll -check-prefix=PIC
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/PowerPC/indirectbr.ll -relocation-model=static -march=ppc32 -mtriple=powerpc-apple-darwin | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/PowerPC/indirectbr.ll -check-prefix=STATIC
+--
+Exit Code: 1
+Command Output (stderr):
+--
+FileCheck error: '-' is empty.
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30..
+FAIL: LLVM :: CodeGen/X86/code_placement_eh.ll (2353 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/code_placement_eh.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/code_placement_eh.ll
+--
+Exit Code: 139
+Command Output (stderr):
+--
+0   0x016aca38  + 1356884
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'X86 DAG->DAG Instruction Selection' on function '@foo'
+/nfs_home/chenwj/test/native-build/arm2/test/CodeGen/X86/Output/code_placement_eh.ll.script: line 2: 19221 Segmentation fault      '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc' < '/nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/code_placement_eh.ll'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 
+FAIL: LLVM :: CodeGen/X86/fast-isel-cmp-branch.ll (2424 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/fast-isel-cmp-branch.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -O0 -mtriple=x86_64-linux -asm-verbose=false < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/fast-isel-cmp-branch.ll | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/fast-isel-cmp-branch.ll
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -O0 -mtriple=x86_64-win32 -asm-verbose=false < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/fast-isel-cmp-branch.ll | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/fast-isel-cmp-branch.ll
+--
+Exit Code: 1
+Command Output (stderr):
+--
+0   0x016aa4f8  + 1347348
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -O0 -mtriple=x86_64-linux -asm-verbose=false 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'X86 DAG->DAG Instruction Selection' on function '@foo'
+FileCheck error: '-' is empty.
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 
+FAIL: LLVM :: CodeGen/X86/fast-isel-gep.ll (2428 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/fast-isel-gep.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/fast-isel-gep.ll -mtriple=x86_64-linux -O0 | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/fast-isel-gep.ll --check-prefix=X64
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/fast-isel-gep.ll -mtriple=x86_64-win32 -O0 | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/fast-isel-gep.ll --check-prefix=X64
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/fast-isel-gep.ll -march=x86 -O0 | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/fast-isel-gep.ll --check-prefix=X32
+--
+Exit Code: 1
+Command Output (stderr):
+--
+0   0x016abd68  + 1353604
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -mtriple=x86_64-linux -O0 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'X86 DAG->DAG Instruction Selection' on function '@test6'
+FileCheck error: '-' is empty.
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40
+FAIL: LLVM :: CodeGen/X86/no-cfi.ll (2654 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/no-cfi.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/no-cfi.ll -mtriple=x86_64-unknown-linux-gnu -disable-cfi | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck --check-prefix=STATIC /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/no-cfi.ll
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/no-cfi.ll -mtriple=x86_64-unknown-linux-gnu -disable-cfi -relocation-model=pic | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck --check-prefix=PIC /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/no-cfi.ll
+--
+Exit Code: 1
+Command Output (stderr):
+--
+0   0x016ac910  + 1356588
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -mtriple=x86_64-unknown-linux-gnu -disable-cfi 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'X86 DAG->DAG Instruction Selection' on function '@bar'
+FileCheck error: '-' is empty.
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40
+FAIL: LLVM :: CodeGen/X86/personality.ll (2679 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/personality.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/personality.ll -disable-cfi -mtriple=x86_64-apple-darwin9 -disable-cgp-branch-opts | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/personality.ll -check-prefix=X64
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/personality.ll -disable-cfi -mtriple=i386-apple-darwin9 -disable-cgp-branch-opts | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/personality.ll -check-prefix=X32
+--
+Exit Code: 1
+Command Output (stderr):
+--
+0   0x016acb00  + 1357084
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -disable-cfi -mtriple=x86_64-apple-darwin9 -disable-cgp-branch-opts 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'X86 DAG->DAG Instruction Selection' on function '@_Z1fv'
+FileCheck error: '-' is empty.
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40
+FAIL: LLVM :: CodeGen/X86/pr3522.ll (2718 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/pr3522.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/pr3522.ll -march=x86 -stats |& not grep {instructions sunk}
+--
+Exit Code: 139
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/native-build/arm2/test/CodeGen/X86/Output/pr3522.ll.script: line 3: 20824 Segmentation fault      '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc' '-march=x86' '-stats' 2>&'1' < '/nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/pr3522.ll'
+     20825 Done                    | 'not' 'grep' 'instructions sunk'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40
+FAIL: LLVM :: CodeGen/X86/pre-split2.ll (2726 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/pre-split2.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/pre-split2.ll -march=x86 -mattr=+sse2 -pre-alloc-split -stats -regalloc=linearscan |&    grep {pre-alloc-split} | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/count 2
+--
+Exit Code: 1
+Command Output (stderr):
+--
+Expected 2 lines, got 1.
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40
+FAIL: LLVM :: CodeGen/X86/pre-split3.ll (2727 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/pre-split3.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/pre-split3.ll -march=x86 -mattr=+sse2 -pre-alloc-split -regalloc=linearscan -stats |&    grep {pre-alloc-split} | grep {Number of intervals split} | grep 1
+--
+Exit Code: 1
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40
+FAIL: LLVM :: CodeGen/X86/scev-interchange.ll (2764 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/scev-interchange.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/scev-interchange.ll -march=x86-64
+--
+Exit Code: 139
+Command Output (stderr):
+--
+0   0x016b40b0  + 1387212
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -march=x86-64 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'X86 DAG->DAG Instruction Selection' on function '@_ZN4FE_QILi3EEC1Ej'
+/nfs_home/chenwj/test/native-build/arm2/test/CodeGen/X86/Output/scev-interchange.ll.script: line 2: 21039 Segmentation fault      '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc' '-march=x86-64' < '/nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/scev-interchange.ll'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.
+FAIL: LLVM :: CodeGen/X86/split-eh-lpad-edges.ll (2802 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/split-eh-lpad-edges.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/split-eh-lpad-edges.ll -mtriple=x86_64-apple-darwin | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/not grep jmp
+--
+Exit Code: 139
+Command Output (stderr):
+--
+0   0x016acc58  + 1357428
+Stack dump:
+0.	Program arguments: /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -mtriple=x86_64-apple-darwin 
+1.	Running pass 'Function Pass Manager' on module '<stdin>'.
+2.	Running pass 'X86 DAG->DAG Instruction Selection' on function '@newFetchedRowsForFetchPlan_MT'
+/nfs_home/chenwj/test/native-build/arm2/test/CodeGen/X86/Output/split-eh-lpad-edges.ll.script: line 3: 21207 Segmentation fault      '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc' '-mtriple=x86_64-apple-darwin' < '/nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/split-eh-lpad-edges.ll'
+     21208 Done                    | '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/not' 'grep' 'jmp'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 
+FAIL: LLVM :: CodeGen/Thumb/2009-12-17-pre-regalloc-taildup.ll (3056 of 6030)
+******************** TEST 'LLVM :: CodeGen/Thumb/2009-12-17-pre-regalloc-taildup.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc -O3 < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/Thumb/2009-12-17-pre-regalloc-taildup.ll | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/Thumb/2009-12-17-pre-regalloc-taildup.ll
+--
+Exit Code: 1
+Command Output (stderr):
+--
+FileCheck error: '-' is empty.
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 
+FAIL: LLVM :: CodeGen/X86/addr-label-difference.ll (3105 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/addr-label-difference.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/addr-label-difference.ll -o - | grep {__TEXT,__const}
+--
+Exit Code: 1
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 
+FAIL: LLVM :: CodeGen/X86/tail-opts.ll (3111 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/tail-opts.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/tail-opts.ll -march=x86-64 -mtriple=x86_64-unknown-linux-gnu -asm-verbose=false -post-RA-scheduler=true | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/tail-opts.ll
+--
+Exit Code: 1
+Command Output (stderr):
+--
+FileCheck error: '-' is empty.
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60
+FAIL: LLVM :: CodeGen/X86/x86-64-jumps.ll (3834 of 6030)
+******************** TEST 'LLVM :: CodeGen/X86/x86-64-jumps.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/x86-64-jumps.ll
+--
+Exit Code: 137
+Command Output (stderr):
+--
+/nfs_home/chenwj/test/native-build/arm2/test/CodeGen/X86/Output/x86-64-jumps.ll.script: line 2: 22359 Killed                  '/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc' < '/nfs_home/chenwj/test/llvm-131462/test/CodeGen/X86/x86-64-jumps.ll'
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90..
+FAIL: LLVM :: CodeGen/XCore/events.ll (6029 of 6030)
+******************** TEST 'LLVM :: CodeGen/XCore/events.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/XCore/events.ll -march=xcore | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/XCore/events.ll
+--
+Exit Code: 1
+Command Output (stderr):
+--
+FileCheck error: '-' is empty.
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.. 
+FAIL: LLVM :: CodeGen/XCore/indirectbr.ll (6030 of 6030)
+******************** TEST 'LLVM :: CodeGen/XCore/indirectbr.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/llc < /nfs_home/chenwj/test/llvm-131462/test/CodeGen/XCore/indirectbr.ll -march=xcore | /nfs_home/chenwj/test/native-build/arm2/Debug+Asserts/bin/FileCheck /nfs_home/chenwj/test/llvm-131462/test/CodeGen/XCore/indirectbr.ll
+--
+Exit Code: 1
+Command Output (stderr):
+--
+FileCheck error: '-' is empty.
+--
+
+********************
+Testing Time: 2629.24s
+********************
+Failing Tests (41):
+    LLVM :: CodeGen/ARM/2009-08-31-LSDA-Name.ll
+    LLVM :: CodeGen/ARM/2010-07-26-GlobalMerge.ll
+    LLVM :: CodeGen/ARM/2011-05-04-MultipleLandingPadSuccs.ll
+    LLVM :: CodeGen/ARM/indirectbr.ll
+    LLVM :: CodeGen/ARM/tail-opts.ll
+    LLVM :: CodeGen/Generic/addr-label.ll
+    LLVM :: CodeGen/MBlaze/brind.ll
+    LLVM :: CodeGen/MSP430/indirectbr.ll
+    LLVM :: CodeGen/MSP430/indirectbr2.ll
+    LLVM :: CodeGen/Mips/blockaddr.ll
+    LLVM :: CodeGen/PowerPC/2007-11-16-landingpad-split.ll
+    LLVM :: CodeGen/PowerPC/indirectbr.ll
+    LLVM :: CodeGen/Thumb/2009-12-17-pre-regalloc-taildup.ll
+    LLVM :: CodeGen/Thumb/select.ll
+    LLVM :: CodeGen/X86/2007-05-05-Personality.ll
+    LLVM :: CodeGen/X86/2007-05-07-InvokeSRet.ll
+    LLVM :: CodeGen/X86/2007-06-04-tailmerge4.ll
+    LLVM :: CodeGen/X86/2007-12-11-FoldImpDefSpill.ll
+    LLVM :: CodeGen/X86/2008-04-17-CoalescerBug.ll
+    LLVM :: CodeGen/X86/2009-01-29-LocalRegAllocBug.ll
+    LLVM :: CodeGen/X86/2009-03-13-PHIElimBug.ll
+    LLVM :: CodeGen/X86/2009-03-16-PHIElimInLPad.ll
+    LLVM :: CodeGen/X86/2009-09-10-LoadFoldingBug.ll
+    LLVM :: CodeGen/X86/2009-11-25-ImpDefBug.ll
+    LLVM :: CodeGen/X86/2010-04-06-SSEDomainFixCrash.ll
+    LLVM :: CodeGen/X86/2010-04-30-LocalAlloc-LandingPad.ll
+    LLVM :: CodeGen/X86/addr-label-difference.ll
+    LLVM :: CodeGen/X86/code_placement_eh.ll
+    LLVM :: CodeGen/X86/fast-isel-cmp-branch.ll
+    LLVM :: CodeGen/X86/fast-isel-gep.ll
+    LLVM :: CodeGen/X86/no-cfi.ll
+    LLVM :: CodeGen/X86/personality.ll
+    LLVM :: CodeGen/X86/pr3522.ll
+    LLVM :: CodeGen/X86/pre-split2.ll
+    LLVM :: CodeGen/X86/pre-split3.ll
+    LLVM :: CodeGen/X86/scev-interchange.ll
+    LLVM :: CodeGen/X86/split-eh-lpad-edges.ll
+    LLVM :: CodeGen/X86/tail-opts.ll
+    LLVM :: CodeGen/X86/x86-64-jumps.ll
+    LLVM :: CodeGen/XCore/events.ll
+    LLVM :: CodeGen/XCore/indirectbr.ll
+
+  Expected Passes    : 5396
+  Expected Failures  : 45
+  Unsupported Tests  : 548
+  Unexpected Failures: 41
+make[1]: Leaving directory `/nfs_home/chenwj/test/native-build/arm2/test'

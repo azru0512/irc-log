@@ -1,0 +1,39 @@
+llvm[0]: Running test suite
+make[1]: Entering directory `/nfs_home/chenwj/test/native-build/arm2/test'
+Making a new site.exp file...
+Making LLVM 'lit.site.cfg' file...
+Making LLVM unittest 'lit.site.cfg' file...
+( ulimit -t 600 ; ulimit -d 512000 ; ulimit -m 512000 ; ulimit -v 1024000 ; \
+	  /nfs_home/chenwj/test/llvm-2.9/utils/lit/lit.py -s -v . )
+-- Testing: 5840 tests, 4 threads --
+Testing: 0 .. 10.. 20.
+FAIL: LLVM :: CodeGen/Thumb/select.ll (1597 of 5840)
+******************** TEST 'LLVM :: CodeGen/Thumb/select.ll' FAILED ********************
+Script:
+--
+/nfs_home/chenwj/test/native-build/arm2/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -march=thumb | grep beq | /nfs_home/chenwj/test/native-build/arm2/Debug/bin/count 1
+/nfs_home/chenwj/test/native-build/arm2/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -march=thumb | grep bgt | /nfs_home/chenwj/test/native-build/arm2/Debug/bin/count 1
+/nfs_home/chenwj/test/native-build/arm2/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -march=thumb | grep blt | /nfs_home/chenwj/test/native-build/arm2/Debug/bin/count 3
+/nfs_home/chenwj/test/native-build/arm2/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -march=thumb | grep ble | /nfs_home/chenwj/test/native-build/arm2/Debug/bin/count 1
+/nfs_home/chenwj/test/native-build/arm2/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -march=thumb | grep bls | /nfs_home/chenwj/test/native-build/arm2/Debug/bin/count 1
+/nfs_home/chenwj/test/native-build/arm2/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -march=thumb | grep bhi | /nfs_home/chenwj/test/native-build/arm2/Debug/bin/count 1
+/nfs_home/chenwj/test/native-build/arm2/Debug/bin/llc < /nfs_home/chenwj/test/llvm-2.9/test/CodeGen/Thumb/select.ll -mtriple=thumb-apple-darwin | grep __ltdf2
+--
+Exit Code: 1
+Command Output (stderr):
+--
+Expected 3 lines, got 1.
+--
+
+********************
+Testing: 0 .. 10.. 20.. 30.. 40.. 50.. 60.. 70.. 80.. 90.. 
+Testing Time: 447.31s
+********************
+Failing Tests (1):
+    LLVM :: CodeGen/Thumb/select.ll
+
+  Expected Passes    : 5249
+  Expected Failures  : 48
+  Unsupported Tests  : 542
+  Unexpected Failures: 1
+make[1]: Leaving directory `/nfs_home/chenwj/test/native-build/arm2/test'

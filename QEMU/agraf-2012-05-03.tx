@@ -1,0 +1,36 @@
+17:53 < agraf_> chenwj: not sure
+17:53 < agraf_> chenwj: inlining of helpers?
+17:53 < chenwj> doesn't qemu inline simple helper already?
+17:54 < agraf_> chenwj: nope
+17:54 < agraf_> chenwj: well - as soon as something is a "helper", it means it's written in C
+17:54 < agraf_> chenwj: and then becomes a C call
+17:55 < chenwj> but you can add inline prefix before simple helper, right?
+17:55 < agraf_> chenwj: nope
+17:55 < agraf_> chenwj: you can say "this helper doesn't modify env, so no need to reload registers from there after it got called"
+17:56 < agraf_> chenwj: or "this helper doesn't read from env, so no need to flush registers from registers into env before calling it"
+17:56 < agraf_> chenwj: but with LLVM you should be able to actually inline them
+17:57 < agraf_> chenwj: and get rid of any ABI overhead
+17:57 < chenwj> why QEMU cannot do that?
+17:57 < agraf_> chenwj: because helpers are written in C
+17:57 < agraf_> chenwj: and target code is written in TCG
+17:57 < agraf_> :)
+17:58 < chenwj> target you mean host?
+17:58 < agraf_> no, CPU target
+17:58 < chenwj> oh, the guest
+17:59 < agraf_> yeah, TCG can't take precompiled host asm code and optimize it
+17:59 < agraf_> but if you keep a copy of the helper LLVM IM code around
+17:59 < agraf_> and generate LLVM IM code for guest instructions
+17:59 < chenwj> you mean TCG and helper function don't cooperate well?
+17:59 < agraf_> they'd be compatible, and LLVM could optimize through the union of the two
+17:59 < agraf_> they don't cooperate at all really ;)
+18:00 < chenwj> I see
+18:00 < agraf_> imagine code where you touch 30 registers
+18:00 < agraf_> then you call a helper which wants to read from 1 of those registers and write to 1 register
+18:00 < agraf_> but you can't handle them as C parameters for whatever reason
+18:01 < agraf_> maybe they're floating point, maybe the helper also modifies EFLAGS/CC, so you need to return 2 values from the helper
+18:01 < agraf_> and after the helper, you use the same 30 registers again
+18:01 < agraf_> then TCG would save all 30 registers off to memory before the helper
+18:01 < agraf_> call the helper
+18:01 < agraf_> and reload all those 30 registers from guest memory into host registers again
+18:02 < JeffJohnson> how can I assure that an qemu/kvm process started successfuly? I need automatize it, maybe with help of the qemu monitor
+18:02 < agraf_> s/guest memory/env/

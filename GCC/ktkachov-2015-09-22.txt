@@ -1,0 +1,8 @@
+[16:46] <chenwj_> if I pass option "-mthumb -marm", which one works?
+[16:46] <chenwj_> -mthumb, or -marm?
+[16:49] <ktkachov> chenwj_: this channel is for the development of gcc. For help there's the freenode gcc channel
+[16:49] <ktkachov> chenwj_: the latest on the command line overrides the previous. So here it would be -marm.
+[16:51] <chenwj_> ktkachov: sorry, I knew here is not the right place. but I cannot send message on that channel.
+[16:52] <chenwj_> is that rule written in the document? or it's just a common sense?
+[16:56] <ktkachov> chenwj_: AFAIK it's a general rule that options that specify the same 'thing' work this way, but I can't find where it says that in a quick scan of the documentation
+[16:57] <chenwj_> ok, thanks

@@ -1,0 +1,113 @@
+20:45 < chenwj> JamesM_: does wint_t be defined on arm?
+20:47 < chenwj> JamesM_: I'm looking at Sema/format-strings.c failure
+20:57 < JamesM_> chenwj: what is wint_t?
+20:57 < JamesM_> chenwj: wint_t is defined in wchar.h according to POSIX
+20:57 < chenwj>   Line 341: format specifies type 'wint_t' (aka 'unsigned int') but the argument has type 'wint_t' (aka 'int')
+20:57 < chenwj>   Line 343: format specifies type 'wint_t' (aka 'unsigned int') but the argument has type 'char'
+20:58 < chenwj> the strange thing is wint_t becomes unsigned int and int
+20:58 < JamesM_> chenwj: it's defined in wchar.h.
+20:58 < JamesM_> that's not a compiler provided header
+20:58 < chenwj> JamesM_: typedef unsigned int wint_t;
+20:58 < JamesM_> http://pubs.opengroup.org/onlinepubs/7908799/xsh/wchar.h.html
+20:59 < JamesM_> notice wchar_t is defined in stddef.h (provided by clang) but wint_t is in wchar.h (provided by whatever UNIX flavour you are on)
+20:59 < chenwj> JamesM_: comes from wchar.h
+20:59 < chenwj> you mean there is a confict?
+20:59 < JamesM_> so I'd be a bit disturbed if we have a test that is relying on linux-specific behaviour
+21:00 -!- mode/#llvm [+v DannyB] by ChanServ
+21:01 < chenwj> lib/Frontend/InitPreprocessor.cpp:  DefineType("__WCHAR_TYPE__", TI.getWCharType(), Builder);
+21:01 < JamesM_> that defined wchar_t
+21:02 < JamesM_> not wint_t
+21:02 < chenwj> ya
+21:03 < JamesM_> although it does look like Clang defines wint_t
+21:04 < JamesM_> #define __WINT_TYPE__ unsigned int
+21:04 < JamesM_> #define __WINT_UNSIGNED__ 1
+21:05 < chenwj> in CompilerInstance::createPreprocessor (lib/Frontend/CompilerInstance.cpp)
+21:06 < chenwj> InitializePreprocessor use PP's Target to get w_char
+21:07 < JamesM_> I think the test is wrong
+21:07 < JamesM_> (1) It uses wchar_t without #including <stddef.h>
+21:08 < JamesM_> (2) It uses wint_t without #including <stddef.h> with the clang-special-flag "#define __need_wint_t"
+21:08 < JamesM_> (3) It #defines wint_t to a darwin-specific value if "#if defined(wint_t)" fails, which will only be valid if wint_t is #defined
+21:09 < JamesM_> but wint_t (and wchar_t) are *typedef*'d, not #defined.
+21:09 < JamesM_> TNorthover: what's your opinion? test/Sema/format-strings.c
+21:12 < chenwj> JamesM_: lib/Headers/stddef.h:typedef __WCHAR_TYPE__ wchar_t; <- the DefineType in InitPreprocessor.cpp define __WCHAR_TYPE__, then typedef
+                wchar_t
+21:12 < JamesM_> I know.
+21:19 < chenwj> JamesM_: in http://lists.cs.uiuc.edu/pipermail/cfe-dev/2012-April/021072.html , I don't understand Eli's comment on conv.prom/p2.cpp
+21:24 < JamesM_> He's saying "please file a PR/Bug report - something is very wrong"
+21:24 < TNorthover> I reckon the biggest problem is #3. C99 says that wint_t is a type, so relying on it being a macro is extremely dodgy.
+21:25 < TNorthover> Other than that the test is for compiler-specific features rather than standards compliance so shenanigans are probably acceptable
+21:25 < TNorthover> James has convinced me that including stddef.h and wchar.h is probably the best fix.
+21:26 < JamesM_> chenwj: http://pastebin.com/P6RXnkhH
+21:26 < JamesM_> chenwj: that's our suggested change.
+21:27 < chenwj> JamesM_: format-strings.c error gone by adding -fshort-wchar
+21:27 < chenwj> JamesM_: did he?
+21:27 < JamesM_> -fshort-wchar is a red herring.
+21:28 < JamesM_> http://pastebin.com/BtJqpZ6h updated version
+21:32 < chenwj> JamesM_: do you test that already. I got more error here.
+21:34 < JamesM_> chenwj: new paste take 2: http://pastebin.com/gke5av8E
+21:36 < chenwj> Line 348: format specifies type 'wint_t' (aka 'unsigned int') but the argument has type 'char'
+21:36 < chenwj> printf("%lc", (char) 1); <-
+21:36 < chenwj> won't it be promote to unsigned int?
+21:38 < JamesM_> I am wondering that
+21:40 < JamesM_> it appears that it will promote to int but not unsigned int or long
+21:44 < JamesM_> chenwj: that test is more screwed up than first thought
+21:45 < chenwj> JamesM_: perhaps ask Eli?
+21:45 < JamesM_> I need to go deeper first
+21:47 < chenwj> JamesM_: for Sema/wchar.c, -fsyntax-only -fshort-wchar -Xclang -verify -DSHORT_WCHAR makes error gone, too. Is that a red herring, too?
+21:48 < JamesM_> hang on, I'm investigating wint_t first
+21:49 < chenwj> JamesM_: ok
+21:51 < JamesM_> chenwj: I think the code in lib/Analysis/FormatString.cpp:321 is incorrect
+21:51 < semeion> Can CLang be compiled for windows using Cygwin?
+21:51 < JamesM_> it's not checking the correct type of wint_t, instead assuming that wint_t can be promoted from wchar_t which isn't true if one is signed
+                 and the other unsigned
+21:53 < chenwj> Instead of doing a lookup for the definition of 'wint_t' <-
+21:53 < chenwj> it should, I guess
+21:54 < JamesM_> perhaps it was written before C.getWIntType() was available
+22:26 < xranby>  http://paste.ubuntu.com/962452/   - I compared the default "broken" LLVM JIT on ARM against the new LLVM MCJIT on ARM. Using a pandaboard
+                running ubunru 12.04 armhf
+22:27 < xranby> the MCJIT are still  not complete on ARM/Linux but it do pass more tests. perhaps its a good idea to switch to it by default?
+22:27 < xranby> JamesM_: ^
+22:32 < chenwj> xranby: I don't think so
+22:33 < chenwj> for simple program, it might work
+22:33 < JamesM_> xranby: ... the runtimedyld has *zero* ARM support at the moment
+22:33 < xranby> JamesM_: my testing indicate the opposite.. some simple jit tests do pass using the new MCJIT
+22:33 < xranby> on arm/linux
+22:34 < JamesM_> ... but the entire linking code is //FIXME
+22:34 < JamesM_> it's stubbed
+22:35 < JamesM_> ah no, looks like it's been improved since my last check
+22:35 < JamesM_> it's now no longer stubbed
+22:35 < JamesM_> ah no, looks like it's been improved since my last check
+22:35 < JamesM_> it's now no longer stubbed
+22:36 < chenwj> JamesM_: when run `make check-all`, it use old or MCJIT?
+22:36 < d0k> dgregor: :(
+22:36 < dgregor> d0k: ?
+22:36 < JamesM_> old
+22:37 < d0k> dgregor: global stringmaps, boo
+22:37 < chenwj> hmmmm, ....
+22:38 < dgregor> d0k: yeah, there's no good place to stash the data. I guess Sema could hold on to it
+22:38 < d0k> dgregor: tblgen can emit suffix matchers
+22:38 < fpichet> dgregor: are you going to the llvm social tomorrow?
+22:38 < xranby> chenwj: you can change   UseMCJIT = true;   in  include/llvm/ExecutionEngine/ExecutionEngine.h  if you want to test using MCJIT by default
+22:39 < xranby> or pass -use-mcjit to lli for each test
+22:39 < chenwj> xranby: Failing Tests (27) <- run old JIT?
+22:39 < xranby> chenwj: yes old jit fails 27 tests     new jit fails 10
+22:39 < dgregor> fpichet: I don't know. I'm going to try
+22:39 < chenwj> xranby: http://people.cs.nctu.edu.tw/~chenwj/tmp/phase3-regression-test.txt <- mine has less failures
+22:39 < fpichet> I might be there
+22:39 < d0k> dgregor: llvm/utils/TableGen/StringMatcher.h if you're interested
+22:40 < xranby> chenwj: most of the ExecutionEngine tests are marked XFAIL
+22:40 < chenwj> which means?
+22:40 < xranby> chenwj: you have to re-enable them by removing the XFAIL arm line
+22:40 < dgregor> d0k: I didn't know that existed!
+22:41 < chenwj> XFAIL -> expected FAIL?
+22:41 < xranby> chenwj: cd llvm/test/ExecutionEngine ;  find . -type f -name "*ll" | xargs sed -i '/; XFAIL: arm/ d' ;
+22:41 < xranby> chenwj: yes XFAIL basically makes the test suite skip the tests
+22:41 < xranby> expected fail
+22:41 < chenwj> I don't know that :/
+22:46 < chenwj> xranby: I don't want to recompile llvm, it takes time. how can I let `make check-all` invoke lli with -use-mcjit?
+22:47 < chenwj> x86 enable mcjit by default :/
+22:50 < chenwj> ?
+22:54 < d0k> chenwj: LIT_ARGS=--param=jit_impl=mcjit
+22:58 < chenwj> d0k: I shall add "LIT_ARGS += --param=jit_impl=mcjit" in llvmCore-3.1-rc1.obj/test/Makefile, right?
+22:58 < d0k> "make check-all LIT_ARGS=--param=jit_impl=mcjit" should work
+22:58 < chenwj> oh, thanks

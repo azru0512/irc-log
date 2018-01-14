@@ -1,0 +1,5 @@
+21:13 < chenwj> can qemu be used to boot up andrid?
+21:14 < pm215> we can't boot an android built for the android emulator ("goldfish") because we don't have a model of that platform in qemu
+21:14 < pm215> in theory if you have a build of android for some hardware platform we model then you could run that
+21:14 < pm215> in practice you might find you hit the usual run of qemu bugs for a guest os nobody's tested before
+21:15 < chenwj> hmmmm....

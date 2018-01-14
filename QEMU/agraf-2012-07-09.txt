@@ -1,0 +1,155 @@
+16:18 < zruan0> Hi guys, need your help! :-)
+16:18 < zruan0> I want to know how a interrupt is issued and then passed to kvm guest?
+16:19 < zruan0> Is it that a interrupt is emulated by qemu and then qemu passed it to kvm guest?
+16:20 < zruan0> Who can kindly help me answer this question? :-)
+16:30 < zruan0> Hi all, could anyone help me? I know this might be a stupid question, but I am freshman to kvm, it is important for me to know kvm.
+16:31 < mardraum> just have patience until someone who comes along can answer your question.
+16:32 < zruan0> okay! thanks for your response! :-)
+16:34 < zruan0> agraf: Are you online? Could you help me?
+16:35 < mardraum> o.O
+16:35 < zruan0> :-)
+16:58 -!- ninkotech_lite is now known as alekibango
+16:59 < agraf> zruan0: hrm?
+16:59 < zruan0> agraf: :-)
+16:59 < agraf> zruan0: that's a tricky question
+16:59 < agraf> zruan0: because there are multiple different implementations
+17:00 < agraf> zruan0: so you know roughly how interrupts are routed along on an x86 machine?
+17:00 < zruan0> you mean in hardware level? such as apic?
+17:01 < agraf> yeah
+17:01 < zruan0> agraf: yes, I know
+17:01 < agraf> pci device -> pci host controller -> io-apic -> lapic
+17:01 < agraf> ok :)
+17:01 < agraf> zruan0: so kvm has 2 different modes on x86
+17:02 < zruan0> agraf: apic and 8259?
+17:02 < agraf> zruan0: 8259 is emulated by the io-apic these days
+17:02 < agraf> zruan0: so pci devices are all in qemu
+17:02 < agraf> zruan0: so the original event to trigger an interrupt line starts off in qemu
+17:03 < agraf> zruan0: for example your emulated network card wants to tell you that there's a packet waiting
+17:03 < zruan0> agraf: actually, I have two confusion against issuing interrupts.
+17:03 < agraf> zruan0: so it pulls up (or down in the pci case) the irq line
+17:03 < agraf> zruan0: yes?
+17:04 < zruan0> agraf: what you are talking is my first confusion.. :-) Go ahead.
+17:04 < agraf> zruan0: ok :)
+17:04 < agraf> zruan0: so the pci device triggers its interrupt line
+17:05 < agraf> zruan0: that goes to the pci host controller
+17:05 < zruan0> agraf: all of this process is emulated in qemu?
+17:05 < agraf> zruan0: pci host controller muxes it according to some special pci logic (not going into details here, i don't think it matters that much for
+               the generic workflow)
+17:05 < agraf> zruan0: yes, pci devices live in qemu
+17:05 < agraf> zruan0: pci host controller lives in qemu
+17:05 < agraf> zruan0: so we're still in qemu here
+17:06 < agraf> zruan0: at this point the 2 implementations in qemu/kvm diverge
+17:06 < agraf> the pci host controller triggers the muxed' interrupt line
+17:06 < agraf> that irq line goes to the io-apic
+17:06 < zruan0> agraf: Great, this is my 2nd confusion. :-)
+17:06 < agraf> which is where the difference comes into pla
+17:06 < agraf> y
+17:07 < agraf> we have 2 implementations of an io-apic
+17:07 < agraf> 1) in qemu
+17:07 < agraf> 2) in kvm
+17:07 < agraf> so the irq trigger event either goes to
+17:07 < agraf> 1) io-apic emulation in qemu
+17:07 < agraf> 2) io-apic-proxy in qemu which forwards everything on to kvm
+17:07 < zruan0> why we have two implementation here?
+17:07 < agraf> because the original goal was to have everything in user space
+17:08 < agraf> but the apic was too performance critical
+17:08 < agraf> also, it helps for debugging purposes to have it in user space :)
+17:09 < zruan0> quite reasonable qemu seems being able to do everything.
+17:09 < zruan0> but how about the case apic in kvm?
+17:11 < zruan0> I see there are lots of apic emulation in kvm, but I don't why guest could use this apic directly?
+17:12 < zruan0> If in EPT case, I think apic (mem region) should be mappep, then guest could directly use it, but in shadow page table case, it is going to
+                be puzzled.
+17:14 < agraf> zruan0: not sure i get your question
+17:14 < agraf> zruan0: MMIO always goes to kvm, regardless of EPT
+17:16 < Pontus> I don't know how much this is related to qemu/kvm but the Virtio Drivers for the nework interface (server 2008) does they require a reboot
+                to kick in?
+17:16 < Pontus> I did update an old driver
+17:16 < zruan0> agraf: I mean apic is represented by a mem region, so if guest wants to use it unless this apic region could be directly accessed by guests.
+17:16 < zruan0> agraf: Am I right?
+17:16 < agraf> zruan0: kvm doesn't know about mem regions
+17:17 < agraf> zruan0: it only knows mem slots
+17:17 < agraf> zruan0: the mmio intercept inside of kvm is done separately though
+17:17 < agraf> zruan0: so if the guest goes out to do mmio
+17:17 < agraf> zruan0: kvm checks "should i handle this in an in-kernel device?" and if not, goes to qemu
+17:23 < zruan0> agraf: I am still confused here.
+17:24 < zruan0> agraf: how does mmio be intercepted in kvm? Is it a kind of cause to VMEXIT?
+17:24 < agraf> zruan0: for kvm, it's a page fault
+17:25 < agraf> zruan0: with NPT, it's a nested page fault
+17:25 < agraf> zruan0: so basically a memory access to a page that isn't mapped by kvm into the guest physical address map
+17:25 < agraf> zruan0: then kvm checks, "is this ram you were trying to access?"
+17:25 < agraf> zruan0: if not, it goes down the mmio path, by emulating the instruction you were issuing
+17:26 < zruan0> agraf: Great! you mean for mmio region, all of them should be unmapped in gpa/
+17:26 < zruan0> ?
+17:27 < agraf> yes                                                                                                                                           17:27 < zruan0> agraf: to make sure a page fault or a EPT translate violation occurs.
+17:27 < chenwj> iggy: thanks
+17:28 < zruan0> agraf: but it is also possible that a page fault occurs due to a unmapped gpa where is not a mmio address,
+17:29 < zruan0> agraf: how do we distinguish these two case? by reading guest's instructions?
+17:29 < agraf> zruan0: sure, that's why on every fault kvm checks if it needs to map ram in first
+17:31 < zruan0> agraf: Could you tell me where is the code entry to do this in kvm?
+17:32 < agraf> zruan0: i'd have to search myself too :)
+17:32 < agraf> zruan0: it's been a while since i checked that code
+17:33 < agraf> zruan0: just walk along the NPT page fault path
+17:33 < agraf> zruan0: or search for memslot
+17:35 < zruan0> okay. NPT should work similarly as EPT in intel?
+17:38 < chenwj> I think so
+17:38 < zruan0> chenwj: thanks!
+17:39 < agraf> zruan0: yeah, very similar logic, just not as busted
+17:40 < chenwj> agraf: iggy said you have a kvm forum slide talking about performance difference on shadow page table and npt, it that right?
+17:40 < agraf> chenwj: that was joerg :)
+17:40 < agraf> chenwj: joerg and ben
+17:40 < agraf> chenwj: back in 2010 iirc
+17:41 < chenwj> ohoh, thanks :p
+17:44 < chenwj> should be this one http://www.linux-kvm.org/wiki/images/c/c8/KvmForum2008%24kdf2008_21.pdf
+17:45 < agraf> 2008? wow, time flies
+17:46 < chenwj> ya
+17:47 < chenwj> zruan0: you studying kvm for what? hobby or research?
+17:51 < zruan0> chenwj: part hobby, part research. :-)
+17:51 < chenwj> ha
+17:52 < chenwj> master thesis?
+17:53 < agraf> zruan0: if you want to read simple code :)
+17:53 < agraf> zruan0: check out kvmppc_handle_pagefault in arch/powerpc/kvm/book3s_pr.c
+17:54 < agraf> zruan0: though that does not support in-kernel mmio yet ;)
+17:55 < zruan0> chenwj: no, actually I am virtualization developer before, but not kvm..
+17:55 < chenwj> cool
+17:56 < zruan0> chenwj: but, I am interested in kvm. it is really different from other virtulization tech.
+17:56 < chenwj> for example?
+17:56 < chenwj> xen?
+17:56 < agraf> zruan0: it's pretty similar to vmware workstation, no?
+17:57 < zruan0> yes.
+17:58 < chenwj> curious, does vmware still use binary translation do the job?
+17:58 < zruan0> agraf: no, an virtualization for embed system.
+17:58 < zruan0> :-)
+17:59 < agraf> chenwj: at least esx requires hw virt by now
+17:59 < agraf> chenwj: but of course i mean the hw virt bits of vmware :)
+18:00 < chenwj> zruan0: would kvm approach be too heavy for embbed system?
+18:00 < chenwj> someone told me that kvm is not good at real-time task
+18:01 < zruan0> chenwj: sorry for wrong typing... chang to: no, actually I _was_ virtualization developer before, but not kvm..
+18:02 < zruan0> chenwj: I am just freshman to kvm, I am not knowledgeable to say whether kvm is bad for embed or not.
+18:03 < chenwj> oh, ok. then any special issue should be took into consideration when implement virtualization on embbed system? :)
+18:03 < zruan0> but, for embed case, device RT performance and work speed is critical .
+18:04 < zruan0> sure, actually, embed virtualization is simple compared to server virtualization, it is more like a hardware allocation system.
+18:05 < zruan0> but, it has to achieve performance!
+18:06 < chenwj> was the embbed virtualization system you were working is microkernel?
+18:12 < zruan0> chenwj: no, wind river hypervisor.
+18:12 < zruan0> agraf: thank you very much for your help!
+18:13 < agraf> zruan0: sure, you're welcome :)
+18:13 < agraf> zruan0: btw, there are folks looking at kvm for rt workloads
+18:13 < agraf> zruan0: but today it's not quite there yet
+18:14 < chenwj> on hw with npt/ept, how many tlb there, one or two?
+18:14 < zruan0> agraf: yes, qemu may bring great convenience to use device, but also brought time latency for interrupts (i think :-)).
+18:15 < agraf> chenwj: you still have the same tlb
+18:15 < agraf> chenwj: though it does get tagged
+18:15 < chenwj> so one only which store gva -> hpa mapping now?
+18:15 < agraf> chenwj: so there's an additional field in the tlb for the vm context you're in
+18:15 < agraf> yes
+18:15 < agraf> zruan0: yup :)
+18:16 < chenwj> agraf: you mean vpid?
+18:16 < agraf> Hchenwj on intel, it's vpid
+18:16 < agraf> chenwj: amd calls it asid
+18:17 < chenwj> on x86, two cr3 (gCR3, hCR3) and one tlb?
+18:17 < agraf> yes
+18:18 < chenwj> thanks
+18:21 < chenwj> it there cache for npt/ept?
+18:21 < chenwj> cache for gpa -> hpa
+18:22 < agraf> that's an implementation detail you usually don't see
+18:23 < chenwj> I see

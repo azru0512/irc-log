@@ -1,0 +1,64 @@
+16:45 < chenwj_> hi
+16:46 < chenwj_> when I enable wchar support, I get error msg below
+16:46 < chenwj_> checking size of wchar_t... 0
+16:46 < chenwj_> configure: error: There is wchar.h but the size of wchar_t is 0
+16:46 < Jacmet> kos_tom: heh
+16:46 < chenwj_> any idea where should I look into?
+16:46 < Jacmet> chenwj_: during building fo what package?
+16:46 < Jacmet> of even
+16:46 < chenwj_> icu
+16:47 < Jacmet> chenwj_: did you rebuild everything after adding wchar support? (make clean; make)
+16:47 < chenwj_> nope
+16:47 < chenwj_> trying...
+16:47 < Jacmet> chenwj_: wchar is a core part of the toolchain/C library, so you need to rebuild it all when you change it
+16:48 < chenwj_> ok
+17:06 < chenwj_> if I want to add new board support (for qemu), is there a template config I can start with?
+17:08 < kos_tom> see configs/
+17:09 < kos_tom> and board/qemu/
+17:09 < kos_tom> which Qemu board do you want to add
+17:09 < kos_tom>  ?
+17:09 < chenwj_> realview-pbx-a9
+17:10 < chenwj_> so I need create new config for configs/ AND board/qemu/ ?
+17:11 < chenwj_> http://www.mail-archive.com/qemu-devel@nongnu.org/msg109179.html <- what I am trying to do
+17:14 < kos_tom> configs/ is for the Buildroot defconfig
+17:14 < kos_tom> board/qemu/arm-realview-pbx-a9/ is where you will put the kernel configuration files and a readme.txt file explaining how to run the Qemu
+                 system
+17:19 < chenwj_> what I did is `make qemu_arm_versatile_defconfig` first, then point it to use realview-pbx-a9 kernel config
+17:19 < chenwj_> is it not enough?
+17:28 < kos_tom> probably yes.
+17:29 < chenwj_> any idea what I might miss?
+17:33 < kos_tom> your kernel configuration is most likely incorrect.
+17:34 < chenwj_> I use $LINUX_SRC/arch/arm/configs/
+18:15 < kos_tom> that's not a configuration, that's a directory
+18:15 < kos_tom> if you want help, please pastebin your Buildroot .config
+19:44 < gustavoz> chenwj_: you need any a9 under qemu or some particular one?
+19:45 < gustavoz> realview-pbx-a9 is problematic, vexpress-a9 generally works
+19:45 < chenwj_> ah
+19:45 < chenwj_> gustavoz: thanks for the info, I'll check it :)
+19:47 < gustavoz> chenwj_: the defconfig needs a tweak since it doesn't seem to emulate a disk though
+00:20 < chenwj_> does buildroot provide ssh package?
+00:22 < chenwj_> ah, openssh
+00:43 < trem> dropbear
+00:47 < chenwj_> I install openssh, but it always ask me to chang passwd
+00:48 < chenwj_> trem: ^ is it a known issue?
+00:49 < trem> I don't know
+00:49 < chenwj_> ok
+01:03 < j0wn> Hello all,  I posted to the buildroot mailing list,  If I include the packages for a native compiler the build fails with a dbus/dbus-shared.h
+              error regarding libglib2.
+01:19 < j0wn> I have tried with different releases of build root ( lates and git ),  is there an easy fix for this ?,  just to add I took a look at my local
+              system I have a dbus-1 directory in lib include the shared header is there.  I was sure if it was looking at my host or the build tree.
+              Thanks in advance.
+01:34 < chenwj_> I think buildroot doesn't support java, right?
+01:38 < gustavoz> no java, nobody cared about maintaining it
+01:41 < chenwj_> no replacement? I mean I just need jre
+01:45 < gustavoz> unmaintained + broken = no
+01:45 < chenwj_> I see
+01:46 < gustavoz> you may be able to use some of the binary-only ones if your architecture is one of the "normal" (built for) ones, and if you're using a
+                  glibc/eglibc toolchain, and if you take time to do so
+01:47 < gustavoz> if jamvm is enough for you it may be possible to get it back and into shape, but that would require someone caring (which got us into the
+                  "no java" scenario to begin with)
+01:47 < chenwj_> arm is normal? :)
+01:47 < gustavoz> nope, just x86 & x86_64 would be, oracle doesn't care about arm
+01:48 < gustavoz> sparc too, but then for solaris, not linux :)
+01:48 < chenwj_> ok
+01:50  * chenwj_ -> zzz

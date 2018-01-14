@@ -1,0 +1,62 @@
+14:30 < chenwj> for usual memory access, I know it will go through page table. But when the OS want to modify some pte in the page table, what's the flow?
+14:36 < geist> you arrange for the page table to be mapped somewhere and then you modify it like any other data structure
+14:39 < chenwj> does it need to go through page table just like other usual memory access, too?
+14:43 < shikhin> chenwj: Yes, it's like any other memory access.
+14:44 < geist> yep
+14:44 < geist> so yes, it has to go through the page tables
+14:48 < shikhin> chenwj: Also look up on the recursive mapping trick (if you don't know about it already). :-)
+14:49 < chenwj> so one process only have one set page table (page directory, page tables), usual memory access and page table entry modifying all will go
+                through the page tables?
+14:49 < geist> yes, but really it's more flexible than that
+14:49 < geist> the process itself doesn't modify the tables, the os does
+14:50 < geist> and the os tracks where everything else
+14:51 < chenwj> geist: it's more flexible than that <- what do you mean by that? :)
+14:51 < thePowersGang> chenwj: A 'process' is usually a memory space which multiple threads use
+14:52 < geist> right
+14:52 < thePowersGang> this space is described by a page directory (in 32-bit x86)
+14:53 < thePowersGang> each entry in the PD can point to a (not nessesarily unique) page table
+14:53 < thePowersGang> e.g. Standard practice is to have a large chunk of the top 256 entries shared between each process to map the kernel
+14:54 < thePowersGang> Recursive/fractal mapping means that one of the entries in the PD points back to the PD (so the PD is treated as a PT at that address)
+14:54 < chenwj> ya
+14:55 < chenwj> ah
+14:55 < thePowersGang> e.g. if the last entry in the PD is set to the PD's address, 0xFF400000 would point to the first entry in the first table (not the
+                       first byte in the first page of the first table)
+14:57 < chenwj> that way, modifying pte will also go through the page table...
+14:57 < geist> oh great, now you're gonna confuse em
+14:58 < chenwj> sorry...
+14:58 < geist> no, thePowersGang
+14:59 < thePowersGang> huh? (working from memory here, and playing MC)
+14:59 < geist> anywaym the loopback trick is a pretty neat trick, but just a shortcut
+14:59 < geist> you dont *need* it, and it's semi advanced
+15:03 < chenwj> ok, leave reverse mapping latter. the PD + PT that we use for usual memory access has an entry somewhere point to PT, so modifying pte in PT
+                will also go through PD + PT?
+15:03 < geist> it's not as complicated as you think
+15:03 < geist> when you have the mmu on, *all* memory accesses go through the pd+pt
+15:03 < geist> and just so happesn pd&pts are in memory
+15:03 < geist> therefore, yes. you have to use page tables to map page tables to modify them
+15:04 < geist> it's somewhat recursive
+15:04 < chenwj> I see
+15:04 < geist> think of the page tables as a big data structure that the hardware on the cpu will go access on its own
+15:05 < geist> you're just keeping it up to date
+17:36 < chenwj> geist: let me confirm this again (sorry for the bothering). each process has its own page table (A) which is used when it does memory
+                access. when OS want to modify the process's page table (A), that operation will go through page table (A), right?
+17:51 < shikhin> chenwj: Each process has it's own page directory. When the process wants to access memory, it goes through the page directory. When the OS
+                 wants to modify the process' page directory, it maps the process' page directory somewhere in it's own address space, and the modifying
+                 operation goes through the OS' page directory.
+17:52 < graphitemaster> now you know why linux runs drivers in kernel space, opposed to user space :P
+17:52 < chenwj> oh, ok
+17:54 < chenwj> graphitemaster: respond to what shikhin just said? ;)
+17:55 < shikhin> Yeah... :-)
+17:58 < chenwj> to prevent map the driver's page directly so that it can modify pte directly?
+17:59 < shikhin> chenwj: Yes - speed differences, you see. (btw, pte/pde - any one of them)
+18:00 < graphitemaster> there is fast ways to doing it though
+18:00 < graphitemaster> i.e single lib
+18:01 < chenwj> wondering anyone here familiar with mmu virtulization..
+18:04 < chenwj> the reason why I have to figure out the flow of pte modifying is in mmu virtualization, VMM have to somehow make guest page table read-only
+                so that it can sync guest and shadow page table
+18:08 < shikhin> You seem to be very keen on only PTE. Why not PDEs?
+18:09 < chenwj> that's ok, too
+18:09 < chenwj> :)
+18:09 < shikhin> Anyway, no - I don't know much about MMU virtualization.
+18:10 < shikhin> But someone might know - try waiting. :-)
+18:10  * chenwj pray ;)

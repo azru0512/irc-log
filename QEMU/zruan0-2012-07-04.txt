@@ -1,0 +1,65 @@
+16:45 < zruan0> hello, I have a question
+16:46 < zruan0> when a guest is currently running on a real cpu, if a interrupt (time-tick) is issued, how kvm handle this situation?
+16:48 < zruan0> could anyone help me?
+16:56 < zruan0> Maybe I didn't make it clear just now.
+16:59 < zruan0> I just want to know, if a guest's time slice is all used, linux should schedule it out from cpu, but if linux can switch a guest in non-root
+                mode to other processes?
+16:59 < mnice> hello
+16:59 < mnice> i'd like ask for something about snapshots
+16:59 < zruan0> hello :-)
+16:59 < zruan0> ...
+17:34 < zruan0> agraf: could you help me answer a question ?
+17:34 < zruan0> :-)
+17:34 < agraf> zruan0: depends on the question ;)
+17:35 < mnice> agraf: no meta-questions pointed directly to concrete ppl :D .. the first rule on IRC
+17:35 < zruan0> agraf: in vmx_vcpu_run, I think a guest should be scheduled out from a cpu only by a vm-exit, then back to this call again, ight?
+17:35 < mnice> ask
+17:36 < zruan0> right?
+17:36 < agraf> zruan0: there's a bit more code involved, but yes, every world switch goes through the vmlaunch instruction
+17:37 < mnice> zruan0: ^^ for ya .... sry agraf
+17:37 < agraf> zruan0: you need to call it to get into the guest
+17:37 < agraf> zruan0: and whenever you want to get back to the host, you exit the guest and continue execution at the IP after the vmlaunch instruction
+17:37 < agraf> zruan0: so from the host's point of view, the vmlaunch instruction just takes a very long time to execute
+17:38 < zruan0> agraf: but if a guest in non-root mode is considered as process to linux ?
+17:39 < zruan0> agraf: I am confused about that if the time-slice is used out, then how linux schedule a guest from real cpu?
+17:40 < zruan0> agraf: I don't know whether I made it clear... :-)
+17:42 < agraf> zruan0: the same as it always does
+17:42 < agraf> zruan0: using a timer interrupt
+17:42 < agraf> zruan0: interrupts trigger #VMEXITs
+17:42 < agraf> external interrupts that is
+17:43 < zruan0> agraf: you mean all interrupts are disallowed by vmcs settings, then a timetick occurs, linux receives it and process it as normal?
+17:44 < agraf> zruan0: i mean that every external interrupt triggers a world switch back to the host
+17:44 < agraf> zruan0: so linux configures a timer when the "time slice" is out
+17:47 < zruan0> agraf: but "external interrupt triggers a world switch back to the host", how does this happen? To my knowledge, external interrupts may be
+                disallowed to deliver to guest in vmcs, but I don't know whether VMEXIT happens before interrupts is received by linux.
+17:47 < agraf> zruan0: I don't know how exactly it gets configured in vmx, but for svm, you set a bit in the vmcb saying "exit the guest any time an
+               external interrupt comes in"
+17:48 < agraf> zruan0: I suppose it's the same for vmx, just that it's done through some vmwrite magic
+18:00 < zruan0> agraf: I see one bit in vm-execution control may cause vmexit when external interrupt are issued.
+18:01 < zruan0> agraf: but I am still confused about which would be processed by cpu firstly, VMEXIT and handling interrupt?
+18:01 < agraf> zruan0: the exit disabled interrupts :)
+18:01 < agraf> disables*
+18:02 < agraf> zruan0: so the cpu sees "oh, an interrupt is coming", then instead of taking it, it triggers the #VMEXIT
+18:02 < agraf> zruan0: and the host code enables interrupts again, at which point it finally arrives at the host
+18:03 < zruan0> agraf: yeah, but I think it is only disabled by guest, but host should receive this interrupt
+18:03 < agraf> zruan0: the guest can't disable interrupts for the host
+18:04 < zruan0> agraf: I mean guest has been disabled interrupts by settings in vmcs..
+18:05 < zruan0> agraf: Great! I know what you are saying.
+18:06 < zruan0> agraf: so, whatever we disabled interrupts in eflags or not, if a interrupts comes, a vmexit occurs if settings in vmcs are configured.
+18:06 < agraf> zruan0: yup
+18:07 < agraf> zruan0: that's the basic idea
+18:07 < agraf> zruan0: the actual implementation is slightly more complex
+18:07 < zruan0> agraf: then we should enable local interrupt again and receive this interrupt.
+18:07 < agraf> zruan0: at least on svm, the guest rflags and host rflags are both stored
+18:07 < agraf> zruan0: and when an interrupt comes in, the interrupt enabled flag from the host rflags is used when a certain control bit in the vmcb is set
+18:08 < agraf> zruan0: so that bit says "ignore the guest rflags, just use the stored host rflags"
+18:08 < agraf> zruan0: in which interrupts are declared as enabled
+18:08 < agraf> zruan0: but again, not sure how vmx implements thi
+18:08 < agraf> s
+18:08 < agraf> zruan0: but yes, once the world switch is done and we're back in the host, we just enable interrupts
+18:09 < agraf> zruan0: at which point the pending interrupt gets delivered
+18:10 < zruan0> Great! it makes sense!
+18:16 < zruan0> agraf: I am looking into vcpu_enter_guest now, I see "kvm_x86_ops->run(vcpu);" is in the middle of local_irq_disable and local_irq_enable,
+                this might be what you pointed out just now.
+18:17 < zruan0> agraf: thank you! :-)
+18:17 < agraf> zruan0: you're welcome :)

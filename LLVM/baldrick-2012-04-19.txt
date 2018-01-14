@@ -1,0 +1,12 @@
+18:50 < chenwj> baldrick: you there?
+18:50 <@baldrick> chenwj: yup
+18:50 <@baldrick> just getting coffee
+18:51 < chenwj> I am running test-releas.sh, seems it'll build Release and Release-64
+18:52 < chenwj> I think ARM don't need Release-64?
+18:53 <@baldrick> chenwj: do compilers for ARM understand -m64 and -m32?
+18:55 < chenwj> let me see..
+18:56 < chenwj> the cross compiler I use doesn't recongize it
+18:56 < chenwj> native, neither
+18:57 <@baldrick> chenwj: in that case, pass -no-64bit to the test script
+18:57 <@baldrick> to eliminate Release-64
+18:57 < chenwj> ok

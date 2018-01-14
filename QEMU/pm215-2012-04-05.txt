@@ -1,0 +1,14 @@
+23:25 < chenwj_> fighting with pandaboard...
+23:28 < pm215> I spent a morning earlier this week trying to boot a beagleboard before I found out that you have to hold down the 'user' button to get it to
+               boot from mmc rather than flash...
+23:29 < pm215> (if TI printed version register values in their TRMs I wouldn't have had to bother...)
+23:30 < chenwj_> can qemu emulate beagleboard or pandaboard?
+23:31 < pm215> qemu-linaro can do beagleboard. panda is an omap4 and nobody afaik has modelled that yet
+23:31 < afaerber> chenwj_: I got an armStoneA8 board this week; it's an industrial board where you need to attach by screw the individual power wires - we
+                  already cut an old notebook power supply for a Toradex Iris board recently, but this one needs exactly 5V now...
+23:32 < chenwj_> well, tou remind me I gave the pandaboard a 12V power supply
+23:33 -!- arsdmthe_ is now known as arsdmthe
+23:33 < pm215> I thought the panda was 5V like the beagle...
+23:34 < fidencio> pm215: you're right
+23:36 < afaerber> chenwj_, that's why I'm saying it, trying to avoid it myself ;)
+23:36 < afaerber> 19V here

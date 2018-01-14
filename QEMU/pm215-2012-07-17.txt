@@ -1,0 +1,43 @@
+18:19 < chenwj> pm215: use callgrind cause guest vm crash
+18:19 < pm215> are you using the right flags so callgrind copes with self-modifying code?
+18:19 < chenwj> I don't know that option
+18:20 < pm215> http://wiki.qemu.org/Documentation/Debugging
+18:21 < chenwj> pm215: thanks, will try! :)
+18:35 < chenwj> $ valgrind --tool=callgrind --smc-check=all qemu-system-i386 linux-0.2.img -vnc 0.0.0.0:1
+18:36 < chenwj> the "Loading ..." becomes "L 0C 0C 0C ... ", not sure if it works
+19:09 < pm215> chenwj: "L 0C" is LILO complaining, I think. Anyway, this works for me with 1:3.6.1-0ubuntu3 and current qemu head of git (at least as far as
+               printing "Loading linux..")
+19:27 < chenwj> pm215: have you tried linux-0.2.img ?
+19:29 < pm215> chenwj: yes, that is the image I am booting
+19:29 < pm215> (SDL display rather than VNC but otherwise same command line you quote)
+19:30 < chenwj> hmmmm, I'll try git head
+19:31 < chenwj> --enable-debug build?
+19:31 < pm215> nope, optimised build
+19:32 < pm215> I guess it's possible that with a debug build and a sufficiently slow machine LILO might decide that the disk has timed out
+19:34 < chenwj> I thought valgring needs program to be debug build, I mean -g -O0
+19:34 < pm215> if you don't build with -g then you won't get very useful info out of it but it will still run
+19:35 < pm215> you generally want to build still with optimisation enabled though
+19:36 < chenwj> I see
+19:36 < pm215> especially for any of the 'profiling' tools, otherwise you're profiling the debug build which isn't very relevant to how the optimised build
+               behaves
+19:36 < chenwj> ok, maybe -g -O1
+19:37 < pm215> might as well use -O2                                                                                                                         19:37 < chenwj> is fail to use valgrind (callgrind) with qemu considered as bug?
+19:38 < pm215> That depends.
+19:38 < pm215> if valgrind fails badly that's a bug in valgrind
+19:39 < pm215> if valgrind reports errors in qemu that's (probably) a bug in qemu, but sometimes a bug in one of the libraries we depend on
+19:39 < pm215> if the guest doesn't work because the valgrind+qemu combination is Just Too Slow then that is unfortunate but not a bug in anything in
+               particular
+19:43 < chenwj> Loading linux ....
+19:44 < chenwj> Error: 0x01
+19:44 < chenwj> boot: linux
+19:44 < chenwj> ^^^ this is as far as I go
+19:45 < pm215> how many dots does it print before the error ?
+19:46 < chenwj> 10
+19:46 < pm215> anyway, something must be different about your setup, either valgrind version or perhaps host slower or maybe a 32 bit vs 64 bit thing
+19:47 < chenwj> first try is 2, second try is 10
+19:47 < chenwj> I don't know those dots are meaingful!
+19:50 < chenwj> pm215: well, third try it got more dots. Does it mean anything? :)
+19:52 < pm215> more dots means the decompressor code is getting further
+19:52 < pm215> my run has just failed claiming a crc error :-(
+19:55 < chenwj> maybe I should see how IO emulation is done from source code view
+19:56 < pm215> might be easier. or try running under gdb and put a breakpoint on some device's io routine and look at the backtrace
